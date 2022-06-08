@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<gpx version="1.1" creator="OsmAnd~ 4.1.11" xmlns="http://www.topografix.com/GPX/1/1" xmlns:osmand="https://osmand.net" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>itinerary</name>
+  </metadata>
+  <wpt lat="37.9813564" lon="23.7270141">
+    <name>Video May 3, 2022 12:49 PM</name>
+    <extensions>
+      <osmand:itinerary_id>markers:1651571390172577</osmand:itinerary_id>
+    </extensions>
+  </wpt>
+  <wpt lat="48.829725" lon="2.1057733">
+    <name>My Position</name>
+    <extensions>
+      <osmand:itinerary_id>markers:1651145807993492</osmand:itinerary_id>
+    </extensions>
+  </wpt>
+  <wpt lat="48.8295367" lon="2.10447">
+    <name>My Position</name>
+    <extensions>
+      <osmand:itinerary_id>markers:1651145925439455</osmand:itinerary_id>
+    </extensions>
+  </wpt>
+  <wpt lat="48.82923" lon="2.1033467">
+    <name>My Position</name>
+    <extensions>
+      <osmand:itinerary_id>markers:1651146069802980</osmand:itinerary_id>
+    </extensions>
+  </wpt>
+  <wpt lat="48.8308283" lon="2.09949">
+    <name>My Position</name>
+    <extensions>
+      <osmand:itinerary_id>markers:1651150779358656</osmand:itinerary_id>
+    </extensions>
+  </wpt>
+  <wpt lat="48.8294649" lon="2.1014571">
+    <name>Video Apr 28, 2022 5:25 PM</name>
+    <extensions>
+      <osmand:itinerary_id>markers:1651159547773731</osmand:itinerary_id>
+    </extensions>
+  </wpt>
+  <wpt lat="37.9862022" lon="23.7343311">
+    <name>Θεμιστοκλέους 55</name>
+    <extensions>
+      <osmand:itinerary_id>markers:1651305099507602</osmand:itinerary_id>
+    </extensions>
+  </wpt>
+  <extensions>
+    <osmand:itinerary_group>
+      <osmand:type>markers</osmand:type>
+      <osmand:alias>markers</osmand:alias>
+    </osmand:itinerary_group>
+  </extensions>
+</gpx>

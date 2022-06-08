@@ -1,0 +1,14 @@
+[url_template]
+https://a.tiles.openrailwaymap.org/standard/{0}/{1}/{2}.png
+[ext]
+.png
+[min_zoom]
+4
+[max_zoom]
+19
+[tile_size]
+512
+[img_density]
+16
+[avg_img_size]
+32000
