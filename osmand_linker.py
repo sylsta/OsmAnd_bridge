@@ -21,14 +21,16 @@
  *                                                                         *
  ***************************************************************************/
 """
+from datetime import datetime
+
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
-
+from qgis.core import QgsMessageLog
 # Initialize Qt resources from file resources.py
+from .osmand_linker_import import import_gpx_track_file
 from .resources import *
 # Import the code for the dialog
-from .osmand_linker_dialog_base import OSMandLinkerDialogBase
 from .osmand_linker_dialog_avnotes import OSMandLinkerDialogAVnotes
 import os.path
 
@@ -44,6 +46,8 @@ class OSMandLinker:
             application at run time.
         :type iface: QgsInterface
         """
+
+        self.plugin_name = 'OsmAnd Linker'
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -62,7 +66,7 @@ class OSMandLinker:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&OSMand Linker')
+        self.menu = self.tr(u'&OsmAnd Linker')
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
@@ -83,18 +87,17 @@ class OSMandLinker:
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('OSMandLinker', message)
 
-
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -164,13 +167,12 @@ class OSMandLinker:
         icon_path = ':/plugins/osmand_linker/icon.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'Import tracks, AV notes from OSMand'),
+            text=self.tr(u'Import tracks, AV notes from OsmAnd'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
         # will be set False in run()
         self.first_start = True
-
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -179,7 +181,6 @@ class OSMandLinker:
                 self.tr(u'&OSMand Linker'),
                 action)
             self.iface.removeToolBarIcon(action)
-
 
     def run(self):
         """Run method that performs all the real work"""
@@ -198,20 +199,37 @@ class OSMandLinker:
         if result:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
+            self.root_path = self.dlg_avnotes.QgsFW_root_path.filePath()
+            self.dest_path = self.dlg_avnotes.QgsFW_dest_path.filePath()
+            self.dest_dpkg = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{datetime.now().strftime("%Y%m%d-%H%M%S")}_OsmAn_Linker.gpkg'
             for currentQTableWidgetItem in self.dlg_avnotes.tableWidgetAVNotes.selectedItems():
+                print("coucou")
                 print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
+                result = import_gpx_track_file(self, currentQTableWidgetItem.text())
+            if self.dlg_avnotes.cB_favourites.isChecked():
+                print('self.dlg_avnotes.cB_favorites.checked() checked')
+            else:
+                print('self.dlg_avnotes.cB_favorites.checked() unchecked')
+            if self.dlg_avnotes.cB_itinerary.isChecked():
+                print('self.dlg_avnotes.cB_itinerary.checked() checked')
+            else:
+                print('self.dlg_avnotes.cB_itinerary.checked() unchecked')
+            if self.dlg_avnotes.cB_AVnotes.isChecked():
+                print('self.dlg_avnotes.cB_AVnotes.checked() checked')
+            else:
+                print('self.dlg_avnotes.cB_AVnotes.checked() unchecked')
 
-            rows = {index.row() for index in self.dlg_avnotes.tableWidgetAVNotes.selectionModel().selectedIndexes()}
-            output = []
-            # taken from
-            # https://stackoverflow.com/questions/67574708/how-to-get-selected-qtableview-row-values-all-column
-            for row in rows:
-                row_data = []
-                for column in range(self.dlg_avnotes.tableWidgetAVNotes.model().columnCount()):
-                    index = self.dlg_avnotes.tableWidgetAVNotes.model().index(row, column)
-                    row_data.append(index.data())
-                output.append(row_data)
-            print(output)
+            # rows = {index.row() for index in self.dlg_avnotes.tableWidgetAVNotes.selectionModel().selectedIndexes()}
+            # output = []
+            # # taken from
+            # # https://stackoverflow.com/questions/67574708/how-to-get-selected-qtableview-row-values-all-column
+            # for row in rows:
+            #     row_data = []
+            #     for column in range(self.dlg_avnotes.tableWidgetAVNotes.model().columnCount()):
+            #         index = self.dlg_avnotes.tableWidgetAVNotes.model().index(row, column)
+            #         row_data.append(index.data())
+            #     output.append(row_data)
+            # print(output)
 
             pass
         self.dlg_avnotes.close()
