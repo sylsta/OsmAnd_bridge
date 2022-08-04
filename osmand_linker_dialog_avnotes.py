@@ -27,7 +27,8 @@ import datetime as dt
 from PyQt5.QtWidgets import QTableWidgetItem
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
-
+import glob
+from qgis.core import QgsMessageLog, Qgis
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -48,9 +49,121 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
         columns = [self.tr("Name"), self.tr("Size"), self.tr("Last Modified")]
         self.tableWidgetAVNotes.setHorizontalHeaderLabels(columns)
         self.tableWidgetAVNotes.setSortingEnabled(True)
-        self.getStatistic("/tmp/")
-        # for i in range(1,10):
-        #     self.addTableRow([f"a{i}", f"b", "c"])
+        self.init_widget()
+
+
+    def init_widget(self):
+        """
+
+        """
+        self.tableWidgetAVNotes.setRowCount(0)
+        self.QgsFW_root_path.fileChanged.connect(self.path_as_changed)
+        self.QgsFW_dest_path.fileChanged.connect(self.dest_as_changed)
+        for cBB in [self.cB_favourites, self.cB_itinerary, self.cB_AVnotes]:
+            cBB.setEnabled(False)
+            cBB.setChecked(False)
+
+
+    def dest_as_changed(self,):
+        """
+
+        """
+        plugin_name = 'OsmAnd linker'
+        print(self.QgsFW_root_path.filePath())
+
+        if not os.path.exists(os.path.dirname(self.QgsFW_root_path.filePath())):
+            print('path doesn\'t exist')
+            QgsMessageLog.logMessage(self.tr('not valid OsmAnd file path.'), plugin_name, level=Qgis.Critical)
+            # self.init_widget()
+            return
+
+
+    def path_as_changed(self,):
+        """
+
+        """
+        plugin_name = 'OsmAnd linker'
+        print(self.QgsFW_root_path.filePath())
+
+        if not os.path.exists(os.path.dirname(self.QgsFW_root_path.filePath())):
+            print('path doesn\'t exist')
+            QgsMessageLog.logMessage(self.tr('not valid OsmAnd file path.'), plugin_name, level=Qgis.Critical)
+            self.init_widget()
+            return
+
+
+        # tracks table
+        try:
+            if not os.path.isdir(f'{self.QgsFW_root_path.filePath()}/tracks/rec/'):
+                print('tracks path don\'t exist')
+                QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), plugin_name, level=Qgis.Critical)
+                self.tableWidgetAVNotes.setRowCount(0)
+                return
+            patern = f'{self.QgsFW_root_path.filePath()}/tracks/rec/*.gpx'
+            if len(glob.glob(patern)) >= 0:
+                self.getStatistic(patern)
+            else:
+                self.tableWidgetAVNotes.setRowCount(0)
+        except:
+            QgsMessageLog.logMessage(self.tr('no gpx file to import.'), plugin_name, level=Qgis.Critical)
+            pass
+
+
+
+        # checkbox favorites
+        try:
+            print(' path exists')
+            with open(f'{self.QgsFW_root_path.filePath()}/favourites.gpx'):
+                print('favorites exist')
+                QgsMessageLog.logMessage(self.tr('found ./favourites.gpx.'), plugin_name, level=Qgis.Info)
+                self.cB_favourites.setEnabled(True)
+                self.cB_favourites.setChecked(True)
+
+        except IOError:
+            print('favorite don\'t exist')
+            QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), plugin_name, level=Qgis.Warning)
+            self.cB_favourites.setEnabled(False)
+            self.cB_favourites.setChecked(False)
+            setCheckable
+
+        # checkbox itinerary
+        try:
+            print('path exists')
+            with open(f'{self.QgsFW_root_path.filePath()}/favourites.gpx'):
+                print('itinerary exists')
+                QgsMessageLog.logMessage(self.tr('found ./favourites.gpx.'), plugin_name, level=Qgis.Info)
+                self.cB_itinerary.setEnabled(True)
+                self.cB_itinerary.setChecked(True)
+
+        except IOError:
+            print('itinerary doesn\'t exist')
+            QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), plugin_name, level=Qgis.Warning)
+            self.cB_itinerary.setEnabled(False)
+            self.cB_itinerary.setChecked(False)
+
+
+
+        # checkbox AVnotes
+        try:
+
+            if not os.path.isdir(f'{self.QgsFW_root_path.filePath()}/avnotes/'):
+                print('avnotes path don\'t exist')
+                QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), plugin_name, level=Qgis.Critical)
+                self.tableWidgetAVNotes.setRowCount(0)
+                self.cB_AVnotes.setEnabled(False)
+                self.cB_AVnotes.setChecked(False)
+                return
+            if len(glob.glob(f'{self.QgsFW_root_path.filePath()}/avnotes/*.3gp)')) + \
+                len(glob.glob(f'{self.QgsFW_root_path.filePath()}/avnotes/*.jpg')) + \
+                len(glob.glob(f'{self.QgsFW_root_path.filePath()}/avnotes/*.mp4')) > 0:
+                print('avnotes files exist')
+                self.cB_AVnotes.setEnabled(True)
+                self.cB_AVnotes.setChecked(True)
+
+        except:
+            QgsMessageLog.logMessage(self.tr('no gpx file to import.'), plugin_name, level=Qgis.Critical)
+            return
+
 
 
     # def getStatistic(self, path):
@@ -60,12 +173,13 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
     #         st = os.stat(p)
     #         name, size, last = f, str(os.path.getsize(p)), str(st.st_mtime)
     #         yield name, size, last
-    def getStatistic(self, path):
-        listFiles = os.listdir(path)
-        for f in listFiles:
-            p = os.path.join(path, f)
+
+    def getStatistic(self, patern):
+        # listFiles = os.listdir(path)
+        for f in glob.glob(patern):
+            p = os.path.join(patern, f)
             st = os.stat(p)
-            self.addTableRow([f, self.human_size(os.path.getsize(p)), str(dt.datetime.fromtimestamp(st.st_mtime))[:-7]])
+            self.addTableRow([os.path.basename(f), self.human_size(os.path.getsize(p)), str(dt.datetime.fromtimestamp(st.st_mtime))[:-7]])
 
     def addTableRow(self, row_data):
         row = self.tableWidgetAVNotes.rowCount()
