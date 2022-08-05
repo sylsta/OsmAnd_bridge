@@ -37,7 +37,12 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
 
 class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, parent=None):
-        """Constructor."""
+        """
+        Constructor
+        :param parent: None
+        :type parent: None
+        """
+
         super(OSMandLinkerDialogAVnotes, self).__init__(parent)
         # Set up the user interface from Designer through FORM_CLASS.
         # After self.setupUi() you can access any designer object by doing
@@ -45,20 +50,31 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        self.init_widget()
+        self.plugin_name = 'OsmAnd Linker'
+        self.debug()
+
+    def debug(self):
+        self.QgsFW_osmand_root_path.setFilePath(
+            '/home/sylvain/.local/share/QGIS/QGIS3/profiles/default/python/plugins/osmand_linker/NO_NAS/Athena/files/')
+        self.QgsFW_dest_path.setFilePath(
+            '/home/sylvain/.local/share/QGIS/QGIS3/profiles/default/python/plugins/osmand_linker/NO_NAS/Athena/osmand_linker_output/')
+
+
+    def init_widget(self) -> None:
+        """
+
+        :return: None
+        :rtype: None
+        """
+        #
         self.tW_tracks.setColumnCount(3)
         columns = [self.tr("Name"), self.tr("Size"), self.tr("Last Modified")]
         self.tW_tracks.setHorizontalHeaderLabels(columns)
         self.tW_tracks.setSortingEnabled(True)
-        self.init_widget()
-
-    def init_widget(self):
-        """
-
-        :return:
-        :rtype:
-        """
         self.tW_tracks.setRowCount(0)
-        self.QgsFW_osmand_root_path.fileChanged.connect(self.path_as_changed)
+        self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.QgsFW_osmand_root_path.fileChanged.connect(self.osmand_root_path_changed)
         self.QgsFW_dest_path.fileChanged.connect(self.dest_as_changed)
         for cBB in [self.cB_favourites, self.cB_itinerary, self.cB_AVnotes]:
             cBB.setEnabled(False)
@@ -79,11 +95,11 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             # self.init_widget()
             return
 
-    def path_as_changed(self):
+    def osmand_root_path_changed(self) -> None:
         """
 
-        :return:
-        :rtype:
+        :return: None
+        :rtype: None
         """
 
         print(self.QgsFW_osmand_root_path.filePath())
@@ -101,12 +117,14 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
                 QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), self.plugin_name,
                                          level=Qgis.Critical)
                 self.tW_tracks.setRowCount(0)
-                return
-            patern = f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/*.gpx'
-            if len(glob.glob(patern)) >= 0:
-                self.get_gpx_file_informations(patern)
             else:
-                self.tW_tracks.setRowCount(0)
+                patern = f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/*.gpx'
+                if len(glob.glob(patern)) >= 0:
+                    self.get_gpx_file_informations(patern)
+                    self.tW_tracks.setEnabled(True)
+                    self.tW_tracks.resizeColumnsToContents()
+                else:
+                    self.tW_tracks.setRowCount(0)
         except:
             QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)
             pass
@@ -125,14 +143,14 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), self.plugin_name, level=Qgis.Warning)
             self.cB_favourites.setEnabled(False)
             self.cB_favourites.setChecked(False)
-            # setCheckable
+
 
         # checkbox itinerary
         try:
             print('path exists')
-            with open(f'{self.QgsFW_osmand_root_path.filePath()}/favourites.gpx'):
+            with open(f'{self.QgsFW_osmand_root_path.filePath()}/itinerary.gpx'):
                 print('itinerary exists')
-                QgsMessageLog.logMessage(self.tr('found ./favourites.gpx.'), self.plugin_name, level=Qgis.Info)
+                QgsMessageLog.logMessage(self.tr('found ./itinerary.gpx.'), self.plugin_name, level=Qgis.Info)
                 self.cB_itinerary.setEnabled(True)
                 self.cB_itinerary.setChecked(True)
 
@@ -180,13 +198,13 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             self.add_gpx_file_table_row([os.path.basename(f), self.human_readable_filesize(os.path.getsize(p)),
                                          str(dt.datetime.fromtimestamp(st.st_mtime))[:-7]])
 
-    def add_gpx_file_table_row(self, row_data):
+    def add_gpx_file_table_row(self, row_data) -> None:
         """
 
         :param row_data:
         :type row_data:
-        :return:
-        :rtype:
+        :return: None
+        :rtype: None
         """
         row = self.tW_tracks.rowCount()
         self.tW_tracks.setRowCount(row + 1)
@@ -196,6 +214,16 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             self.tW_tracks.setItem(row, col, cell)
             col += 1
 
-    def human_readable_filesize(self, bytes, units=[' bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB']):
-        """ Returns a human readable string representation of bytes """
+    def human_readable_filesize(self, bytes: int, units=[' bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB']) -> str:
+        """
+        Return a human readable string representation of bytes based on a recursive call of itself
+        Taken from https://stackoverflow.com/questions/1094841/get-human-readable-version-of-file-size/43750422
+        :param bytes: size of a file in bytes
+        :type bytes: int
+        :param units: human readable file size units
+        :type units: list of string
+        :return: return a human readable string representation of bytes
+        :rtype: str
+        """
+
         return str(bytes) + units[0] if bytes < 1024 else self.human_readable_filesize(bytes >> 10, units[1:])

@@ -18,7 +18,7 @@
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>
@@ -78,7 +78,7 @@
   </widget>
   <widget class="QgsFileWidget" name="QgsFW_dest_path">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>
