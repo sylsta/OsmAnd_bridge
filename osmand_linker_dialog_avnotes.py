@@ -51,10 +51,11 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
         self.tW_tracks.setSortingEnabled(True)
         self.init_widget()
 
-
     def init_widget(self):
         """
 
+        :return:
+        :rtype:
         """
         self.tW_tracks.setRowCount(0)
         self.QgsFW_osmand_root_path.fileChanged.connect(self.path_as_changed)
@@ -63,10 +64,11 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             cBB.setEnabled(False)
             cBB.setChecked(False)
 
-
     def dest_as_changed(self):
         """
 
+        :return:
+        :rtype:
         """
 
         print(self.QgsFW_osmand_root_path.filePath())
@@ -77,10 +79,11 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             # self.init_widget()
             return
 
-
     def path_as_changed(self):
         """
 
+        :return:
+        :rtype:
         """
 
         print(self.QgsFW_osmand_root_path.filePath())
@@ -91,24 +94,22 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             self.init_widget()
             return
 
-
         # tracks table
         try:
             if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/'):
                 print('tracks path don\'t exist')
-                QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), self.plugin_name, level=Qgis.Critical)
+                QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), self.plugin_name,
+                                         level=Qgis.Critical)
                 self.tW_tracks.setRowCount(0)
                 return
             patern = f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/*.gpx'
             if len(glob.glob(patern)) >= 0:
-                self.getStatistic(patern)
+                self.get_gpx_file_informations(patern)
             else:
                 self.tW_tracks.setRowCount(0)
         except:
             QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)
             pass
-
-
 
         # checkbox favorites
         try:
@@ -141,21 +142,20 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             self.cB_itinerary.setEnabled(False)
             self.cB_itinerary.setChecked(False)
 
-
-
         # checkbox AVnotes
         try:
 
             if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/'):
                 print('avnotes path don\'t exist')
-                QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), self.plugin_name, level=Qgis.Critical)
+                QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), self.plugin_name,
+                                         level=Qgis.Critical)
                 self.tW_tracks.setRowCount(0)
                 self.cB_AVnotes.setEnabled(False)
                 self.cB_AVnotes.setChecked(False)
                 return
             if len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.3gp)')) + \
-                len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.jpg')) + \
-                len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.mp4')) > 0:
+                    len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.jpg')) + \
+                    len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.mp4')) > 0:
                 print('avnotes files exist')
                 self.cB_AVnotes.setEnabled(True)
                 self.cB_AVnotes.setChecked(True)
@@ -164,24 +164,30 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)
             return
 
+    def get_gpx_file_informations(self, patern: str) -> None:
+        """
 
-
-    # def getStatistic(self, path):
-    #     listFiles = os.listdir(path)
-    #     for f in listFiles:
-    #         p = os.path.join(path, f)
-    #         st = os.stat(p)
-    #         name, size, last = f, str(os.path.getsize(p)), str(st.st_mtime)
-    #         yield name, size, last
-
-    def getStatistic(self, patern):
+        :param patern:
+        :type patern:
+        :return:
+        :rtype:
+        """
         # listFiles = os.listdir(path)
         for f in glob.glob(patern):
             p = os.path.join(patern, f)
             st = os.stat(p)
-            self.addTableRow([os.path.basename(f), self.human_size(os.path.getsize(p)), str(dt.datetime.fromtimestamp(st.st_mtime))[:-7]])
+            # to do convert list into individual items
+            self.add_gpx_file_table_row([os.path.basename(f), self.human_readable_filesize(os.path.getsize(p)),
+                                         str(dt.datetime.fromtimestamp(st.st_mtime))[:-7]])
 
-    def addTableRow(self, row_data):
+    def add_gpx_file_table_row(self, row_data):
+        """
+
+        :param row_data:
+        :type row_data:
+        :return:
+        :rtype:
+        """
         row = self.tW_tracks.rowCount()
         self.tW_tracks.setRowCount(row + 1)
         col = 0
@@ -190,7 +196,6 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             self.tW_tracks.setItem(row, col, cell)
             col += 1
 
-    def human_size(self, bytes, units=[' bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB']):
+    def human_readable_filesize(self, bytes, units=[' bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB']):
         """ Returns a human readable string representation of bytes """
-        return str(bytes) + units[0] if bytes < 1024 else self.human_size(bytes >> 10, units[1:])
-
+        return str(bytes) + units[0] if bytes < 1024 else self.human_readable_filesize(bytes >> 10, units[1:])
