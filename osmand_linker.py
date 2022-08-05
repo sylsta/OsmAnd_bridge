@@ -219,14 +219,14 @@ class OSMandLinker:
             else:
                 print('self.dlg_avnotes.cB_AVnotes.checked() unchecked')
 
-            # rows = {index.row() for index in self.dlg_avnotes.tableWidgetAVNotes.selectionModel().selectedIndexes()}
+            # rows = {index.row() for index in self.dlg_avnotes.tW_tracks.selectionModel().selectedIndexes()}
             # output = []
             # # taken from
             # # https://stackoverflow.com/questions/67574708/how-to-get-selected-qtableview-row-values-all-column
             # for row in rows:
             #     row_data = []
-            #     for column in range(self.dlg_avnotes.tableWidgetAVNotes.model().columnCount()):
-            #         index = self.dlg_avnotes.tableWidgetAVNotes.model().index(row, column)
+            #     for column in range(self.dlg_avnotes.tW_tracks.model().columnCount()):
+            #         index = self.dlg_avnotes.tW_tracks.model().index(row, column)
             #         row_data.append(index.data())
             #     output.append(row_data)
             # print(output)
