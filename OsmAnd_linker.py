@@ -76,7 +76,7 @@ class OsmAndLinker:
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',
-            'osmand_linker_{}.qm'.format(locale))
+            'OsmAnd_linker_{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
