@@ -5,7 +5,7 @@
 [general]
 name=OSMand Linker
 qgisMinimumVersion=3.0
-description=Import tracks, AV notes from OSMand
+description=Import tracks & AV notes from OSMand
 version=0.1
 author=Sylvain Théry - UMR 5281 ART-Dev
 email=sylvain.thery@cnrs.fr
