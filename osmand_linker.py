@@ -31,11 +31,10 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QProgressBar
 
 from qgis.core import QgsWkbTypes, QgsField,QgsMessageLog, Qgis
-from qgis.core import QgsVectorFileWriter, QgsFields, QgsCoordinateReferenceSystem, QgsCoordinateTransformContext
+from qgis.core import QgsFields
 
 # Initialize Qt resources from file resources.py
-from .resources import *
-
+from osmand_linker_import import create_blank_gpkg_layer
 # Import the code for the dialog
 from .osmand_linker_dialog_avnotes import OSMandLinkerDialogAVnotes
 
@@ -227,7 +226,7 @@ class OSMandLinker:
             # see https://gis.stackexchange.com/a/417950
             schema = QgsFields()
             schema.append(QgsField("bool_field", QVariant.Bool))
-            self.create_blank_gpkg_layer(self.dest_gpkg, "temp_table", QgsWkbTypes.NoGeometry, '', schema)
+            create_blank_gpkg_layer(self.dest_gpkg, "temp_table", QgsWkbTypes.NoGeometry, '', schema)
             if not os.path.exists(os.path.dirname(self.dest_gpkg)):
                 message = self.tr(f'Issue when trying to create destination geopackage file ({self.dest_gpkg})')
                 QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
@@ -314,41 +313,3 @@ class OSMandLinker:
         message = self.tr("♪♪ This is the End, my only friend, the End ♪♪")
         QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Success)
         self.iface.messageBar().pushMessage(message, level=Qgis.Success, duration=0)
-
-    def create_blank_gpkg_layer(self, gpkg_path: str, layer_name: str, geometry: int,
-                                crs: str, schema: QgsFields, append: bool = False
-                                ) -> None:
-        """
-        Create a blank layer into a gpkg file. The gpkg is created if needed, and can be overwritten if it already exists
-        Taken from :
-        https://gis.stackexchange.com/questions/417916/creating-empty-layers-in-a-geopackage-using-pyqgis
-        Thanks to Germán Carrillo https://gis.stackexchange.com/users/4972/germ%c3%a1n-carrillo
-        :param gpkg_path: geopackage file
-        :type gpkg_path: str
-        :param layer_name: layer to be created
-        :type layer_name: str
-        :param geometry: Geometry Type. Can be none.
-        :type geometry: QgsWkbType
-        :param crs: CRS of the geometry. Can be empty
-        :type crs: str
-        :param schema: Attribute table structure
-        :type schema: QgsFields()
-        :param append: What to do when gpkg file exists (create or overwrite layer)
-        :type append: bool
-        :return: None
-        :rtype: None
-        """
-        options = QgsVectorFileWriter.SaveVectorOptions()
-        options.driverName = "GPKG"
-        options.layerName = layer_name
-        if append:
-            options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
-
-        writer = QgsVectorFileWriter.create(
-            gpkg_path,
-            schema,
-            geometry,
-            QgsCoordinateReferenceSystem(crs),
-            QgsCoordinateTransformContext(),
-            options)
-        del writer

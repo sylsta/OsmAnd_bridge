@@ -21,44 +21,157 @@
  *                                                                         *
  ***************************************************************************/
 """
-
+import qgis
+from qgis._core import QgsVectorFileWriter, QgsCoordinateReferenceSystem, QgsCoordinateTransformContext
 from qgis.core import QgsVectorLayer, QgsProject, QgsVectorFileWriter
 import pathlib
 
-def import_gpx_track_file(self, filename):
+
+def import_gpx_track_file(self: object, filename: str) -> bool:
+    """
+    Iterate thru gpx file layers. if not empty, add layer to corresponding group
+    
+    :param self: Class instance
+    :type self: QgsInterface
+    :param filename: full gpx file path
+    :type filename: str
+    :return: result of the operation
+    :rtype: bool
+    """
+    try:
+        prefix = pathlib.Path(filename).stem
+        # list of type of items that can be found in gpx files and their translations for group naming
+        names = [["waypoints", self.tr("waypoints")], ["routes", self.tr("routes")], ["tracks", self.tr("tracks")],
+                 ["route_points", self.tr("route_points")], ["track_points", self.tr("track_points")]]
+
+        for name in names:
+            # prepare gpx layer
+            uri = f"{filename}|layername={name[0]}"
+            sublayer = QgsVectorLayer(uri, name[0], 'ogr')
+            if sublayer.featureCount() > 0:
+                # load gpx layer
+                QgsProject.instance().addMapLayer(sublayer)
+                # set options to export it to gpkg
+                options = QgsVectorFileWriter.SaveVectorOptions()
+                options.layerName = f"{prefix}_{sublayer.name()}"
+                options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
+                context = QgsProject.instance().transformContext()
+                # do export
+                QgsVectorFileWriter.writeAsVectorFormatV2(sublayer, self.dest_gpkg, context, options)
+                # remove source layer
+                QgsProject.instance().removeMapLayer(sublayer)
+                # load new gpkg layer
+                uri = f"{self.dest_gpkg}|layername={options.layerName}"
+                sublayer = QgsVectorLayer(uri, options.layerName, 'ogr')
+                QgsProject.instance().addMapLayer(sublayer)
+                # put into a group layer
+                if prefix == 'favourites':
+                    move_to_group(sublayer, self.tr('favourites'))
+                elif prefix == 'itinerary':
+                    move_to_group(sublayer, self.tr('itinerary'))
+                else:
+                    move_to_group(sublayer, name[1])
+        return True
+
+    except Exception as e:
+        return False
+
+
+
+def move_to_group(thing, group, pos=0, expanded=False) -> tuple:
+    """
+    Move a layer tree node into a layer tree group.
+    Moving destroys the original thing and creates a copy. It is the
+    copy which is returned.
+
+    Taken from: https://gis.stackexchange.com/a/415161
+    Thanks Lorem-Ipsum https://gis.stackexchange.com/users/190371/lorem-ipsum
+
+    :param thing: Thing to move.  Can be a tree node (i.e. a layer or a group) or a map layer, the object or the string name/id.
+    :type thing: group name (str), layer id (str), qgis.core.QgsMapLayer, qgis.core.QgsLayerTreeNode
+
+    :param group: Group to move the thing to. If group does not already exist, it will be created.
+    :type group: group name (str) or qgis.core.QgsLayerTreeGroup
+
+    :param pos: Position to insert into group. Default is 0.
+    :type pos: int
+    :param expanded: Collapse or expand the thing moved. Default is False.
+    :type expanded: bool
+
+    :return: the moved thing and the group moved to.
+    :rtype: tuple
     """
 
-    :param self:
-    :type self:
-    :param source:
-    :type source:
-    :return:
-    :rtype:
+
+    tree = qgis.core.QgsProject.instance().layerTreeRoot()
+
+    # thing
+    if isinstance(thing, str):
+        try:  # group name
+            node_object = tree.findGroup(thing)
+        except:  # layer id
+            node_object = tree.findLayer(thing)
+    elif isinstance(thing, qgis.core.QgsMapLayer):
+        node_object = tree.findLayer(thing)
+    elif isinstance(thing, qgis.core.QgsLayerTreeNode):
+        node_object = thing  # tree layer or group
+
+    # group
+    if isinstance(group, qgis.core.QgsLayerTreeGroup):
+        group_name = group.name()
+    else:  # group is str
+        group_name = group
+
+    group_object = tree.findGroup(group_name)
+
+    if not group_object:
+        group_object = tree.addGroup(group_name)
+
+    # do the move
+    node_object_clone = node_object.clone()
+    node_object_clone.setExpanded(expanded)
+    group_object.insertChildNode(pos, node_object_clone)
+
+    parent = node_object.parent()
+    parent.removeChildNode(node_object)
+
+    return node_object_clone, group_object
+
+
+def create_blank_gpkg_layer(gpkg_path: str, layer_name: str, geometry: int,
+                            crs: str, schema: QgsFields, append: bool = False
+                            ) -> None:
     """
+    Create a blank layer into a gpkg file. The gpkg is created if needed, and can be overwritten if it already exists
+    Taken from :
+    https://gis.stackexchange.com/questions/417916/creating-empty-layers-in-a-geopackage-using-pyqgis
+    Thanks to Germán Carrillo https://gis.stackexchange.com/users/4972/germ%c3%a1n-carrillo
+    :param gpkg_path: geopackage file
+    :type gpkg_path: str
+    :param layer_name: layer to be created
+    :type layer_name: str
+    :param geometry: Geometry Type. Can be none.
+    :type geometry: QgsWkbType
+    :param crs: CRS of the geometry. Can be empty
+    :type crs: str
+    :param schema: Attribute table structure
+    :type schema: QgsFields()
+    :param append: What to do when gpkg file exists (create or overwrite layer)
+    :type append: bool
+    :return: None
+    :rtype: None
+    """
+    options = QgsVectorFileWriter.SaveVectorOptions()
+    options.driverName = "GPKG"
+    options.layerName = layer_name
+    if append:
+        options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
 
-    prefix = pathlib.Path(filename).stem
-    names = ["waypoints", "routes", "tracks", "route_points", "track_points"]
-
-    for name in names:
-        # prepare gpx layer
-        uri = f"{filename}|layername={name}"
-        sublayer = QgsVectorLayer(uri, name, 'ogr')
-        if sublayer.featureCount() > 0:
-            # load gpx layer
-            QgsProject.instance().addMapLayer(sublayer)
-            # set options to export it to gpkg
-            options = QgsVectorFileWriter.SaveVectorOptions()
-            options.layerName = f"{prefix}_{sublayer.name()}"
-            options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
-            context = QgsProject.instance().transformContext()
-            # do export
-            QgsVectorFileWriter.writeAsVectorFormatV2(sublayer, self.dest_gpkg, context, options)
-            # remove source layer
-            QgsProject.instance().removeMapLayer(sublayer)
-            # load new gpkg layer
-            uri = f"{self.dest_gpkg}|layername={options.layerName}"
-            sublayer = QgsVectorLayer(uri, options.layerName, 'ogr')
-            QgsProject.instance().addMapLayer(sublayer)
-
-
-
+    writer = QgsVectorFileWriter.create(
+        gpkg_path,
+        schema,
+        geometry,
+        QgsCoordinateReferenceSystem(crs),
+        QgsCoordinateTransformContext(),
+        options)
+    del writer
