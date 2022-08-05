@@ -199,7 +199,7 @@ class OSMandLinker:
         if result:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
-            self.root_path = self.dlg_avnotes.QgsFW_root_path.filePath()
+            self.osmand_root_path = self.dlg_avnotes.QgsFW_osmand_root_path.filePath()
             self.dest_path = self.dlg_avnotes.QgsFW_dest_path.filePath()
             self.dest_gpkg = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{datetime.now().strftime("%Y%m%d-%H%M%S")}_OsmAn_Linker.gpkg'
             for currentQTableWidgetItem in self.dlg_avnotes.tW_tracks.selectedItems():

@@ -30,7 +30,7 @@ def import_gpx_track_file(self, file):
     """
 
     """
-    file_name = f'{self.root_path}/tracks/rec/{file}'
+    file_name = f'{self.osmand_root_path}/tracks/rec/{file}'
     print(file_name)
     names = ["waypoint", "route", "track", "route_point", "track_point"]
 

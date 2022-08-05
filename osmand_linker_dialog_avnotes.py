@@ -57,55 +57,55 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
 
         """
         self.tW_tracks.setRowCount(0)
-        self.QgsFW_root_path.fileChanged.connect(self.path_as_changed)
+        self.QgsFW_osmand_root_path.fileChanged.connect(self.path_as_changed)
         self.QgsFW_dest_path.fileChanged.connect(self.dest_as_changed)
         for cBB in [self.cB_favourites, self.cB_itinerary, self.cB_AVnotes]:
             cBB.setEnabled(False)
             cBB.setChecked(False)
 
 
-    def dest_as_changed(self,):
+    def dest_as_changed(self):
         """
 
         """
-        plugin_name = 'OsmAnd linker'
-        print(self.QgsFW_root_path.filePath())
 
-        if not os.path.exists(os.path.dirname(self.QgsFW_root_path.filePath())):
+        print(self.QgsFW_osmand_root_path.filePath())
+
+        if not os.path.exists(os.path.dirname(self.QgsFW_osmand_root_path.filePath())):
             print('path doesn\'t exist')
-            QgsMessageLog.logMessage(self.tr('not valid OsmAnd file path.'), plugin_name, level=Qgis.Critical)
+            QgsMessageLog.logMessage(self.tr('not valid OsmAnd file path.'), self.plugin_name, level=Qgis.Critical)
             # self.init_widget()
             return
 
 
-    def path_as_changed(self,):
+    def path_as_changed(self):
         """
 
         """
-        plugin_name = 'OsmAnd linker'
-        print(self.QgsFW_root_path.filePath())
 
-        if not os.path.exists(os.path.dirname(self.QgsFW_root_path.filePath())):
+        print(self.QgsFW_osmand_root_path.filePath())
+
+        if not os.path.exists(os.path.dirname(self.QgsFW_osmand_root_path.filePath())):
             print('path doesn\'t exist')
-            QgsMessageLog.logMessage(self.tr('not valid OsmAnd file path.'), plugin_name, level=Qgis.Critical)
+            QgsMessageLog.logMessage(self.tr('not valid OsmAnd file path.'), self.plugin_name, level=Qgis.Critical)
             self.init_widget()
             return
 
 
         # tracks table
         try:
-            if not os.path.isdir(f'{self.QgsFW_root_path.filePath()}/tracks/rec/'):
+            if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/'):
                 print('tracks path don\'t exist')
-                QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), plugin_name, level=Qgis.Critical)
+                QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), self.plugin_name, level=Qgis.Critical)
                 self.tW_tracks.setRowCount(0)
                 return
-            patern = f'{self.QgsFW_root_path.filePath()}/tracks/rec/*.gpx'
+            patern = f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/*.gpx'
             if len(glob.glob(patern)) >= 0:
                 self.getStatistic(patern)
             else:
                 self.tW_tracks.setRowCount(0)
         except:
-            QgsMessageLog.logMessage(self.tr('no gpx file to import.'), plugin_name, level=Qgis.Critical)
+            QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)
             pass
 
 
@@ -113,15 +113,15 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
         # checkbox favorites
         try:
             print(' path exists')
-            with open(f'{self.QgsFW_root_path.filePath()}/favourites.gpx'):
+            with open(f'{self.QgsFW_osmand_root_path.filePath()}/favourites.gpx'):
                 print('favorites exist')
-                QgsMessageLog.logMessage(self.tr('found ./favourites.gpx.'), plugin_name, level=Qgis.Info)
+                QgsMessageLog.logMessage(self.tr('found ./favourites.gpx.'), self.plugin_name, level=Qgis.Info)
                 self.cB_favourites.setEnabled(True)
                 self.cB_favourites.setChecked(True)
 
         except IOError:
             print('favorite don\'t exist')
-            QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), plugin_name, level=Qgis.Warning)
+            QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), self.plugin_name, level=Qgis.Warning)
             self.cB_favourites.setEnabled(False)
             self.cB_favourites.setChecked(False)
             # setCheckable
@@ -129,15 +129,15 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
         # checkbox itinerary
         try:
             print('path exists')
-            with open(f'{self.QgsFW_root_path.filePath()}/favourites.gpx'):
+            with open(f'{self.QgsFW_osmand_root_path.filePath()}/favourites.gpx'):
                 print('itinerary exists')
-                QgsMessageLog.logMessage(self.tr('found ./favourites.gpx.'), plugin_name, level=Qgis.Info)
+                QgsMessageLog.logMessage(self.tr('found ./favourites.gpx.'), self.plugin_name, level=Qgis.Info)
                 self.cB_itinerary.setEnabled(True)
                 self.cB_itinerary.setChecked(True)
 
         except IOError:
             print('itinerary doesn\'t exist')
-            QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), plugin_name, level=Qgis.Warning)
+            QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), self.plugin_name, level=Qgis.Warning)
             self.cB_itinerary.setEnabled(False)
             self.cB_itinerary.setChecked(False)
 
@@ -146,22 +146,22 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
         # checkbox AVnotes
         try:
 
-            if not os.path.isdir(f'{self.QgsFW_root_path.filePath()}/avnotes/'):
+            if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/'):
                 print('avnotes path don\'t exist')
-                QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), plugin_name, level=Qgis.Critical)
+                QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), self.plugin_name, level=Qgis.Critical)
                 self.tW_tracks.setRowCount(0)
                 self.cB_AVnotes.setEnabled(False)
                 self.cB_AVnotes.setChecked(False)
                 return
-            if len(glob.glob(f'{self.QgsFW_root_path.filePath()}/avnotes/*.3gp)')) + \
-                len(glob.glob(f'{self.QgsFW_root_path.filePath()}/avnotes/*.jpg')) + \
-                len(glob.glob(f'{self.QgsFW_root_path.filePath()}/avnotes/*.mp4')) > 0:
+            if len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.3gp)')) + \
+                len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.jpg')) + \
+                len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.mp4')) > 0:
                 print('avnotes files exist')
                 self.cB_AVnotes.setEnabled(True)
                 self.cB_AVnotes.setChecked(True)
 
         except:
-            QgsMessageLog.logMessage(self.tr('no gpx file to import.'), plugin_name, level=Qgis.Critical)
+            QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)
             return
 
 

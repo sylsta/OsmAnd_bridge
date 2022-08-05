@@ -6,17 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>594</width>
-    <height>579</height>
+    <width>623</width>
+    <height>678</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>OsmAnd Linker - Import selection</string>
+   <string>Dialog</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -36,6 +39,9 @@
    </property>
   </widget>
   <widget class="QTableWidget" name="tW_tracks">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -54,7 +60,7 @@
     <number>0</number>
    </property>
   </widget>
-  <widget class="QgsFileWidget" name="QgsFW_root_path">
+  <widget class="QgsFileWidget" name="QgsFW_osmand_root_path">
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -71,6 +77,9 @@
    </property>
   </widget>
   <widget class="QgsFileWidget" name="QgsFW_dest_path">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>50</x>
@@ -87,6 +96,9 @@
    </property>
   </widget>
   <widget class="QCheckBox" name="cB_favourites">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>80</x>
@@ -106,6 +118,9 @@
    </property>
   </widget>
   <widget class="QCheckBox" name="cB_itinerary">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>230</x>
@@ -122,6 +137,9 @@
    </property>
   </widget>
   <widget class="QCheckBox" name="cB_AVnotes">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>390</x>
