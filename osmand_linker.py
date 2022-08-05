@@ -26,6 +26,7 @@ from datetime import datetime
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
+from qgis.core import QgsVectorFileWriter, QgsFields, QgsCoordinateReferenceSystem, QgsCoordinateTransformContext
 from qgis.core import QgsMessageLog
 # Initialize Qt resources from file resources.py
 from .osmand_linker_import import import_gpx_track_file
@@ -232,3 +233,47 @@ class OSMandLinker:
 
             pass
         self.dlg_avnotes.close()
+
+    def create_blank_gpkg_layer(gpkg_path: str, layer_name: str, geometry: int,
+                                crs: str, schema: QgsFields, append: bool = False
+                                ) -> bool:
+        """
+        Taken from :
+        https://gis.stackexchange.com/questions/417916/creating-empty-layers-in-a-geopackage-using-pyqgis
+
+        :param layer_name:
+        :type layer_name:
+        :param geometry:
+        :type geometry:
+        :param crs:
+        :type crs:
+        :param schema:
+        :type schema:
+        :param append:
+        :type append:
+        :return:
+        :rtype:
+        """
+
+        # To add a layer to an existing GPKG file, pass 'append' as True
+        options = QgsVectorFileWriter.SaveVectorOptions()
+        options.driverName = "GPKG"
+        options.layerName = layer_name
+        if append:
+            options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
+
+        writer = QgsVectorFileWriter.create(
+            gpkg_path,
+            schema,
+            geometry,
+            QgsCoordinateReferenceSystem(crs),
+            QgsCoordinateTransformContext(),
+            options)
+        del writer
+
+        return True
+
+    def qsdf(self, toto: str):
+        """
+
+        """
