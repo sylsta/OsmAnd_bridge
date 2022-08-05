@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>OsmAnd Linker - Import selection</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
@@ -35,12 +35,12 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QTableWidget" name="tableWidgetAVNotes">
+  <widget class="QTableWidget" name="tW_tracks">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>0</x>
      <y>80</y>
-     <width>571</width>
+     <width>591</width>
      <height>192</height>
     </rect>
    </property>
