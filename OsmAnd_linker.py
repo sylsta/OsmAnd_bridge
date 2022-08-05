@@ -34,10 +34,10 @@ from qgis.core import QgsWkbTypes, QgsField,QgsMessageLog, Qgis, QgsProject, Qgs
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
-from .osmand_linker_dialog_avnotes import OSMandLinkerDialogAVnotes
+from .OsmAnd_linker_import_dialog import OSMandLinkerImportDialog
 
 # Import the code for the import
-from .osmand_linker_import import import_gpx_track_file, create_blank_gpkg_layer
+from .OsmAnd_linker_import_process import import_gpx_track_file, create_blank_gpkg_layer
 
 # Pycharm debug server
 # To use it, you need to use a 'python remote debug' configuration into pycharm *pro*
@@ -50,7 +50,7 @@ except:
     print("No remote debug configuration")
 
 
-class OSMandLinker:
+class OsmAndLinker:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -156,7 +156,7 @@ class OSMandLinker:
             added to self.actions list.
         :rtype: QAction
         """
-
+        icon_path = ':/plugins/OsmAnd_linker/OsmAnd_logo.png'
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
         action.triggered.connect(callback)
@@ -209,27 +209,27 @@ class OSMandLinker:
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
         if self.first_start == True:
             self.first_start = False
-            self.dlg_avnotes = OSMandLinkerDialogAVnotes()
+            self.dlg_import = OSMandLinkerImportDialog()
 
         # show the dialog
-        self.dlg_avnotes.show()
+        self.dlg_import.show()
         # Run the dialog event loop
-        result = self.dlg_avnotes.exec_()
+        result = self.dlg_import.exec_()
         # See if OK was pressed
         if result:
             # get time to generate gpkg name, and project name if not already set
-            now = datetime.now().strftime("%Y%m%d-%Hh%Mm%S")
+            now = datetime.now().strftime("%Y%m%d-%Hh%Mm%Ss")
 
             # affect or get filename and save project before continuing
             if self.project.fileName() == '':
-                qgis_project_filename = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{now}_OsmAnd_Linker.qgz'
+                qgis_project_filename = f'{self.dlg_import.QgsFW_dest_path.filePath()}/{now}_OsmAnd_linker.qgz'
             else:
                 qgis_project_filename = self.project.fileName()
             self.project.write(qgis_project_filename)
 
-            self.osmand_root_path = self.dlg_avnotes.QgsFW_osmand_root_path.filePath()
-            self.dest_path = self.dlg_avnotes.QgsFW_dest_path.filePath()
-            self.dest_gpkg = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{now}_OsmAnd_Linker.gpkg'
+            self.osmand_root_path = self.dlg_import.QgsFW_osmand_root_path.filePath()
+            self.dest_path = self.dlg_import.QgsFW_dest_path.filePath()
+            self.dest_gpkg = f'{self.dlg_import.QgsFW_dest_path.filePath()}/{now}_OsmAnd_linker.gpkg'
 
             # Work around to create GPKG file (with an empty table that will be removed)
             # see https://gis.stackexchange.com/a/417950
@@ -246,7 +246,7 @@ class OSMandLinker:
             # We iterate thru selected row(s) of the gpx file table first to count files to import and prepare
             # a message bar
             i = 0
-            for currentQTableWidgetItem in self.dlg_avnotes.tW_tracks.selectedItems():
+            for currentQTableWidgetItem in self.dlg_import.tW_tracks.selectedItems():
                 if currentQTableWidgetItem.column() == 0:
                     i += 1
             progressMessageBar = self.iface.messageBar().createMessage(self.tr("Importing track files..."))
@@ -258,7 +258,7 @@ class OSMandLinker:
 
             # We now iterate thru selected row(s) of the gpx file table to import data
             j = 0
-            for currentQTableWidgetItem in self.dlg_avnotes.tW_tracks.selectedItems():
+            for currentQTableWidgetItem in self.dlg_import.tW_tracks.selectedItems():
                 # We just need to get first column value (gpx filename)
                 if currentQTableWidgetItem.column() == 0:
                     result = import_gpx_track_file(self,
@@ -274,7 +274,7 @@ class OSMandLinker:
             self.iface.messageBar().clearWidgets()
 
             # Now dealing with favourites gpx file
-            if self.dlg_avnotes.cB_favourites.isChecked():
+            if self.dlg_import.cB_favourites.isChecked():
                 # user and log info
                 file = 'favourites.gpx'
                 message = self.tr(f"Importing favourites ({file})")
@@ -291,7 +291,7 @@ class OSMandLinker:
             self.iface.messageBar().clearWidgets()
 
             # Now dealing with itinerary gpx file
-            if self.dlg_avnotes.cB_itinerary.isChecked():
+            if self.dlg_import.cB_itinerary.isChecked():
                 # user and log info
                 file = 'itinerary.gpx'
                 message = self.tr(f"Importing itinerary ({file})")
@@ -324,7 +324,7 @@ class OSMandLinker:
             self.iface.messageBar().pushMessage(message, level=Qgis.Success, duration=0)
 
             # close dialog and save project
-            self.dlg_avnotes.close()
+            self.dlg_import.close()
             self.project.write(qgis_project_filename)
 
 

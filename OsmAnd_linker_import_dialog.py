@@ -32,10 +32,10 @@ from qgis.core import QgsMessageLog, Qgis
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'osmand_linker_dialog_avnotes.ui'))
+    os.path.dirname(__file__), 'OsmAnd_linker_import_dialog.ui'))
 
 
-class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
+class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, parent=None):
         """
         Constructor
@@ -43,7 +43,7 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
         :type parent: None
         """
 
-        super(OSMandLinkerDialogAVnotes, self).__init__(parent)
+        super(OSMandLinkerImportDialog, self).__init__(parent)
         # Set up the user interface from Designer through FORM_CLASS.
         # After self.setupUi() you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see
@@ -55,10 +55,13 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
         self.debug()
 
     def debug(self):
+        """
+        TODO remove for relaese
+        """
         self.QgsFW_osmand_root_path.setFilePath(
-            '/home/sylvain/.local/share/QGIS/QGIS3/profiles/default/python/plugins/osmand_linker/NO_NAS/Athena/files/')
+            '/home/sylvain/.local/share/QGIS/QGIS3/profiles/default/python/plugins/OsmAnd_linker/NO_NAS/Athena/files/')
         self.QgsFW_dest_path.setFilePath(
-            '/home/sylvain/.local/share/QGIS/QGIS3/profiles/default/python/plugins/osmand_linker/NO_NAS/Athena/osmand_linker_output/')
+            '/home/sylvain/.local/share/QGIS/QGIS3/profiles/default/python/plugins/OsmAnd_linker/NO_NAS/Athena/osmand_linker_output/')
 
 
     def init_widget(self) -> None:
