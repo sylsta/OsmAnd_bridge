@@ -22,8 +22,9 @@
  ***************************************************************************/
 """
 import qgis
-from qgis._core import QgsVectorFileWriter, QgsCoordinateReferenceSystem, QgsCoordinateTransformContext
-from qgis.core import QgsVectorLayer, QgsProject, QgsVectorFileWriter
+from qgis.core import QgsVectorFileWriter, QgsCoordinateReferenceSystem, QgsCoordinateTransformContext, \
+    QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsFields
+
 import pathlib
 
 

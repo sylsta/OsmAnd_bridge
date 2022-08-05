@@ -34,12 +34,12 @@ from qgis.core import QgsWkbTypes, QgsField,QgsMessageLog, Qgis
 from qgis.core import QgsFields
 
 # Initialize Qt resources from file resources.py
-from osmand_linker_import import create_blank_gpkg_layer
+from .resources import *
 # Import the code for the dialog
 from .osmand_linker_dialog_avnotes import OSMandLinkerDialogAVnotes
 
 # Import the code for the import
-from .osmand_linker_import import import_gpx_track_file
+from .osmand_linker_import import import_gpx_track_file, create_blank_gpkg_layer
 
 # Pycharm debug server
 # To use it, you need to use a 'python remote debug' configuration into pycharm *pro*
