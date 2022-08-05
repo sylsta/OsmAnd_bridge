@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/osmand_linker" >
-        <file>icon.png</file>
+    <qresource prefix="/plugins/OsmAnd_linker/" >
+        <file>OsmAnd_logo.png</file>
     </qresource>
 </RCC>
