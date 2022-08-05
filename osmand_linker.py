@@ -22,21 +22,25 @@
  ***************************************************************************/
 """
 from datetime import datetime
+import os.path
 
 from qgis import processing
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant
+
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
-from qgis._core import Qgis
-from qgis.core import QgsWkbTypes, QgsField
+from qgis.PyQt.QtWidgets import QAction, QProgressBar
+
+from qgis.core import QgsWkbTypes, QgsField,QgsMessageLog, Qgis
 from qgis.core import QgsVectorFileWriter, QgsFields, QgsCoordinateReferenceSystem, QgsCoordinateTransformContext
-from qgis.core import QgsMessageLog
+
 # Initialize Qt resources from file resources.py
-from .osmand_linker_import import import_gpx_track_file
 from .resources import *
+
 # Import the code for the dialog
 from .osmand_linker_dialog_avnotes import OSMandLinkerDialogAVnotes
-import os.path
+
+# Import the code for the import
+from .osmand_linker_import import import_gpx_track_file
 
 # Pycharm debug server
 # To use it, you need to use a 'python remote debug' configuration into pycharm *pro*
@@ -211,6 +215,7 @@ class OSMandLinker:
         # Run the dialog event loop
         result = self.dlg_avnotes.exec_()
         # See if OK was pressed
+        self.dlg_avnotes.close()
         if result:
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
@@ -223,34 +228,80 @@ class OSMandLinker:
             schema = QgsFields()
             schema.append(QgsField("bool_field", QVariant.Bool))
             self.create_blank_gpkg_layer(self.dest_gpkg, "temp_table", QgsWkbTypes.NoGeometry, '', schema)
-                # message = self.tr(f'Issue when trying to create destination geopackage file ({self.dest_gpkg})')
-                # QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
-                # self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
-                # return
+            if not os.path.exists(os.path.dirname(self.dest_gpkg)):
+                message = self.tr(f'Issue when trying to create destination geopackage file ({self.dest_gpkg})')
+                QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
+                self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
+                return
 
-            # Now dealing with selected gpx files
-            # We iterate thru selected row(s) of the gpx file table
+            # Now dealing with selected gpx tracks files
+            # We iterate thru selected row(s) of the gpx file table first to count files to import and prepare
+            # a message bar
+            i = 0
+            for currentQTableWidgetItem in self.dlg_avnotes.tW_tracks.selectedItems():
+                if currentQTableWidgetItem.column() == 0:
+                    i += 1
+            progressMessageBar = self.iface.messageBar().createMessage(self.tr("Importing track files..."))
+            progress = QProgressBar()
+            progress.setMaximum(10)
+            progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            progressMessageBar.layout().addWidget(progress)
+            self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
+
+            # We now iterate thru selected row(s) of the gpx file table to import data
+            j = 0
             for currentQTableWidgetItem in self.dlg_avnotes.tW_tracks.selectedItems():
                 # We just need to get first column value (gpx filename)
                 if currentQTableWidgetItem.column() == 0:
-                    result = import_gpx_track_file(self, f'{self.osmand_root_path}/tracks/rec/{currentQTableWidgetItem.text()}')
+                    result = import_gpx_track_file(self,
+                                                   f'{self.osmand_root_path}/tracks/rec/{currentQTableWidgetItem.text()}')
+                    j += 1
+                    progress.setValue(j)
+                    if not result:
+                        self.iface.messageBar().clearWidgets()
+                        message = self.tr(f'Something went wrong while importing {currentQTableWidgetItem.text()}')
+                        QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
+                        self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
+                        return
+            self.iface.messageBar().clearWidgets()
 
-
+            # Now dealing with favourites gpx file
             if self.dlg_avnotes.cB_favourites.isChecked():
-                result = import_gpx_track_file(self, f'{self.osmand_root_path}/favourites.gpx')
-            # else:
-            #     print('self.dlg_avnotes.cB_favorites.checked() unchecked')
+                # user and log info
+                file = 'favourites.gpx'
+                message = self.tr(f"Importing favourites ({file})")
+                self.iface.messageBar().pushMessage(message, level=Qgis.Info)
+                QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Info)
+                # Process and test result
+                result = import_gpx_track_file(self, f'{self.osmand_root_path}/{file}')
+                if not result:
+                    self.iface.messageBar().clearWidgets()
+                    message = self.tr(f'Something went wrong while importing favourites ({file})')
+                    QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
+                    self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
+                    return
+            self.iface.messageBar().clearWidgets()
+
+            # Now dealing with itinerary gpx file
             if self.dlg_avnotes.cB_itinerary.isChecked():
-                result = import_gpx_track_file(self, f'{self.osmand_root_path}/itinerary.gpx')
-            # else:
-            #     print('self.dlg_avnotes.cB_itinerary.checked() unchecked')
+                # user and log info
+                file = 'itinerary.gpx'
+                message = self.tr(f"Importing itinerary ({file})")
+                self.iface.messageBar().pushMessage(message, level=Qgis.Info)
+                QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Info)
+                # Process and test result
+                result = import_gpx_track_file(self, f'{self.osmand_root_path}/{file}')
+                if not result:
+                    self.iface.messageBar().clearWidgets()
+                    message = self.tr(f'Something went wrong while importing itinerary ({file})')
+                    QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
+                    self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
+                    return
+            self.iface.messageBar().clearWidgets()
+
             # if self.dlg_avnotes.cB_AVnotes.isChecked():
             #     print('self.dlg_avnotes.cB_AVnotes.checked() checked')
-            # else:
-            #     print('self.dlg_avnotes.cB_AVnotes.checked() unchecked')
 
-            pass
-        self.dlg_avnotes.close()
         # if present, remove the temp_layer previously created to generete destination gpkg
         try:
             processing.run("native:spatialiteexecutesql",
@@ -258,27 +309,34 @@ class OSMandLinker:
         except Exception as e:
             pass
 
+        # Show success message when finished
+        self.iface.messageBar().clearWidgets()
+        message = self.tr("♪♪ This is the End, my only friend, the End ♪♪")
+        QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Success)
+        self.iface.messageBar().pushMessage(message, level=Qgis.Success, duration=0)
+
     def create_blank_gpkg_layer(self, gpkg_path: str, layer_name: str, geometry: int,
                                 crs: str, schema: QgsFields, append: bool = False
                                 ) -> None:
         """
+        Create a blank layer into a gpkg file. The gpkg is created if needed, and can be overwritten if it already exists
         Taken from :
         https://gis.stackexchange.com/questions/417916/creating-empty-layers-in-a-geopackage-using-pyqgis
-
-        :param gpkg_path:
-        :type gpkg_path:
-        :param layer_name:
-        :type layer_name:
-        :param geometry:
-        :type geometry:
-        :param crs:
-        :type crs:
-        :param schema:
-        :type schema:
-        :param append:
-        :type append:
-        :return:
-        :rtype:
+        Thanks to Germán Carrillo https://gis.stackexchange.com/users/4972/germ%c3%a1n-carrillo
+        :param gpkg_path: geopackage file
+        :type gpkg_path: str
+        :param layer_name: layer to be created
+        :type layer_name: str
+        :param geometry: Geometry Type. Can be none.
+        :type geometry: QgsWkbType
+        :param crs: CRS of the geometry. Can be empty
+        :type crs: str
+        :param schema: Attribute table structure
+        :type schema: QgsFields()
+        :param append: What to do when gpkg file exists (create or overwrite layer)
+        :type append: bool
+        :return: None
+        :rtype: None
         """
         options = QgsVectorFileWriter.SaveVectorOptions()
         options.driverName = "GPKG"
@@ -294,4 +352,3 @@ class OSMandLinker:
             QgsCoordinateTransformContext(),
             options)
         del writer
-
