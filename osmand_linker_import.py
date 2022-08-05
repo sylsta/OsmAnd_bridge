@@ -38,7 +38,7 @@ def import_gpx_track_file(self, file):
         self.iface.addVectorLayer(file_name + "?type=" + name, name, "gpx")
         processing.run("native:savefeatures", {
             'INPUT': f'gpx://{file_name}?type={name}',
-            'OUTPUT': self.dest_dpkg,
+            'OUTPUT': self.dest_gpkg,
             'LAYER_NAME': name, 'DATASOURCE_OPTIONS': '', 'LAYER_OPTIONS': ''})
 
     pass

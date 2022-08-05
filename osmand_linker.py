@@ -201,7 +201,7 @@ class OSMandLinker:
             # substitute with your code.
             self.root_path = self.dlg_avnotes.QgsFW_root_path.filePath()
             self.dest_path = self.dlg_avnotes.QgsFW_dest_path.filePath()
-            self.dest_dpkg = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{datetime.now().strftime("%Y%m%d-%H%M%S")}_OsmAn_Linker.gpkg'
+            self.dest_gpkg = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{datetime.now().strftime("%Y%m%d-%H%M%S")}_OsmAn_Linker.gpkg'
             for currentQTableWidgetItem in self.dlg_avnotes.tW_tracks.selectedItems():
                 print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
                 result = import_gpx_track_file(self, currentQTableWidgetItem.text())
