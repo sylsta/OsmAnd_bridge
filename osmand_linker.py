@@ -23,9 +23,12 @@
 """
 from datetime import datetime
 
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis import processing
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
+from qgis._core import Qgis
+from qgis.core import QgsWkbTypes, QgsField
 from qgis.core import QgsVectorFileWriter, QgsFields, QgsCoordinateReferenceSystem, QgsCoordinateTransformContext
 from qgis.core import QgsMessageLog
 # Initialize Qt resources from file resources.py
@@ -34,6 +37,16 @@ from .resources import *
 # Import the code for the dialog
 from .osmand_linker_dialog_avnotes import OSMandLinkerDialogAVnotes
 import os.path
+
+# Pycharm debug server
+# To use it, you need to use a 'python remote debug' configuration into pycharm *pro*
+# Then 'pip install pydevd-pycharm~=221.5591.52' # at the time of writing (20022-05-27)
+try:
+    import pydevd_pycharm
+    pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
+    print("Debugging into pycharm")
+except:
+    print("No remote debug configuration")
 
 
 class OSMandLinker:
@@ -74,6 +87,7 @@ class OSMandLinker:
         self.first_start = None
 
     # noinspection PyMethodMayBeStatic
+
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
 
@@ -168,7 +182,7 @@ class OSMandLinker:
         icon_path = ':/plugins/osmand_linker/icon.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'Import tracks & AV notes from OsmAnd'),
+            text=self.tr(u'Import tracks, favourites, itinerary & AV notes'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
@@ -202,45 +216,57 @@ class OSMandLinker:
             # substitute with your code.
             self.osmand_root_path = self.dlg_avnotes.QgsFW_osmand_root_path.filePath()
             self.dest_path = self.dlg_avnotes.QgsFW_dest_path.filePath()
-            self.dest_gpkg = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{datetime.now().strftime("%Y%m%d-%H%M%S")}_OsmAn_Linker.gpkg'
-            for currentQTableWidgetItem in self.dlg_avnotes.tW_tracks.selectedItems():
-                print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
-                result = import_gpx_track_file(self, currentQTableWidgetItem.text())
-            if self.dlg_avnotes.cB_favourites.isChecked():
-                print('self.dlg_avnotes.cB_favorites.checked() checked')
-            else:
-                print('self.dlg_avnotes.cB_favorites.checked() unchecked')
-            if self.dlg_avnotes.cB_itinerary.isChecked():
-                print('self.dlg_avnotes.cB_itinerary.checked() checked')
-            else:
-                print('self.dlg_avnotes.cB_itinerary.checked() unchecked')
-            if self.dlg_avnotes.cB_AVnotes.isChecked():
-                print('self.dlg_avnotes.cB_AVnotes.checked() checked')
-            else:
-                print('self.dlg_avnotes.cB_AVnotes.checked() unchecked')
+            self.dest_gpkg = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{datetime.now().strftime("%Y%m%d-%H%M%S")}_OsmAnd_Linker.gpkg'
 
-            # rows = {index.row() for index in self.dlg_avnotes.tW_tracks.selectionModel().selectedIndexes()}
-            # output = []
-            # # taken from
-            # # https://stackoverflow.com/questions/67574708/how-to-get-selected-qtableview-row-values-all-column
-            # for row in rows:
-            #     row_data = []
-            #     for column in range(self.dlg_avnotes.tW_tracks.model().columnCount()):
-            #         index = self.dlg_avnotes.tW_tracks.model().index(row, column)
-            #         row_data.append(index.data())
-            #     output.append(row_data)
-            # print(output)
+            # Work around to create GPKG file (with an empty table that will be removed)
+            # see https://gis.stackexchange.com/a/417950
+            schema = QgsFields()
+            schema.append(QgsField("bool_field", QVariant.Bool))
+            self.create_blank_gpkg_layer(self.dest_gpkg, "temp_table", QgsWkbTypes.NoGeometry, '', schema)
+                # message = self.tr(f'Issue when trying to create destination geopackage file ({self.dest_gpkg})')
+                # QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
+                # self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
+                # return
+
+            # Now dealing with selected gpx files
+            # We iterate thru selected row(s) of the gpx file table
+            for currentQTableWidgetItem in self.dlg_avnotes.tW_tracks.selectedItems():
+                # We just need to get first column value (gpx filename)
+                if currentQTableWidgetItem.column() == 0:
+                    result = import_gpx_track_file(self, f'{self.osmand_root_path}/tracks/rec/{currentQTableWidgetItem.text()}')
+
+
+            if self.dlg_avnotes.cB_favourites.isChecked():
+                result = import_gpx_track_file(self, f'{self.osmand_root_path}/favourites.gpx')
+            # else:
+            #     print('self.dlg_avnotes.cB_favorites.checked() unchecked')
+            if self.dlg_avnotes.cB_itinerary.isChecked():
+                result = import_gpx_track_file(self, f'{self.osmand_root_path}/itinerary.gpx')
+            # else:
+            #     print('self.dlg_avnotes.cB_itinerary.checked() unchecked')
+            # if self.dlg_avnotes.cB_AVnotes.isChecked():
+            #     print('self.dlg_avnotes.cB_AVnotes.checked() checked')
+            # else:
+            #     print('self.dlg_avnotes.cB_AVnotes.checked() unchecked')
 
             pass
         self.dlg_avnotes.close()
+        # if present, remove the temp_layer previously created to generete destination gpkg
+        try:
+            processing.run("native:spatialiteexecutesql",
+                           {'DATABASE': f'{self.dest_gpkg}|layername=temp_table', 'SQL': 'drop table temp_table'})
+        except Exception as e:
+            pass
 
-    def create_blank_gpkg_layer(gpkg_path: str, layer_name: str, geometry: int,
+    def create_blank_gpkg_layer(self, gpkg_path: str, layer_name: str, geometry: int,
                                 crs: str, schema: QgsFields, append: bool = False
-                                ) -> bool:
+                                ) -> None:
         """
         Taken from :
         https://gis.stackexchange.com/questions/417916/creating-empty-layers-in-a-geopackage-using-pyqgis
 
+        :param gpkg_path:
+        :type gpkg_path:
         :param layer_name:
         :type layer_name:
         :param geometry:
@@ -254,8 +280,6 @@ class OSMandLinker:
         :return:
         :rtype:
         """
-
-        # To add a layer to an existing GPKG file, pass 'append' as True
         options = QgsVectorFileWriter.SaveVectorOptions()
         options.driverName = "GPKG"
         options.layerName = layer_name
@@ -271,9 +295,3 @@ class OSMandLinker:
             options)
         del writer
 
-        return True
-
-    def qsdf(self, toto: str):
-        """
-
-        """

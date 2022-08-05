@@ -21,24 +21,44 @@
  *                                                                         *
  ***************************************************************************/
 """
-import os
 
-from qgis import processing
+from qgis.core import QgsVectorLayer, QgsProject, QgsVectorFileWriter
+import pathlib
 
-
-def import_gpx_track_file(self, file):
+def import_gpx_track_file(self, filename):
     """
 
+    :param self:
+    :type self:
+    :param source:
+    :type source:
+    :return:
+    :rtype:
     """
-    file_name = f'{self.osmand_root_path}/tracks/rec/{file}'
-    print(file_name)
-    names = ["waypoint", "route", "track", "route_point", "track_point"]
+
+    prefix = pathlib.Path(filename).stem
+    names = ["waypoints", "routes", "tracks", "route_points", "track_points"]
 
     for name in names:
-        self.iface.addVectorLayer(file_name + "?type=" + name, name, "gpx")
-        processing.run("native:savefeatures", {
-            'INPUT': f'gpx://{file_name}?type={name}',
-            'OUTPUT': self.dest_gpkg,
-            'LAYER_NAME': name, 'DATASOURCE_OPTIONS': '', 'LAYER_OPTIONS': ''})
+        # prepare gpx layer
+        uri = f"{filename}|layername={name}"
+        sublayer = QgsVectorLayer(uri, name, 'ogr')
+        if sublayer.featureCount() > 0:
+            # load gpx layer
+            QgsProject.instance().addMapLayer(sublayer)
+            # set options to export it to gpkg
+            options = QgsVectorFileWriter.SaveVectorOptions()
+            options.layerName = f"{prefix}_{sublayer.name()}"
+            options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
+            context = QgsProject.instance().transformContext()
+            # do export
+            QgsVectorFileWriter.writeAsVectorFormatV2(sublayer, self.dest_gpkg, context, options)
+            # remove source layer
+            QgsProject.instance().removeMapLayer(sublayer)
+            # load new gpkg layer
+            uri = f"{self.dest_gpkg}|layername={options.layerName}"
+            sublayer = QgsVectorLayer(uri, options.layerName, 'ogr')
+            QgsProject.instance().addMapLayer(sublayer)
 
-    pass
+
+
