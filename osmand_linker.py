@@ -25,13 +25,11 @@ from datetime import datetime
 import os.path
 
 from qgis import processing
-
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt, QFileInfo
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QProgressBar
+from qgis.core import QgsWkbTypes, QgsField,QgsMessageLog, Qgis, QgsProject, QgsFields
 
-from qgis.core import QgsWkbTypes, QgsField,QgsMessageLog, Qgis
-from qgis.core import QgsFields
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -64,9 +62,13 @@ class OSMandLinker:
         :type iface: QgsInterface
         """
 
-        self.plugin_name = 'OsmAnd Linker'
         # Save reference to the QGIS interface
         self.iface = iface
+        # Save reference to the QGIS project instance
+        self.project = QgsProject.instance()
+        # Save reference to the plugin name
+        self.plugin_name = 'OsmAnd Linker'
+
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
@@ -214,13 +216,20 @@ class OSMandLinker:
         # Run the dialog event loop
         result = self.dlg_avnotes.exec_()
         # See if OK was pressed
-        self.dlg_avnotes.close()
         if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
+            # get time to generate gpkg name, and project name if not already set
+            now = datetime.now().strftime("%Y%m%d-%Hh%Mm%S")
+
+            # affect or get filename and save project before continuing
+            if self.project.fileName() == '':
+                qgis_project_filename = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{now}_OsmAnd_Linker.qgz'
+            else:
+                qgis_project_filename = self.project.fileName()
+            self.project.write(qgis_project_filename)
+
             self.osmand_root_path = self.dlg_avnotes.QgsFW_osmand_root_path.filePath()
             self.dest_path = self.dlg_avnotes.QgsFW_dest_path.filePath()
-            self.dest_gpkg = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{datetime.now().strftime("%Y%m%d-%H%M%S")}_OsmAnd_Linker.gpkg'
+            self.dest_gpkg = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{now}_OsmAnd_Linker.gpkg'
 
             # Work around to create GPKG file (with an empty table that will be removed)
             # see https://gis.stackexchange.com/a/417950
@@ -301,15 +310,23 @@ class OSMandLinker:
             # if self.dlg_avnotes.cB_AVnotes.isChecked():
             #     print('self.dlg_avnotes.cB_AVnotes.checked() checked')
 
-        # if present, remove the temp_layer previously created to generete destination gpkg
-        try:
-            processing.run("native:spatialiteexecutesql",
-                           {'DATABASE': f'{self.dest_gpkg}|layername=temp_table', 'SQL': 'drop table temp_table'})
-        except Exception as e:
-            pass
+            # if present, remove the temp_layer previously created to generete destination gpkg
+            try:
+                processing.run("native:spatialiteexecutesql",
+                               {'DATABASE': f'{self.dest_gpkg}|layername=temp_table', 'SQL': 'drop table temp_table'})
+            except Exception as e:
+                pass
 
-        # Show success message when finished
-        self.iface.messageBar().clearWidgets()
-        message = self.tr("♪♪ This is the End, my only friend, the End ♪♪")
-        QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Success)
-        self.iface.messageBar().pushMessage(message, level=Qgis.Success, duration=0)
+            # Show success message when finished
+            self.iface.messageBar().clearWidgets()
+            message = self.tr("♪♪ This is the End, my only friend, the End ♪♪")
+            QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Success)
+            self.iface.messageBar().pushMessage(message, level=Qgis.Success, duration=0)
+
+            # close dialog and save project
+            self.dlg_avnotes.close()
+            self.project.write(qgis_project_filename)
+
+
+
+
