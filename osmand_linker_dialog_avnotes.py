@@ -45,10 +45,10 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-        self.tableWidgetAVNotes.setColumnCount(3)
+        self.tW_tracks.setColumnCount(3)
         columns = [self.tr("Name"), self.tr("Size"), self.tr("Last Modified")]
-        self.tableWidgetAVNotes.setHorizontalHeaderLabels(columns)
-        self.tableWidgetAVNotes.setSortingEnabled(True)
+        self.tW_tracks.setHorizontalHeaderLabels(columns)
+        self.tW_tracks.setSortingEnabled(True)
         self.init_widget()
 
 
@@ -56,7 +56,7 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
         """
 
         """
-        self.tableWidgetAVNotes.setRowCount(0)
+        self.tW_tracks.setRowCount(0)
         self.QgsFW_root_path.fileChanged.connect(self.path_as_changed)
         self.QgsFW_dest_path.fileChanged.connect(self.dest_as_changed)
         for cBB in [self.cB_favourites, self.cB_itinerary, self.cB_AVnotes]:
@@ -97,13 +97,13 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             if not os.path.isdir(f'{self.QgsFW_root_path.filePath()}/tracks/rec/'):
                 print('tracks path don\'t exist')
                 QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), plugin_name, level=Qgis.Critical)
-                self.tableWidgetAVNotes.setRowCount(0)
+                self.tW_tracks.setRowCount(0)
                 return
             patern = f'{self.QgsFW_root_path.filePath()}/tracks/rec/*.gpx'
             if len(glob.glob(patern)) >= 0:
                 self.getStatistic(patern)
             else:
-                self.tableWidgetAVNotes.setRowCount(0)
+                self.tW_tracks.setRowCount(0)
         except:
             QgsMessageLog.logMessage(self.tr('no gpx file to import.'), plugin_name, level=Qgis.Critical)
             pass
@@ -124,7 +124,7 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), plugin_name, level=Qgis.Warning)
             self.cB_favourites.setEnabled(False)
             self.cB_favourites.setChecked(False)
-            setCheckable
+            # setCheckable
 
         # checkbox itinerary
         try:
@@ -149,7 +149,7 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             if not os.path.isdir(f'{self.QgsFW_root_path.filePath()}/avnotes/'):
                 print('avnotes path don\'t exist')
                 QgsMessageLog.logMessage(self.tr('not valid OsmAnd tracks path.'), plugin_name, level=Qgis.Critical)
-                self.tableWidgetAVNotes.setRowCount(0)
+                self.tW_tracks.setRowCount(0)
                 self.cB_AVnotes.setEnabled(False)
                 self.cB_AVnotes.setChecked(False)
                 return
@@ -182,12 +182,12 @@ class OSMandLinkerDialogAVnotes(QtWidgets.QDialog, FORM_CLASS):
             self.addTableRow([os.path.basename(f), self.human_size(os.path.getsize(p)), str(dt.datetime.fromtimestamp(st.st_mtime))[:-7]])
 
     def addTableRow(self, row_data):
-        row = self.tableWidgetAVNotes.rowCount()
-        self.tableWidgetAVNotes.setRowCount(row + 1)
+        row = self.tW_tracks.rowCount()
+        self.tW_tracks.setRowCount(row + 1)
         col = 0
         for item in row_data:
             cell = QTableWidgetItem(str(item))
-            self.tableWidgetAVNotes.setItem(row, col, cell)
+            self.tW_tracks.setItem(row, col, cell)
             col += 1
 
     def human_size(self, bytes, units=[' bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB']):

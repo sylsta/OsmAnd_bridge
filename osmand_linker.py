@@ -57,7 +57,7 @@ class OSMandLinker:
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',
-            'OSMandLinker_{}.qm'.format(locale))
+            'osmand_linker_{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -85,7 +85,7 @@ class OSMandLinker:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('OSMandLinker', message)
+        return QCoreApplication.translate('OsmAndLinker', message)
 
     def add_action(
             self,
@@ -167,7 +167,7 @@ class OSMandLinker:
         icon_path = ':/plugins/osmand_linker/icon.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'Import tracks, AV notes from OsmAnd'),
+            text=self.tr(u'Import tracks & AV notes from OsmAnd'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
@@ -178,7 +178,7 @@ class OSMandLinker:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&OSMand Linker'),
+                self.tr(u'&OsmAnd Linker'),
                 action)
             self.iface.removeToolBarIcon(action)
 
@@ -202,8 +202,7 @@ class OSMandLinker:
             self.root_path = self.dlg_avnotes.QgsFW_root_path.filePath()
             self.dest_path = self.dlg_avnotes.QgsFW_dest_path.filePath()
             self.dest_dpkg = f'{self.dlg_avnotes.QgsFW_dest_path.filePath()}/{datetime.now().strftime("%Y%m%d-%H%M%S")}_OsmAn_Linker.gpkg'
-            for currentQTableWidgetItem in self.dlg_avnotes.tableWidgetAVNotes.selectedItems():
-                print("coucou")
+            for currentQTableWidgetItem in self.dlg_avnotes.tW_tracks.selectedItems():
                 print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
                 result = import_gpx_track_file(self, currentQTableWidgetItem.text())
             if self.dlg_avnotes.cB_favourites.isChecked():
