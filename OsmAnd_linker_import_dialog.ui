@@ -72,6 +72,9 @@
    <property name="locale">
     <locale language="English" country="UnitedStates"/>
    </property>
+   <property name="storageMode">
+    <enum>QgsFileWidget::GetDirectory</enum>
+   </property>
    <property name="options">
     <set>QFileDialog::ReadOnly|QFileDialog::ShowDirsOnly</set>
    </property>
@@ -90,6 +93,9 @@
    </property>
    <property name="locale">
     <locale language="English" country="UnitedStates"/>
+   </property>
+   <property name="storageMode">
+    <enum>QgsFileWidget::GetDirectory</enum>
    </property>
    <property name="options">
     <set>QFileDialog::ShowDirsOnly</set>
