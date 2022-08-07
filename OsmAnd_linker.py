@@ -156,7 +156,7 @@ class OsmAndLinker:
             added to self.actions list.
         :rtype: QAction
         """
-        icon_path = ':/plugins/OsmAnd_linker/OsmAnd_logo.png'
+
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
         action.triggered.connect(callback)
@@ -184,7 +184,7 @@ class OsmAndLinker:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/osmand_linker/icon.png'
+        icon_path = f"{self.plugin_dir}/OsmAnd_logo.png"
         self.add_action(
             icon_path,
             text=self.tr(u'Import tracks, favourites, itinerary & AV notes'),
@@ -310,7 +310,7 @@ class OsmAndLinker:
             # if self.dlg_avnotes.cB_AVnotes.isChecked():
             #     print('self.dlg_avnotes.cB_AVnotes.checked() checked')
 
-            # if present, remove the temp_layer previously created to generete destination gpkg
+            # if present, remove the temp_layer previously created to genarete destination gpkg
             try:
                 processing.run("native:spatialiteexecutesql",
                                {'DATABASE': f'{self.dest_gpkg}|layername=temp_table', 'SQL': 'drop table temp_table'})
