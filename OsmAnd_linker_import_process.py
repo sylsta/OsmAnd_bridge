@@ -21,6 +21,8 @@
  *                                                                         *
  ***************************************************************************/
 """
+import math
+
 import qgis
 from qgis.core import QgsVectorFileWriter, QgsCoordinateReferenceSystem, QgsCoordinateTransformContext, \
     QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsFields
@@ -78,7 +80,6 @@ def import_gpx_track_file(self: object, filename: str) -> bool:
         return False
 
 
-
 def move_to_group(thing, group, pos=0, expanded=False) -> tuple:
     """
     Move a layer tree node into a layer tree group.
@@ -102,7 +103,6 @@ def move_to_group(thing, group, pos=0, expanded=False) -> tuple:
     :return: the moved thing and the group moved to.
     :rtype: tuple
     """
-
 
     tree = qgis.core.QgsProject.instance().layerTreeRoot()
 
@@ -147,18 +147,25 @@ def create_blank_gpkg_layer(gpkg_path: str, layer_name: str, geometry: int,
     Taken from :
     https://gis.stackexchange.com/questions/417916/creating-empty-layers-in-a-geopackage-using-pyqgis
     Thanks to Germán Carrillo https://gis.stackexchange.com/users/4972/germ%c3%a1n-carrillo
+
     :param gpkg_path: geopackage file
     :type gpkg_path: str
+
     :param layer_name: layer to be created
     :type layer_name: str
+
     :param geometry: Geometry Type. Can be none.
     :type geometry: QgsWkbType
+
     :param crs: CRS of the geometry. Can be empty
     :type crs: str
+
     :param schema: Attribute table structure
     :type schema: QgsFields()
+
     :param append: What to do when gpkg file exists (create or overwrite layer)
     :type append: bool
+
     :return: None
     :rtype: None
     """
@@ -176,3 +183,51 @@ def create_blank_gpkg_layer(gpkg_path: str, layer_name: str, geometry: int,
         QgsCoordinateTransformContext(),
         options)
     del writer
+
+
+def decode_short_code(shortcode: str) -> list:
+    """
+    From a shortcode string, returns a list whith XY coordinates and zoom level
+
+
+    Inspired by http://www.salesianer.de/util/shortcode.js
+    Thanks H. v. Hatzfeld http://www.salesianer.de/hatzfeld/
+    :param shortcode: a string which represents a pair of geographical coordinates and a zoom level
+    :type shortcode:
+    :return: Y coordinates, X coordinates, zoom level
+    :rtype: real, real, int
+    """
+
+    char_array = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_~"
+    i = 0
+    x = 0
+    y = 0
+    z = -8
+    for i in range(len(shortcode)):
+        digit = char_array.find(shortcode[i])
+        if digit == -1:
+            break
+        x <<= 3
+        y <<= 3
+
+        for j in range(2, -1, -1):
+            # x |= ((digit & (1 << (j+j+1))) == 0 ? 0 : (1 << j))
+            if (digit & (1 << (j + j + 1))) == 0:
+                x |= 0
+            else:
+                x |= (1 << j)
+            # y |= ((digit & (1 << (j + j))) == 0 ? 0: (1 << j));
+            if (digit & (1 << (j + j))) == 0:
+                y |= 0
+            else:
+                y |= (1 << j)
+        z += 3;
+    x = x * math.pow(2, 2 - 3 * i) * 90 - 180
+    y = y * math.pow(2, 2 - 3 * i) * 45 - 90
+    print(f"z {z} - i {i} {len(shortcode)} {char_array.find(shortcode[i])}")
+    if i < len(shortcode) and char_array.find(shortcode[i]) == "-":
+        z -= 2
+        if i + 1 < len(shortcode) and char_array.find(shortcode[i + 1]) == "-":
+            z += 1
+
+    return [y, x, z]
