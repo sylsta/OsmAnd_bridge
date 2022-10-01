@@ -34,7 +34,7 @@ from qgis.core import QgsWkbTypes, QgsField, QgsMessageLog, Qgis, QgsProject, Qg
 # Import the code for the dialog
 from .OsmAnd_linker_import_dialog import OSMandLinkerImportDialog
 # Import the code for the import
-from .OsmAnd_linker_import_process import import_gpx_track_file, create_blank_gpkg_layer
+from .OsmAnd_linker_import_process import import_gpx_track_file, create_blank_gpkg_layer, import_avnotes
 
 # Pycharm debug server
 # To use it, you need to use a 'python remote debug' configuration into pycharm *pro*
@@ -272,41 +272,42 @@ class OsmAndLinker:
                         return
             self.iface.messageBar().clearWidgets()
 
-            # Now dealing with favourites gpx file
-            if self.dlg_import.cB_favourites.isChecked():
-                # user and log info
-                file = 'favourites.gpx'
-                message = self.tr(f"Importing favourites ({file})")
-                self.iface.messageBar().pushMessage(message, level=Qgis.Info)
-                QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Info)
-                # Process and test result
-                result = import_gpx_track_file(self, f'{self.osmand_root_path}/{file}')
-                if not result:
-                    self.iface.messageBar().clearWidgets()
-                    message = self.tr(f'Something went wrong while importing favourites ({file})')
-                    QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
-                    self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
-                    return
-            self.iface.messageBar().clearWidgets()
+            # # Now dealing with favourites gpx file
+            # if self.dlg_import.cB_favourites.isChecked():
+            #     # user and log info
+            #     file = 'favourites.gpx'
+            #     message = self.tr(f"Importing favourites ({file})")
+            #     self.iface.messageBar().pushMessage(message, level=Qgis.Info)
+            #     QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Info)
+            #     # Process and test result
+            #     result = import_gpx_track_file(self, f'{self.osmand_root_path}/{file}')
+            #     if not result:
+            #         self.iface.messageBar().clearWidgets()
+            #         message = self.tr(f'Something went wrong while importing favourites ({file})')
+            #         QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
+            #         self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
+            #         return
+            # self.iface.messageBar().clearWidgets()
+            #
+            # # Now dealing with itinerary gpx file
+            # if self.dlg_import.cB_itinerary.isChecked():
+            #     # user and log info
+            #     file = 'itinerary.gpx'
+            #     message = self.tr(f"Importing itinerary ({file})")
+            #     self.iface.messageBar().pushMessage(message, level=Qgis.Info)
+            #     QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Info)
+            #     # Process and test result
+            #     result = import_gpx_track_file(self, f'{self.osmand_root_path}/{file}')
+            #     if not result:
+            #         self.iface.messageBar().clearWidgets()
+            #         message = self.tr(f'Something went wrong while importing itinerary ({file})')
+            #         QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
+            #         self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
+            #         return
+            # self.iface.messageBar().clearWidgets()
 
-            # Now dealing with itinerary gpx file
-            if self.dlg_import.cB_itinerary.isChecked():
-                # user and log info
-                file = 'itinerary.gpx'
-                message = self.tr(f"Importing itinerary ({file})")
-                self.iface.messageBar().pushMessage(message, level=Qgis.Info)
-                QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Info)
-                # Process and test result
-                result = import_gpx_track_file(self, f'{self.osmand_root_path}/{file}')
-                if not result:
-                    self.iface.messageBar().clearWidgets()
-                    message = self.tr(f'Something went wrong while importing itinerary ({file})')
-                    QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
-                    self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
-                    return
-            self.iface.messageBar().clearWidgets()
-
-            # if self.dlg_avnotes.cB_AVnotes.isChecked():
+            if self.dlg_import.cB_AVnotes.isChecked():
+                import_avnotes(self, f"{self.osmand_root_path}/avnotes/")
             #     print('self.dlg_avnotes.cB_AVnotes.checked() checked')
 
             # if present, remove the temp_layer previously created to genarete destination gpkg

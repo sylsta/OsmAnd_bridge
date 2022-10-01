@@ -21,13 +21,32 @@
  *                                                                         *
  ***************************************************************************/
 """
+import glob
 import math
+import os
 
 import qgis
 from qgis.core import QgsVectorFileWriter, QgsCoordinateReferenceSystem, QgsCoordinateTransformContext, \
     QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsFields
 
 import pathlib
+
+
+def import_avnotes(self: object, source_path: str) -> bool:
+    """
+
+    :type self: object
+    :param self:
+    :param source_path:
+    :type source_path:
+    :return:
+    :rtype:
+    """
+    for e in glob.glob(f"{source_path}/*.*"):
+        path, file = os.path.split(e)
+        shortcode = file[:file.find('.')]
+        print(decode_short_code(shortcode))
+        print(file)
 
 
 def import_gpx_track_file(self: object, filename: str) -> bool:
@@ -189,9 +208,9 @@ def decode_short_code(shortcode: str) -> list:
     """
     From a shortcode string, returns a list whith XY coordinates and zoom level
 
-
     Inspired by http://www.salesianer.de/util/shortcode.js
     Thanks H. v. Hatzfeld http://www.salesianer.de/hatzfeld/
+
     :param shortcode: a string which represents a pair of geographical coordinates and a zoom level
     :type shortcode:
     :return: Y coordinates, X coordinates, zoom level
