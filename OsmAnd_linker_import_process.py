@@ -24,12 +24,16 @@
 import glob
 import math
 import os
+import shutil
 
 import qgis
 from qgis.core import QgsVectorFileWriter, QgsCoordinateReferenceSystem, QgsCoordinateTransformContext, \
-    QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsFields
+    QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsFields, QgsField, QgsFeature, QgsGeometry, \
+    QgsPointXY
+from qgis.PyQt.QtCore import QVariant
 
 import pathlib
+
 
 
 def import_avnotes(self: object, source_path: str) -> bool:
@@ -42,11 +46,86 @@ def import_avnotes(self: object, source_path: str) -> bool:
     :return:
     :rtype:
     """
-    for e in glob.glob(f"{source_path}/*.*"):
-        path, file = os.path.split(e)
-        shortcode = file[:file.find('.')]
-        print(decode_short_code(shortcode))
-        print(file)
+
+
+    extension_list = [['3gp', 'audio'], ['mp4', 'video'], ['mp3', 'audio'], ['jpg', 'picture'], ['tif', 'picture']]
+    file_to_import = []
+
+    # First we check for AV files and make list of elt to import
+    for ext in extension_list:
+        print(ext[0])
+        print(f'{self.dlg_import.QgsFW_osmand_root_path.filePath()}/avnotes/*.{ext[0]})')
+        for file in glob.glob(f'{self.dlg_import.QgsFW_osmand_root_path.filePath()}/avnotes/*.{ext[0]}'):
+            file_to_import.append([file, ext[1]])
+    print(file_to_import)
+
+    # define new gpkg layers
+    # audio
+    a_uri = f"{self.dest_gpkg}|layername=audio"
+    a_layer = QgsVectorLayer(a_uri, self.tr('Audio notes'), 'ogr')
+    a_pr = a_layer.dataProvider()
+    a_pr.addAttributes([QgsField('full_path', QVariant.String),
+                        QgsField('real_path', QVariant.String),
+                        QgsField('filename', QVariant.String),
+                        QgsField('type', QVariant.String),
+                        QgsField('x', QVariant.Double),
+                        QgsField('y', QVariant.Double)])
+    a_layer.updateFields()
+
+    # video
+    v_uri = f"{self.dest_gpkg}|layername=video"
+    v_layer = QgsVectorLayer(v_uri, self.tr('Video notes'), 'ogr')
+    v_pr = v_layer.dataProvider()
+    v_pr.addAttributes([QgsField('full_path', QVariant.String),
+                        QgsField('real_path', QVariant.String),
+                        QgsField('filename', QVariant.String),
+                        QgsField('type', QVariant.String),
+                        QgsField('x', QVariant.Double),
+                        QgsField('y', QVariant.Double)])
+    v_layer.updateFields()
+
+    # pictures
+    p_uri = f"{self.dest_gpkg}|layername=picture"
+    p_layer = QgsVectorLayer("Point", p_uri, 'ogr')
+    p_pr = p_layer.dataProvider()
+    p_pr.addAttributes([QgsField('full_path', QVariant.String),
+                        QgsField('real_path', QVariant.String),
+                        QgsField('filename', QVariant.String),
+                        QgsField('type', QVariant.String),
+                        QgsField('x', QVariant.Double),
+                        QgsField('y', QVariant.Double)])
+    p_layer.updateFields()
+    QgsProject.instance().addMapLayer(p_layer)
+    #
+    #
+    # for elt in file_to_import:
+    #     file = elt[0]
+    #     full_path = f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes/'
+    #     filename = os.path.basename(file)
+    #     rel_path = f'./avnotes/{filename}'
+    #     shutil.copy(file, full_path)
+    #     y, x, z = decode_short_code(pathlib.Path(file).stem)
+    #
+    #     f = QgsFeature()
+    #     f.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(x, y)))
+    #     f.setAttributes([full_path, rel_path, filename, elt[1], x, y])
+    #     if elt[1] == 'audio':
+    #         pr = a_pr
+    #         layer = a_layer
+    #     elif elt[1] == 'video':
+    #         pr = v_pr
+    #         layer = v_layer
+    #     elif elt[1] == 'picture':
+    #         pr = a_pr
+    #         layer = p_layer
+    #     pr.addFeature(f)
+    #     layer.updateExtents()
+    #
+    #
+    #
+    #
+
+
 
 
 def import_gpx_track_file(self: object, filename: str) -> bool:
@@ -84,15 +163,15 @@ def import_gpx_track_file(self: object, filename: str) -> bool:
                 QgsProject.instance().removeMapLayer(sublayer)
                 # load new gpkg layer
                 uri = f"{self.dest_gpkg}|layername={options.layerName}"
-                sublayer = QgsVectorLayer(uri, options.layerName, 'ogr')
-                QgsProject.instance().addMapLayer(sublayer)
+                new_sublayer = QgsVectorLayer(uri, options.layerName, 'ogr')
+                QgsProject.instance().addMapLayer(new_sublayer)
                 # put into a group layer
                 if prefix == 'favourites':
-                    move_to_group(sublayer, self.tr('favourites'))
+                    move_to_group(new_sublayer, self.tr('favourites'))
                 elif prefix == 'itinerary':
-                    move_to_group(sublayer, self.tr('itinerary'))
+                    move_to_group(new_sublayer, self.tr('itinerary'))
                 else:
-                    move_to_group(sublayer, name[1])
+                    move_to_group(new_sublayer, name[1])
         return True
 
     except Exception as e:

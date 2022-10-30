@@ -230,16 +230,11 @@ class OsmAndLinker:
             self.dest_path = self.dlg_import.QgsFW_dest_path.filePath()
             self.dest_gpkg = f'{self.dlg_import.QgsFW_dest_path.filePath()}/{now}_OsmAnd_linker.gpkg'
 
-            # Work around to create GPKG file (with an empty table that will be removed)
-            # see https://gis.stackexchange.com/a/417950
-            schema = QgsFields()
-            schema.append(QgsField("bool_field", QVariant.Bool))
-            create_blank_gpkg_layer(self.dest_gpkg, "temp_table", QgsWkbTypes.NoGeometry, '', schema)
-            if not os.path.exists(os.path.dirname(self.dest_gpkg)):
-                message = self.tr(f'Issue when trying to create destination geopackage file ({self.dest_gpkg})')
-                QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
-                self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
-                return
+            # Try to create destination geopackage
+            if not self.create_empty_gpkg_if_no_exists(self.dest_gpkg):
+                print(f'Issue while creating {self.dest_gpkg})')
+                QgsMessageLog.logMessage(f'Issue while creating {self.dest_gpkg})', self.plugin_name, level=Qgis.Critical)
+
 
             # Now dealing with selected gpx tracks files
             # We iterate thru selected row(s) of the gpx file table first to count files to import and prepare
@@ -307,6 +302,9 @@ class OsmAndLinker:
             # self.iface.messageBar().clearWidgets()
 
             if self.dlg_import.cB_AVnotes.isChecked():
+                # create destination folder if not exists
+                os.makedirs(f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes', exist_ok=True)
+
                 import_avnotes(self, f"{self.osmand_root_path}/avnotes/")
             #     print('self.dlg_avnotes.cB_AVnotes.checked() checked')
 
@@ -326,3 +324,16 @@ class OsmAndLinker:
             # close dialog and save project
             self.dlg_import.close()
             self.project.write(qgis_project_filename)
+
+    def create_empty_gpkg_if_no_exists(self, gpk_gname):
+        # Work around to create GPKG file (with an empty table that will be removed)
+        # see https://gis.stackexchange.com/a/417950
+        schema = QgsFields()
+        schema.append(QgsField("bool_field", QVariant.Bool))
+        create_blank_gpkg_layer(gpk_gname, "temp_table", QgsWkbTypes.NoGeometry, '', schema)
+        if not os.path.exists(os.path.dirname(gpk_gname)):
+            message = self.tr(f'Issue when trying to create destination geopackage file ({gpk_gname})')
+            QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
+            self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
+            return False
+        return True
