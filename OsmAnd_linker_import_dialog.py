@@ -95,8 +95,7 @@ class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
         if not os.path.exists(os.path.dirname(self.QgsFW_osmand_root_path.filePath())):
             print('path doesn\'t exist')
             QgsMessageLog.logMessage(self.tr('not valid OsmAnd file path.'), self.plugin_name, level=Qgis.Critical)
-            # self.init_widget()
-            return
+
 
     def osmand_root_path_changed(self) -> None:
         """
@@ -111,85 +110,83 @@ class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
             print('root path doesn\'t exist')
             QgsMessageLog.logMessage(self.tr('not valid OsmAnd file path.'), self.plugin_name, level=Qgis.Critical)
             self.init_widget()
-            return
-
-        # tracks table
-        try:
-            if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/'):
-                print('tracks path don\'t exist')
-                QgsMessageLog.logMessage(self.tr('no valid OsmAnd tracks path.'), self.plugin_name,
-                                         level=Qgis.Critical)
-                self.tW_tracks.setRowCount(0)
-            else:
-                patern = f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/*.gpx'
-                if len(glob.glob(patern)) >= 0:
-                    print('gpx files found')
-                    self.get_gpx_file_informations(patern)
-                    self.tW_tracks.setEnabled(True)
-                    self.tW_tracks.resizeColumnsToContents()
-                else:
-                    print('no gpx files found')
+        else:
+            # tracks table
+            try:
+                if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/'):
+                    print('tracks path don\'t exist')
+                    QgsMessageLog.logMessage(self.tr('no valid OsmAnd tracks path.'), self.plugin_name,
+                                             level=Qgis.Critical)
                     self.tW_tracks.setRowCount(0)
-        except:
-            QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)
-            pass
+                else:
+                    patern = f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/*.gpx'
+                    if len(glob.glob(patern)) >= 0:
+                        print('gpx files found')
+                        self.get_gpx_file_informations(patern)
+                        self.tW_tracks.setEnabled(True)
+                        self.tW_tracks.resizeColumnsToContents()
+                    else:
+                        print('no gpx files found')
+                        self.tW_tracks.setRowCount(0)
+            except:
+                QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)
+                pass
 
-        # checkbox favorites
-        try:
-            with open(f'{self.QgsFW_osmand_root_path.filePath()}/favourites.gpx'):
-                print('favorites. exist')
-                QgsMessageLog.logMessage(self.tr('found ./favourites.gpx.'), self.plugin_name, level=Qgis.Info)
-                self.cB_favourites.setEnabled(True)
-                self.cB_favourites.setChecked(True)
+            # checkbox favorites
+            try:
+                with open(f'{self.QgsFW_osmand_root_path.filePath()}/favourites.gpx'):
+                    print('favorites. exist')
+                    QgsMessageLog.logMessage(self.tr('found ./favourites.gpx.'), self.plugin_name, level=Qgis.Info)
+                    self.cB_favourites.setEnabled(True)
+                    self.cB_favourites.setChecked(True)
 
-        except IOError:
-            print('favorite don\'t exist')
-            QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), self.plugin_name, level=Qgis.Warning)
-            self.cB_favourites.setEnabled(False)
-            self.cB_favourites.setChecked(False)
+            except IOError:
+                print('favorite don\'t exist')
+                QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), self.plugin_name, level=Qgis.Warning)
+                self.cB_favourites.setEnabled(False)
+                self.cB_favourites.setChecked(False)
 
 
-        # checkbox itinerary
-        try:
-            with open(f'{self.QgsFW_osmand_root_path.filePath()}/itinerary.gpx'):
-                print('itinerary.gpx. exists')
-                QgsMessageLog.logMessage(self.tr('found ./itinerary.gpx.'), self.plugin_name, level=Qgis.Info)
-                self.cB_itinerary.setEnabled(True)
-                self.cB_itinerary.setChecked(True)
+            # checkbox itinerary
+            try:
+                with open(f'{self.QgsFW_osmand_root_path.filePath()}/itinerary.gpx'):
+                    print('itinerary.gpx. exists')
+                    QgsMessageLog.logMessage(self.tr('found ./itinerary.gpx.'), self.plugin_name, level=Qgis.Info)
+                    self.cB_itinerary.setEnabled(True)
+                    self.cB_itinerary.setChecked(True)
 
-        except IOError:
-            print('itinerary.gpx doesn\'t exist')
-            QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), self.plugin_name, level=Qgis.Warning)
-            self.cB_itinerary.setEnabled(False)
-            self.cB_itinerary.setChecked(False)
+            except IOError:
+                print('itinerary.gpx doesn\'t exist')
+                QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), self.plugin_name, level=Qgis.Warning)
+                self.cB_itinerary.setEnabled(False)
+                self.cB_itinerary.setChecked(False)
 
-        # checkbox AVnotes
-        try:
-            if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/'):
-                print('avnotes path don\'t exist')
-                QgsMessageLog.logMessage(self.tr('no valid OsmAnd avnotes path.'), self.plugin_name,
-                                         level=Qgis.Critical)
-                self.tW_tracks.setRowCount(0)
-                self.cB_AVnotes.setEnabled(False)
-                self.cB_AVnotes.setChecked(False)
-                return
-            if len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.3gp)')) + \
-                    len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.jpg')) + \
-                    len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.mp4')) > 0:
-                print('avnotes files exist')
-                self.cB_AVnotes.setEnabled(True)
-                self.cB_AVnotes.setChecked(True)
+            # checkbox AVnotes
+            try:
+                if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/'):
+                    print('avnotes path don\'t exist')
+                    QgsMessageLog.logMessage(self.tr('no valid OsmAnd avnotes path.'), self.plugin_name,
+                                             level=Qgis.Critical)
+                    self.cB_AVnotes.setEnabled(False)
+                    self.cB_AVnotes.setChecked(False)
+                else:
+                    if len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.3gp)')) + \
+                            len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.jpg')) + \
+                            len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.mp4')) > 0:
+                        print('avnotes files exist')
+                        self.cB_AVnotes.setEnabled(True)
+                        self.cB_AVnotes.setChecked(True)
 
-        except:
-            QgsMessageLog.logMessage(self.tr('no avnote file to import.'), self.plugin_name, level=Qgis.Critical)
-            return
+            except:
+                QgsMessageLog.logMessage(self.tr('no avnote file to import.'), self.plugin_name, level=Qgis.Critical)
+
 
     def get_gpx_file_informations(self, patern: str) -> None:
         """
 
         :param patern:
         :type patern:
-        :return:
+        :return
         :rtype:
         """
         # listFiles = os.listdir(path)
@@ -213,7 +210,7 @@ class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
         col = 0
         for item in row_data:
             cell = QTableWidgetItem(str(item))
-            self.tW_tracks.setItem(row+1, col, cell)
+            self.tW_tracks.setItem(row, col, cell)
             print(item, col, row)
             col += 1
 
