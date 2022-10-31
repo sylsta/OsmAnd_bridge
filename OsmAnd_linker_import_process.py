@@ -27,8 +27,7 @@ import os
 import shutil
 
 import qgis
-from qgis.core import QgsVectorFileWriter, QgsCoordinateReferenceSystem, QgsCoordinateTransformContext, \
-    QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsFields, QgsField, QgsFeature, QgsGeometry, \
+from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsField, QgsFeature, QgsGeometry, \
     QgsPointXY
 from qgis.PyQt.QtCore import QVariant
 
@@ -60,9 +59,11 @@ def import_avnotes(self: object, source_path: str) -> bool:
     print(file_to_import)
 
     # define new gpkg layers
+    # to do: find correct syntaxis to directly create or write into geopackage
     # audio
     a_uri = f"{self.dest_gpkg}|layername=audio"
-    a_layer = QgsVectorLayer(a_uri, self.tr('Audio notes'), 'ogr')
+    #a_layer = QgsVectorFileWriter(a_uri, self.tr('Audio notes'), 'ogr')
+    a_layer = QgsVectorLayer("Point", self.tr('Audio notes'), "memory")
     a_pr = a_layer.dataProvider()
     a_pr.addAttributes([QgsField('full_path', QVariant.String),
                         QgsField('real_path', QVariant.String),
@@ -74,7 +75,8 @@ def import_avnotes(self: object, source_path: str) -> bool:
 
     # video
     v_uri = f"{self.dest_gpkg}|layername=video"
-    v_layer = QgsVectorLayer(v_uri, self.tr('Video notes'), 'ogr')
+    #v_layer = QgsVectorLayer(v_uri, self.tr('Video notes'), 'ogr')
+    v_layer = QgsVectorLayer("Point", self.tr('Video notes'), 'memory')
     v_pr = v_layer.dataProvider()
     v_pr.addAttributes([QgsField('full_path', QVariant.String),
                         QgsField('real_path', QVariant.String),
@@ -86,7 +88,8 @@ def import_avnotes(self: object, source_path: str) -> bool:
 
     # pictures
     p_uri = f"{self.dest_gpkg}|layername=picture"
-    p_layer = QgsVectorLayer("Point", p_uri, 'ogr')
+    #p_layer = QgsVectorLayer("Point", p_uri, 'ogr')
+    p_layer = QgsVectorLayer("Point", self.tr('Picture notes'), 'memory')
     p_pr = p_layer.dataProvider()
     p_pr.addAttributes([QgsField('full_path', QVariant.String),
                         QgsField('real_path', QVariant.String),
@@ -95,35 +98,39 @@ def import_avnotes(self: object, source_path: str) -> bool:
                         QgsField('x', QVariant.Double),
                         QgsField('y', QVariant.Double)])
     p_layer.updateFields()
+    QgsProject.instance().addMapLayer(a_layer)
+    QgsProject.instance().addMapLayer(v_layer)
     QgsProject.instance().addMapLayer(p_layer)
-    #
-    #
-    # for elt in file_to_import:
-    #     file = elt[0]
-    #     full_path = f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes/'
-    #     filename = os.path.basename(file)
-    #     rel_path = f'./avnotes/{filename}'
-    #     shutil.copy(file, full_path)
-    #     y, x, z = decode_short_code(pathlib.Path(file).stem)
-    #
-    #     f = QgsFeature()
-    #     f.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(x, y)))
-    #     f.setAttributes([full_path, rel_path, filename, elt[1], x, y])
-    #     if elt[1] == 'audio':
-    #         pr = a_pr
-    #         layer = a_layer
-    #     elif elt[1] == 'video':
-    #         pr = v_pr
-    #         layer = v_layer
-    #     elif elt[1] == 'picture':
-    #         pr = a_pr
-    #         layer = p_layer
-    #     pr.addFeature(f)
-    #     layer.updateExtents()
-    #
-    #
-    #
-    #
+
+
+    for elt in file_to_import:
+        file = elt[0]
+        full_path = f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes/'
+        filename = os.path.basename(file)
+        rel_path = f'./avnotes/{filename}'
+        shutil.copy(file, full_path)
+        y, x, z = decode_short_code(pathlib.Path(file).stem)
+
+        f = QgsFeature()
+        f.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(x, y)))
+        f.setAttributes([full_path, rel_path, filename, elt[1], x, y])
+        if elt[1] == 'audio':
+            pr = a_pr
+            layer = a_layer
+        elif elt[1] == 'video':
+            pr = v_pr
+            layer = v_layer
+        elif elt[1] == 'picture':
+            pr = p_pr
+            layer = p_layer
+        pr.addFeature(f)
+        layer.updateExtents()
+        move_to_group(layer, self.tr('Audiovisual notes'))
+
+
+
+
+
 
 
 
@@ -142,8 +149,8 @@ def import_gpx_track_file(self: object, filename: str) -> bool:
     try:
         prefix = pathlib.Path(filename).stem
         # list of type of items that can be found in gpx files and their translations for group naming
-        names = [["waypoints", self.tr("waypoints")], ["routes", self.tr("routes")], ["tracks", self.tr("tracks")],
-                 ["route_points", self.tr("route_points")], ["track_points", self.tr("track_points")]]
+        names = [["waypoints", self.tr("Waypoints")], ["routes", self.tr("Raoutes")], ["tracks", self.tr("Tracks")],
+                 ["route_points", self.tr("Route points")], ["track_points", self.tr("Track points")]]
 
         for name in names:
             # prepare gpx layer
@@ -167,9 +174,9 @@ def import_gpx_track_file(self: object, filename: str) -> bool:
                 QgsProject.instance().addMapLayer(new_sublayer)
                 # put into a group layer
                 if prefix == 'favourites':
-                    move_to_group(new_sublayer, self.tr('favourites'))
+                    move_to_group(new_sublayer, self.tr('Favourites'))
                 elif prefix == 'itinerary':
-                    move_to_group(new_sublayer, self.tr('itinerary'))
+                    move_to_group(new_sublayer, self.tr('Itinerary'))
                 else:
                     move_to_group(new_sublayer, name[1])
         return True
@@ -235,52 +242,6 @@ def move_to_group(thing, group, pos=0, expanded=False) -> tuple:
     parent.removeChildNode(node_object)
 
     return node_object_clone, group_object
-
-
-def create_blank_gpkg_layer(gpkg_path: str, layer_name: str, geometry: int,
-                            crs: str, schema: QgsFields, append: bool = False
-                            ) -> None:
-    """
-    Create a blank layer into a gpkg file. The gpkg is created if needed, and can be overwritten if it already exists
-    Taken from :
-    https://gis.stackexchange.com/questions/417916/creating-empty-layers-in-a-geopackage-using-pyqgis
-    Thanks to Germán Carrillo https://gis.stackexchange.com/users/4972/germ%c3%a1n-carrillo
-
-    :param gpkg_path: geopackage file
-    :type gpkg_path: str
-
-    :param layer_name: layer to be created
-    :type layer_name: str
-
-    :param geometry: Geometry Type. Can be none.
-    :type geometry: QgsWkbType
-
-    :param crs: CRS of the geometry. Can be empty
-    :type crs: str
-
-    :param schema: Attribute table structure
-    :type schema: QgsFields()
-
-    :param append: What to do when gpkg file exists (create or overwrite layer)
-    :type append: bool
-
-    :return: None
-    :rtype: None
-    """
-    options = QgsVectorFileWriter.SaveVectorOptions()
-    options.driverName = "GPKG"
-    options.layerName = layer_name
-    if append:
-        options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
-
-    writer = QgsVectorFileWriter.create(
-        gpkg_path,
-        schema,
-        geometry,
-        QgsCoordinateReferenceSystem(crs),
-        QgsCoordinateTransformContext(),
-        options)
-    del writer
 
 
 def decode_short_code(shortcode: str) -> list:

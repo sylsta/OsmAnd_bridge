@@ -28,7 +28,7 @@ def create_empty_gpkg_layer(gpkg_path: str, layer_name: str, geometry: int,
                             crs: str, schema: QgsFields, append: bool = False
                             ) -> None:
     """
-    Create a blank layer into a gpkg file. The gpkg is created if needed, and can be overwritten if it already exists
+    Create a empty layer into a gpkg file. The gpkg is created if needed, and can be overwritten if it already exists
     Taken from :
     https://gis.stackexchange.com/questions/417916/creating-empty-layers-in-a-geopackage-using-pyqgis
     Thanks to Germán Carrillo https://gis.stackexchange.com/users/4972/germ%c3%a1n-carrillo
