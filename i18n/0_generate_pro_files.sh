@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 # -*- encoding: UTF-8 -*-
 DIRECTORY=..
-PREFIX="OsmAnd_linker"
+PREFIX="OsmAnd_bridge"
 I18N_LIST="fr es it"   
 FORMS="FORMS = "
 SOURCES="SOURCES = "

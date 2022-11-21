@@ -35,7 +35,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'))
 
 
-class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
+class OSMandBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, parent=None):
         """
         Constructor
@@ -43,7 +43,7 @@ class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
         :type parent: None
         """
 
-        super(OSMandLinkerImportDialog, self).__init__(parent)
+        super(OSMandBridgeImportDialog, self).__init__(parent)
         # Set up the user interface from Designer through FORM_CLASS.
         # After self.setupUi() you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see
@@ -51,7 +51,7 @@ class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.init_widget()
-        self.plugin_name = 'OsmAnd Linker'
+        self.plugin_name = 'OsmAnd bridge'
         self.debug()
 
     def debug(self):
@@ -66,7 +66,7 @@ class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def init_widget(self) -> None:
         """
-
+        Init dialog GUI
         :return: None
         :rtype: None
         """
@@ -85,9 +85,9 @@ class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def dest_as_changed(self):
         """
-
-        :return:
-        :rtype:
+        Called when destination text area content change
+        :return: None
+        :rtype: None
         """
 
         print(self.QgsFW_osmand_root_path.filePath())
@@ -99,7 +99,7 @@ class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def osmand_root_path_changed(self) -> None:
         """
-
+        Called when destination text area content change
         :return: None
         :rtype: None
         """
@@ -119,10 +119,10 @@ class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                              level=Qgis.Critical)
                     self.tW_tracks.setRowCount(0)
                 else:
-                    patern = f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/*.gpx'
-                    if len(glob.glob(patern)) >= 0:
+                    pattern = f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/*.gpx'
+                    if len(glob.glob(pattern)) >= 0:
                         print('gpx files found')
-                        self.get_gpx_file_informations(patern)
+                        self.get_gpx_file_informations(pattern)
                         self.tW_tracks.setEnabled(True)
                         self.tW_tracks.resizeColumnsToContents()
                     else:
@@ -181,17 +181,17 @@ class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 QgsMessageLog.logMessage(self.tr('no avnote file to import.'), self.plugin_name, level=Qgis.Critical)
 
 
-    def get_gpx_file_informations(self, patern: str) -> None:
+    def get_gpx_file_informations(self, pattern: str) -> None:
         """
-
-        :param patern:
-        :type patern:
-        :return
-        :rtype:
+        List files according to pattern and send info the function that feed dialog table
+        :param pattern: a file pattern whit directory (eg. '/home/sylvain/test/*.gpx)
+        :type pattern: string
+        :return: None
+        :rtype: None
         """
         # listFiles = os.listdir(path)
-        for f in glob.glob(patern):
-            p = os.path.join(patern, f)
+        for f in glob.glob(pattern):
+            p = os.path.join(pattern, f)
             st = os.stat(p)
             # to do convert list into individual items
             self.add_gpx_file_table_row([os.path.basename(f), self.human_readable_filesize(os.path.getsize(p)),
@@ -199,9 +199,9 @@ class OSMandLinkerImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def add_gpx_file_table_row(self, row_data) -> None:
         """
-
-        :param row_data:
-        :type row_data:
+        Add files details to the dialog's table widget
+        :param row_data: list of gpx file details
+        :type row_data: list of strings
         :return: None
         :rtype: None
         """
