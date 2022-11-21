@@ -91,6 +91,10 @@ class OsmAndLinker:
         # Must be set in initGui() to survive plugin reloads
         self.first_start = None
 
+        # Add a toolbar
+        self.toolbar = self.iface.addToolBar(u'OsmAnd_linker')
+        self.toolbar.setObjectName(u'OsmAnd_linker')
+
     # noinspection PyMethodMayBeStatic
 
     def tr(self, message):
@@ -169,8 +173,10 @@ class OsmAndLinker:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            # Adds plugin icon to Plugins toolbar
-            self.iface.addToolBarIcon(action)
+            # # Adds plugin icon to Plugins toolbar
+            # self.iface.addToolBarIcon(action)
+            # Add plugin icon to its own toolbar
+            self.toolbar.addAction(action)
 
         if add_to_menu:
             self.iface.addPluginToMenu(
@@ -201,6 +207,8 @@ class OsmAndLinker:
                 self.tr(u'&OsmAnd Linker'),
                 action)
             self.iface.removeToolBarIcon(action)
+        # remove the toolbar
+        del self.toolbar
 
     def run(self):
         """Run method that performs all the real work"""
