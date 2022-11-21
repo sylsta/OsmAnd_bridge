@@ -3,22 +3,24 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=OsmAnd Linker
+name=OsmAnd brdige
 qgisMinimumVersion=3.0
 description=Import tracks & AV notes from OSMand
-version=0.2
+version=0.3
 author=Sylvain Théry - UMR 5281 ART-Dev
 email=sylvain.thery@cnrs.fr
 
-about=Import tracks, favourites, itinerary & AV notes
-
+about=Import tracks, favourites, itinerary & AV notes from OsmAnd phone app.
+.
 about[fr]=Import de traces, favoris, marques & notes audios et vidéos depuis un téléphone disposant d'OsmAnd
 
-tracker=https://gitlab.huma-num.fr/sthery/OsmAnd_linker/-/issues
-repository=https://gitlab.huma-num.fr/sthery/OsmAnd_linker
-homepage=https://gitlab.huma-num.fr/sthery/OsmAnd_linker
+tracker=https://gitlab.huma-num.fr/sthery/OsmAnd_bridge/-/issues
+repository=https://gitlab.huma-num.fr/sthery/OsmAnd_bridge
+homepage=https://gitlab.huma-num.fr/sthery/OsmAnd_bridge
 
 changelog=
+    0.3 (2022-08-05):
+        – import AV notes
     0.2 (2022-08-05):
         – major refactor
     0.1 (2022-06-14):

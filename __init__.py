@@ -32,5 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-    from .OsmAnd_linker import OsmAndLinker
+    from .OsmAnd_bridge import OsmAndLinker
     return OsmAndLinker(iface)
