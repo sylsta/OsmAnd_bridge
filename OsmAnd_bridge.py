@@ -250,36 +250,13 @@ class OsmAndBridge:
                 self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
                 return
 
-            # Now dealing with selected gpx tracks files
-            # We iterate thru selected row(s) of the gpx file table first to count files to import and prepare
-            # a message bar
-            i = 0
-            for currentQTableWidgetItem in self.dlg_import.tW_tracks.selectedItems():
-                if currentQTableWidgetItem.column() == 0:
-                    i += 1
-            progressMessageBar = self.iface.messageBar().createMessage(self.tr("Importing track files..."))
-            progress = QProgressBar()
-            progress.setMaximum(10)
-            progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            progressMessageBar.layout().addWidget(progress)
-            self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
+            # Now dealing with AV notes
+            if self.dlg_import.cB_AVnotes.isChecked():
+                # create destination folder if not exists
+                os.makedirs(f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes', exist_ok=True)
 
-            # We now iterate thru selected row(s) of the gpx file table to import data
-            j = 0
-            for currentQTableWidgetItem in self.dlg_import.tW_tracks.selectedItems():
-                # We just need to get first column value (gpx filename)
-                if currentQTableWidgetItem.column() == 0:
-                    result = import_gpx_track_file(self,
-                                                   f'{self.osmand_root_path}/tracks/rec/{currentQTableWidgetItem.text()}')
-                    j += 1
-                    progress.setValue(j)
-                    if not result:
-                        self.iface.messageBar().clearWidgets()
-                        message = self.tr(f'Something went wrong while importing {currentQTableWidgetItem.text()}')
-                        QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
-                        self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
-                        return
-            self.iface.messageBar().clearWidgets()
+                import_avnotes(self, f"{self.osmand_root_path}/avnotes/")
+
 
             # Now dealing with favourites gpx file
             if self.dlg_import.cB_favourites.isChecked():
@@ -315,12 +292,36 @@ class OsmAndBridge:
                     return
             self.iface.messageBar().clearWidgets()
 
-            if self.dlg_import.cB_AVnotes.isChecked():
-                # create destination folder if not exists
-                os.makedirs(f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes', exist_ok=True)
+            # Now dealing with selected gpx tracks files
+            # We iterate thru selected row(s) of the gpx file table first to count files to import and prepare
+            # a message bar
+            i = 0
+            for currentQTableWidgetItem in self.dlg_import.tW_tracks.selectedItems():
+                if currentQTableWidgetItem.column() == 0:
+                    i += 1
+            progressMessageBar = self.iface.messageBar().createMessage(self.tr("Importing track files..."))
+            progress = QProgressBar()
+            progress.setMaximum(10)
+            progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            progressMessageBar.layout().addWidget(progress)
+            self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
 
-                import_avnotes(self, f"{self.osmand_root_path}/avnotes/")
-            #     print('self.dlg_avnotes.cB_AVnotes.checked() checked')
+            # We now iterate thru selected row(s) of the gpx file table to import data
+            j = 0
+            for currentQTableWidgetItem in self.dlg_import.tW_tracks.selectedItems():
+                # We just need to get first column value (gpx filename)
+                if currentQTableWidgetItem.column() == 0:
+                    result = import_gpx_track_file(self,
+                                                   f'{self.osmand_root_path}/tracks/rec/{currentQTableWidgetItem.text()}')
+                    j += 1
+                    progress.setValue(j)
+                    if not result:
+                        self.iface.messageBar().clearWidgets()
+                        message = self.tr(f'Something went wrong while importing {currentQTableWidgetItem.text()}')
+                        QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
+                        self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
+                        return
+            self.iface.messageBar().clearWidgets()
 
             # if present, remove the temp_layer previously created to genarete destination gpkg
             try:
