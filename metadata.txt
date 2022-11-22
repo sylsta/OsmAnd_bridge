@@ -5,14 +5,14 @@
 [general]
 name=OsmAnd bridge
 qgisMinimumVersion=3.0
-description=Import tracks & AV notes from OSMand
+description=Import tracks, favourites, itinerary and AV notes from OsmAnd
 version=0.3
 author=Sylvain Théry - UMR 5281 ART-Dev
 email=sylvain.thery@cnrs.fr
 
-about=Import tracks, favourites, itinerary & AV notes
+about=Import tracks, favourites, itinerary and AV notes from OsmAnd
 
-about[fr]=Import de traces, favoris, marques & notes audios et vidéos depuis un téléphone disposant d'OsmAnd
+about[fr]=Import de traces, favoris, marques et notes audios, vidéos et photos depuis un téléphone disposant d'OsmAnd
 
 tracker=https://gitlab.huma-num.fr/sthery/OsmAnd_bridge/-/issues
 repository=https://gitlab.huma-num.fr/sthery/OsmAnd_bridge
