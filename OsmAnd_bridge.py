@@ -239,6 +239,8 @@ class OsmAndBridge:
             self.dest_path = self.dlg_import.QgsFW_dest_path.filePath()
             self.dest_gpkg = f'{self.dlg_import.QgsFW_dest_path.filePath()}/{now}_OsmAnd_bridge.gpkg'
 
+            # Create dest directory if not exists
+            os.makedirs(os.path.dirname(f'{self.dlg_import.QgsFW_dest_path.filePath()}'), exist_ok=True)
             # Work around to create GPKG file (with an empty table that will be removed)
             # see https://gis.stackexchange.com/a/417950
             schema = QgsFields()
