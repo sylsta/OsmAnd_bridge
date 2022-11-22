@@ -134,6 +134,8 @@ def import_avnotes(self: object, source_path: str) -> bool:
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Font_Awesome_5_solid_camera.svg')
             symbol.setSize(6)
             new_sublayer.renderer().symbol().changeSymbolLayer(0, symbol)
+            new_sublayer.triggerRepaint()
+            self.iface.layerTreeView().refreshLayerSymbology(new_sublayer.id())
         QgsProject.instance().removeMapLayer(layer[0])
 
 
