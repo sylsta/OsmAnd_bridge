@@ -30,6 +30,7 @@ import qgis
 from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsField, QgsFeature, QgsGeometry, \
     QgsPointXY
 from qgis.PyQt.QtCore import QVariant
+from qgis.core import QgsSvgMarkerSymbolLayer
 
 import pathlib
 
@@ -91,8 +92,8 @@ def import_avnotes(self: object, source_path: str) -> bool:
 
     for elt in file_to_import:
         file = elt[0]
-        full_path = f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes/'
         filename = os.path.basename(file)
+        full_path = f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes/{filename}'
         rel_path = f'./avnotes/{filename}'
         shutil.copy(file, full_path)
         y, x, z = decode_short_code(pathlib.Path(file).stem)
@@ -112,10 +113,29 @@ def import_avnotes(self: object, source_path: str) -> bool:
         pr.addFeature(f)
     # update layer extent and final extent of the mapCanvas
     # move layer to group
-    for layer in [v_layer,p_layer,a_layer]:
-        layer.updateExtents(True)
-        self.extent.combineExtentWith(layer.extent())
-        move_to_group(layer, self.tr('Audiovisual notes'))
+    for layer in [[v_layer, v_uri], [p_layer, p_uri], [a_layer, a_uri]]:
+        if layer[0].featureCount() > 0:
+            options = QgsVectorFileWriter.SaveVectorOptions()
+            options.layerName = layer[1].split('layername=')[1] # quick and dirty to get gpkg layername
+            options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
+            context = QgsProject.instance().transformContext()
+            QgsVectorFileWriter.writeAsVectorFormatV2(layer[0], self.dest_gpkg, context, options)
+            new_sublayer = QgsVectorLayer(layer[1], layer[0].name(), 'ogr')
+            QgsProject.instance().addMapLayer(new_sublayer)
+            new_sublayer.updateExtents(True)
+            self.extent.combineExtentWith(new_sublayer.extent())
+            move_to_group(new_sublayer, self.tr('Audiovisual notes'))
+            f'{os.path.dirname(__file__)}/svg_markers/Speaker_Icon.svg'
+            if options.layerName =='audio':
+                symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Speaker_Icon.svg')
+            elif options.layerName =='video':
+                symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Video_Camera_-_The_Noun_Project.svg')
+            elif options.layerName =='picture':
+                symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Font_Awesome_5_solid_camera.svg')
+            symbol.setSize(6)
+            new_sublayer.renderer().symbol().changeSymbolLayer(0, symbol)
+        QgsProject.instance().removeMapLayer(layer[0])
+
 
 
 def import_gpx_track_file(self: object, filename: str) -> bool:
