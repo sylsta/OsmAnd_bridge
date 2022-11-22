@@ -56,21 +56,20 @@ def import_avnotes(self: object, source_path: str) -> bool:
         print(f'{self.dlg_import.QgsFW_osmand_root_path.filePath()}/avnotes/*.{ext[0]})')
         for file in glob.glob(f'{self.dlg_import.QgsFW_osmand_root_path.filePath()}/avnotes/*.{ext[0]}'):
             file_to_import.append([file, ext[1]])
-    print(file_to_import)
+
 
     # define new gpkg layers
-    # to do: find correct syntaxis to directly create or write into geopackage
+    attributes_list = [QgsField('full_path', QVariant.String),
+                       QgsField('real_path', QVariant.String),
+                       QgsField('filename', QVariant.String),
+                       QgsField('type', QVariant.String),
+                       QgsField('x', QVariant.Double),
+                       QgsField('y', QVariant.Double)]
     # audio
     a_uri = f"{self.dest_gpkg}|layername=audio"
-    #a_layer = QgsVectorFileWriter(a_uri, self.tr('Audio notes'), 'ogr')
     a_layer = QgsVectorLayer("Point", self.tr('Audio notes'), "memory")
     a_pr = a_layer.dataProvider()
-    a_pr.addAttributes([QgsField('full_path', QVariant.String),
-                        QgsField('real_path', QVariant.String),
-                        QgsField('filename', QVariant.String),
-                        QgsField('type', QVariant.String),
-                        QgsField('x', QVariant.Double),
-                        QgsField('y', QVariant.Double)])
+    a_pr.addAttributes(attributes_list)
     a_layer.updateFields()
 
     # video
@@ -78,12 +77,7 @@ def import_avnotes(self: object, source_path: str) -> bool:
     #v_layer = QgsVectorLayer(v_uri, self.tr('Video notes'), 'ogr')
     v_layer = QgsVectorLayer("Point", self.tr('Video notes'), 'memory')
     v_pr = v_layer.dataProvider()
-    v_pr.addAttributes([QgsField('full_path', QVariant.String),
-                        QgsField('real_path', QVariant.String),
-                        QgsField('filename', QVariant.String),
-                        QgsField('type', QVariant.String),
-                        QgsField('x', QVariant.Double),
-                        QgsField('y', QVariant.Double)])
+    v_pr.addAttributes(attributes_list)
     v_layer.updateFields()
 
     # pictures
@@ -91,13 +85,9 @@ def import_avnotes(self: object, source_path: str) -> bool:
     #p_layer = QgsVectorLayer("Point", p_uri, 'ogr')
     p_layer = QgsVectorLayer("Point", self.tr('Picture notes'), 'memory')
     p_pr = p_layer.dataProvider()
-    p_pr.addAttributes([QgsField('full_path', QVariant.String),
-                        QgsField('real_path', QVariant.String),
-                        QgsField('filename', QVariant.String),
-                        QgsField('type', QVariant.String),
-                        QgsField('x', QVariant.Double),
-                        QgsField('y', QVariant.Double)])
+    p_pr.addAttributes(attributes_list)
     p_layer.updateFields()
+
     QgsProject.instance().addMapLayer(a_layer)
     QgsProject.instance().addMapLayer(v_layer)
     QgsProject.instance().addMapLayer(p_layer)
@@ -124,15 +114,10 @@ def import_avnotes(self: object, source_path: str) -> bool:
             pr = p_pr
             layer = p_layer
         pr.addFeature(f)
-        layer.updateExtents()
+        # update layer extent and final extent of the mapCanvas
+        layer.updateExtents(True)
+        self.extent.combineExtentWith(layer.extent())
         move_to_group(layer, self.tr('Audiovisual notes'))
-
-
-
-
-
-
-
 
 
 def import_gpx_track_file(self: object, filename: str) -> bool:
@@ -172,6 +157,9 @@ def import_gpx_track_file(self: object, filename: str) -> bool:
                 uri = f"{self.dest_gpkg}|layername={options.layerName}"
                 new_sublayer = QgsVectorLayer(uri, options.layerName, 'ogr')
                 QgsProject.instance().addMapLayer(new_sublayer)
+                # update layer extent and final extent of the mapCanvas
+                new_sublayer.updateExtents(True)
+                self.extent.combineExtentWith(new_sublayer.extent())
                 # put into a group layer
                 if prefix == 'favourites':
                     move_to_group(new_sublayer, self.tr('Favourites'))

@@ -28,13 +28,13 @@ from qgis import processing
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QProgressBar
-from qgis.core import QgsWkbTypes, QgsField, QgsMessageLog, Qgis, QgsProject, QgsFields
+from qgis.core import QgsWkbTypes, QgsField, QgsMessageLog, Qgis, QgsProject, QgsFields, QgsRasterLayer, QgsRectangle
 
 # Initialize Qt resources from file resources.py
 # Import the code for the dialog
 from .OsmAnd_bridge_import_dialog import OSMandBridgeImportDialog
 # Import the code for the import
-from .OsmAnd_bridge_import_process import import_gpx_track_file, import_avnotes
+from .OsmAnd_bridge_import_process import import_gpx_track_file, import_avnotes, move_to_group
 from .OsmAnd_bridge_geopackage_management import create_empty_gpkg_layer
 
 # Pycharm debug server
@@ -92,23 +92,19 @@ class OsmAndBridge:
         self.first_start = None
 
         # Add a toolbar
-        self.toolbar = self.iface.addToolBar(u'OsmAnd_bridge')
-        self.toolbar.setObjectName(u'OsmAnd_bridge')
+        self.toolbar = self.iface.addToolBar(u'OsmAnd bridge')
+        self.toolbar.setObjectName(u'OsmAnd bridge')
 
-    # noinspection PyMethodMayBeStatic
 
     def tr(self, message):
-        """Get the translation for a string using Qt translation API.
-
+        """
+        Get the translation for a string using Qt translation API.
         We implement this ourselves since we do not inherit QObject.
-
         :param message: String for translation.
         :type message: str, QString
-
         :returns: Translated version of message.
         :rtype: QString
         """
-        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('OsmAndBridge', message)
 
     def add_action(
@@ -123,39 +119,29 @@ class OsmAndBridge:
             whats_this=None,
             parent=None):
         """Add a toolbar icon to the toolbar.
-
         :param icon_path: Path to the icon for this action. Can be a resource
             path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
         :type icon_path: str
-
         :param text: Text that should be shown in menu items for this action.
         :type text: str
-
         :param callback: Function to be called when the action is triggered.
         :type callback: function
-
         :param enabled_flag: A flag indicating if the action should be enabled
             by default. Defaults to True.
         :type enabled_flag: bool
-
         :param add_to_menu: Flag indicating whether the action should also
             be added to the menu. Defaults to True.
         :type add_to_menu: bool
-
         :param add_to_toolbar: Flag indicating whether the action should also
             be added to the toolbar. Defaults to True.
         :type add_to_toolbar: bool
-
         :param status_tip: Optional text to show in a popup when mouse pointer
             hovers over the action.
         :type status_tip: str
-
         :param parent: Parent widget for the new action. Defaults None.
         :type parent: QWidget
-
         :param whats_this: Optional text to show in the status bar when the
             mouse pointer hovers over the action.
-
         :returns: The action that was created. Note that the action is also
             added to self.actions list.
         :rtype: QAction
@@ -173,8 +159,6 @@ class OsmAndBridge:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            # # Adds plugin icon to Plugins toolbar
-            # self.iface.addToolBarIcon(action)
             # Add plugin icon to its own toolbar
             self.toolbar.addAction(action)
 
@@ -225,6 +209,10 @@ class OsmAndBridge:
         result = self.dlg_import.exec_()
         # See if OK was pressed
         if result:
+            ## define empty extent that will be updated when adding layers
+            self.extent = QgsRectangle()
+            self.extent.setMinimal()
+
             # get time to generate gpkg name, and project name if not already set
             now = datetime.now().strftime("%Y%m%d-%Hh%Mm%Ss")
 
@@ -250,7 +238,7 @@ class OsmAndBridge:
                 self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
                 return
 
-            # Now dealing with AV notes
+            ## Now dealing with AV notes
             if self.dlg_import.cB_AVnotes.isChecked():
                 # create destination folder if not exists
                 os.makedirs(f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes', exist_ok=True)
@@ -258,7 +246,7 @@ class OsmAndBridge:
                 import_avnotes(self, f"{self.osmand_root_path}/avnotes/")
 
 
-            # Now dealing with favourites gpx file
+            ## Now dealing with favourites gpx file
             if self.dlg_import.cB_favourites.isChecked():
                 # user and log info
                 file = 'favourites.gpx'
@@ -275,7 +263,7 @@ class OsmAndBridge:
                     return
             self.iface.messageBar().clearWidgets()
 
-            # Now dealing with itinerary gpx file
+            ## Now dealing with itinerary gpx file
             if self.dlg_import.cB_itinerary.isChecked():
                 # user and log info
                 file = 'itinerary.gpx'
@@ -292,7 +280,7 @@ class OsmAndBridge:
                     return
             self.iface.messageBar().clearWidgets()
 
-            # Now dealing with selected gpx tracks files
+            ## Now dealing with selected gpx tracks files
             # We iterate thru selected row(s) of the gpx file table first to count files to import and prepare
             # a message bar
             i = 0
@@ -323,6 +311,16 @@ class OsmAndBridge:
                         return
             self.iface.messageBar().clearWidgets()
 
+            ## Now deasling with map background
+            tms = 'type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png&zmax=19&zmin=0'
+            layer = QgsRasterLayer(tms, 'OpenStreetMap', 'wms')
+            QgsProject.instance().addMapLayer(layer)
+            move_to_group(layer, self.tr('Map background'))
+
+            ## set map canvas extent
+            self.iface.mapCanvas().zoomToFeatureExtent((self.extent))
+            self.iface.mapCanvas().refresh()
+
             # if present, remove the temp_layer previously created to genarete destination gpkg
             try:
                 processing.run("native:spatialiteexecutesql",
@@ -339,16 +337,3 @@ class OsmAndBridge:
             # close dialog and save project
             self.dlg_import.close()
             self.project.write(qgis_project_filename)
-
-    # def create_empty_gpkg_if_no_exists(self, gpk_gname):
-    #     # Work around to create GPKG file (with an empty table that will be removed)
-    #     # see https://gis.stackexchange.com/a/417950
-    #     schema = QgsFields()
-    #     schema.append(QgsField("bool_field", QVariant.Bool))
-    #     create_blank_gpkg_layer(gpk_gname, "temp_table", QgsWkbTypes.NoGeometry, '', schema)
-    #     if not os.path.exists(os.path.dirname(gpk_gname)):
-    #         message = self.tr(f'Issue when trying to create destination geopackage file ({gpk_gname})')
-    #         QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Critical)
-    #         self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
-    #         return False
-    #     return True
