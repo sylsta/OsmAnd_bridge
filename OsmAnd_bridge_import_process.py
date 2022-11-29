@@ -59,7 +59,7 @@ def import_avnotes(self: object, source_path: str) -> bool:
 
     # define new gpkg layers
     attributes_list = [QgsField('full_path', QVariant.String),
-                       QgsField('real_path', QVariant.String),
+                       QgsField('relative_path', QVariant.String),
                        QgsField('filename', QVariant.String),
                        QgsField('type', QVariant.String),
                        QgsField('x', QVariant.Double),
@@ -128,10 +128,13 @@ def import_avnotes(self: object, source_path: str) -> bool:
             f'{os.path.dirname(__file__)}/svg_markers/Speaker_Icon.svg'
             if options.layerName =='audio':
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Speaker_Icon.svg')
+                # new_sublayer.setMapTipTemplate('<img src="file://[% "relative_path" %]"/>')
             elif options.layerName =='video':
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Video_Camera_-_The_Noun_Project.svg')
+                # new_sublayer.setMapTipTemplate('<video controls width=\'250\'><source src=\'[% "full_path" %]\' type=\'video/mp4\{></video>')
             elif options.layerName =='picture':
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Font_Awesome_5_solid_camera.svg')
+                new_sublayer.setMapTipTemplate('<img src=\'file://[% "relative_path" %]\'/>')
             symbol.setSize(6)
             new_sublayer.renderer().symbol().changeSymbolLayer(0, symbol)
             new_sublayer.triggerRepaint()
