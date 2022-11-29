@@ -27,10 +27,11 @@ import os
 import shutil
 
 import qgis
-from qgis.core import QgsVectorFileWriter, QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsField, QgsFeature, QgsGeometry, \
-    QgsPointXY
+
+from qgis.core import QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsField, QgsFeature, QgsGeometry, \
+    QgsPointXY, QgsSvgMarkerSymbolLayer, QgsAction
 from qgis.PyQt.QtCore import QVariant
-from qgis.core import QgsSvgMarkerSymbolLayer
+
 
 import pathlib
 
@@ -128,17 +129,34 @@ def import_avnotes(self: object, source_path: str) -> bool:
             f'{os.path.dirname(__file__)}/svg_markers/Speaker_Icon.svg'
             if options.layerName =='audio':
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Speaker_Icon.svg')
-                # new_sublayer.setMapTipTemplate('<img src="file://[% "relative_path" %]"/>')
+                # new_sublayer.setMapTipTemplate('<img src="file://[% "full_path" %]"/>')
             elif options.layerName =='video':
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Video_Camera_-_The_Noun_Project.svg')
                 # new_sublayer.setMapTipTemplate('<video controls width=\'250\'><source src=\'[% "full_path" %]\' type=\'video/mp4\{></video>')
             elif options.layerName =='picture':
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Font_Awesome_5_solid_camera.svg')
-                new_sublayer.setMapTipTemplate('<img src=\'file://[% "relative_path" %]\'/>')
+                new_sublayer.setMapTipTemplate('<img src=\'file://[% "full_path" %]\'/>')
             symbol.setSize(6)
+
             new_sublayer.renderer().symbol().changeSymbolLayer(0, symbol)
             new_sublayer.triggerRepaint()
             self.iface.layerTreeView().refreshLayerSymbology(new_sublayer.id())
+
+            # add action to open linked document
+            action = QgsAction(QgsAction.OpenUrl, self.tr('Open file'), '[% "full_path" %]')
+            my_scopes = {'Field', 'Canvas', 'Form', 'Field', 'Layer', 'Feature'}
+            action.setActionScopes(my_scopes)
+            actionManager = new_sublayer.actions()
+            actionManager.addAction(action)
+            for scope in my_scopes:
+                    actionManager.setDefaultAction(scope, action.id())
+
+
+
+            # symbol.setSize(6)
+            # new_sublayer.renderer().symbol().changeSymbolLayer(0, symbol)
+            # new_sublayer.triggerRepaint()
+            # self.iface.layerTreeView().refreshLayerSymbology(new_sublayer.id())
         QgsProject.instance().removeMapLayer(layer[0])
 
 
