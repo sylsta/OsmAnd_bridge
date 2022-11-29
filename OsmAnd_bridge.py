@@ -22,15 +22,16 @@
  ***************************************************************************/
 """
 import os.path
+import socket
 from datetime import datetime
 
 from qgis import processing
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt, QTimer
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt
 
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QProgressBar, QApplication
 from qgis.core import QgsWkbTypes, QgsField, QgsMessageLog, Qgis, QgsProject, QgsFields, QgsRasterLayer, \
-    QgsRectangle, QgsCoordinateReferenceSystem, QgsReferencedRectangle
+    QgsRectangle, QgsCoordinateReferenceSystem, QgsSettings
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -99,10 +100,8 @@ class OsmAndBridge:
         self.toolbar = self.iface.addToolBar(u'OsmAnd bridge')
         self.toolbar.setObjectName(u'OsmAnd bridge')
 
-        # self.iface.mapCanvas().setMapUnits(2)
-        # self.iface.mapCanvas().refresh()
-        # self.iface.mapCanvas().zoomToFeatureExtent(self.extent)
-        # self.iface.mapCanvas().refresh()
+        # delai for maptip display
+        QgsSettings().setValue('qgis/mapTipsDelay', 500)
 
     def tr(self, message):
         """
@@ -326,13 +325,20 @@ class OsmAndBridge:
             self.iface.messageBar().clearWidgets()
 
             ## Now deasling with map background
-            tms = 'type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png&zmax=19&zmin=0'
-            layer = QgsRasterLayer(tms, 'OpenStreetMap', 'wms')
-            QgsProject.instance().addMapLayer(layer)
-            move_to_group(layer, self.tr('Map background'))
+            # cheking internet connection
+            try :
+                socket.create_connection(("tile.openstreetmap.org", 443))
+                tms = 'type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png&zmax=19&zmin=0'
+                layer = QgsRasterLayer(tms, 'OpenStreetMap', 'wms')
+                QgsProject.instance().addMapLayer(layer)
+                move_to_group(layer, self.tr('Map background'))
+            except:
+                message = self.tr(f'No internet connection. Unable to load OSM tile background')
+                QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Warning)
+                self.iface.messageBar().pushMessage(message, level=Qgis.Warning)
 
             ## set map canvas extent
-            QApplication.instance().processEvents() #needed but not safe (see https://issues.qgis.org/issues/19311)
+            QApplication.instance().processEvents() # needed but not safe (see https://issues.qgis.org/issues/19311)
             self.iface.mapCanvas().zoomToFeatureExtent(self.extent)
             self.iface.mapCanvas().refresh()
 
