@@ -32,8 +32,7 @@ from qgis.core import QgsMessageLog, Qgis
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'))
-
+    os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'), resource_suffix='')
 
 class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, parent=None):
