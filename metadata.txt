@@ -4,9 +4,15 @@
 
 [general]
 name=OsmAnd bridge
+
 qgisMinimumVersion=3.0
+
 description=Import tracks, favourites, itinerary and AV notes from OsmAnd
-version=0.3
+
+description[fr]=Importe des traces, favoris, marques et AV notes from OsmAnd
+
+version=1.0
+
 author=Sylvain Théry - UMR 5281 ART-Dev
 email=sylvain.thery@cnrs.fr
 
@@ -19,6 +25,8 @@ repository=https://gitlab.huma-num.fr/sthery/OsmAnd_bridge
 homepage=https://gitlab.huma-num.fr/sthery/OsmAnd_bridge
 
 changelog=
+    1.0 (2022-11-30):
+        - release
     0.3 (2022-11-21):
         – imoprt AV notes
     0.2 (2022-08-05):
@@ -28,6 +36,7 @@ changelog=
 
 category=Plugins
 icon=OsmAnd_logo.png
-experimental=True
+experimental=False
 server=False
+tags=OsmAnd,gps,gnss, AV notes, OSM
 

@@ -34,7 +34,7 @@ from qgis.core import QgsWkbTypes, QgsField, QgsMessageLog, Qgis, QgsProject, Qg
     QgsRectangle, QgsCoordinateReferenceSystem, QgsSettings
 
 # Initialize Qt resources from file resources.py
-from .resources import *
+# from .resources import *
 # Import the code for the dialog
 from .OsmAnd_bridge_import_dialog import OsmAndBridgeImportDialog
 # Import the code for the process
