@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>623</width>
-    <height>678</height>
+    <width>633</width>
+    <height>705</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>OsmAnd Linker - Select items to import </string>
+   <string>OsmAnd bridge - Select items to import </string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
@@ -22,9 +22,9 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>610</y>
-     <width>341</width>
+     <x>-110</x>
+     <y>640</y>
+     <width>351</width>
      <height>32</height>
     </rect>
    </property>
@@ -35,7 +35,7 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
    </property>
   </widget>
   <widget class="QTableWidget" name="tW_tracks">
@@ -45,7 +45,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>220</y>
+     <y>250</y>
      <width>531</width>
      <height>192</height>
     </rect>
@@ -64,7 +64,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>120</y>
+     <y>100</y>
      <width>531</width>
      <height>34</height>
     </rect>
@@ -86,7 +86,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>560</y>
+     <y>590</y>
      <width>531</width>
      <height>34</height>
     </rect>
@@ -108,7 +108,7 @@
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>470</y>
+     <y>510</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -130,7 +130,7 @@
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>470</y>
+     <y>510</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -149,7 +149,7 @@
    <property name="geometry">
     <rect>
      <x>390</x>
-     <y>470</y>
+     <y>510</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -165,46 +165,49 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>10</y>
+     <y>70</y>
      <width>411</width>
-     <height>91</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the&lt;a href='https://osmand.net/'&gt; OsmAnd &lt;/a&gt;file directory of your phone:&lt;br/&gt;&lt;/span&gt;(default is : /Android/data/net.osmand/files&lt;br/&gt;or /Android/data/net.osmand.plus/files on you android phone.&lt;br/&gt;You might have to copy this folder on your computer)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the&lt;a href='https://osmand.net/' tagert='_blank'&gt; OsmAnd &lt;/a&gt;file directory of your phone:</string>
+   </property>
+   <property name="openExternalLinks">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>190</y>
+     <y>220</y>
      <width>411</width>
      <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the tracks you want to download:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the track(s) you want to download:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>440</y>
+     <y>480</y>
      <width>411</width>
      <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the point feature you want to download:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the point feature(s) you want to download:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>530</y>
+     <y>560</y>
      <width>411</width>
      <height>20</height>
     </rect>
@@ -213,17 +216,33 @@
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Choose the destination folder on your computer:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>100</y>
+     <width>501</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;br/&gt;&lt;/span&gt;(default is : /Android/data/net.osmand/files&lt;br/&gt;or /Android/data/net.osmand.plus/files on android phones.&lt;br/&gt;You might have to copy this folder on your computer.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
      <x>530</x>
-     <y>10</y>
-     <width>91</width>
-     <height>81</height>
+     <y>20</y>
+     <width>71</width>
+     <height>71</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;./OsmAnd_logo.png&quot; width=&quot;75&quot; height=&quot;78&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string notr="true"/>
+   </property>
+   <property name="pixmap">
+    <pixmap>OsmAnd_logo.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
@@ -237,9 +256,7 @@
    <header>qgsfilewidget.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

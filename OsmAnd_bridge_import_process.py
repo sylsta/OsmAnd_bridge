@@ -175,7 +175,7 @@ def import_gpx_track_file(self: object, filename: str) -> bool:
     try:
         prefix = pathlib.Path(filename).stem
         # list of type of items that can be found in gpx files and their translations for group naming
-        names = [["waypoints", self.tr("Waypoints")], ["routes", self.tr("Raoutes")], ["tracks", self.tr("Tracks")],
+        names = [["waypoints", self.tr("Waypoints")], ["routes", self.tr("Routes")], ["tracks", self.tr("Tracks")],
                  ["route_points", self.tr("Route points")], ["track_points", self.tr("Track points")]]
 
         for name in names:
