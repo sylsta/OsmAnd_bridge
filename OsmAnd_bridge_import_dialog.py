@@ -76,21 +76,31 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.tW_tracks.setSortingEnabled(True)
         self.tW_tracks.setRowCount(0)
         self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.tW_tracks.selectionModel().selectionChanged.connect(self.enable_ok_button)
+
         self.QgsFW_osmand_root_path.fileChanged.connect(self.osmand_root_path_changed)
-        self.QgsFW_dest_path.fileChanged.connect(self.dest_as_changed)
+        self.QgsFW_dest_path.fileChanged.connect(self.destination_changed)
         for cBB in [self.cB_favourites, self.cB_itinerary, self.cB_AVnotes]:
             cBB.setEnabled(False)
             cBB.setChecked(False)
+            cBB.stateChanged.connect(self.enable_ok_button)
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
+        self.clearPB.clicked.connect(self.clear_selection)
 
-    def dest_as_changed(self):
+    def clear_selection(self):
+        self.tW_tracks.clearSelection()
+        self.enable_ok_button()
+
+    def destination_changed(self):
         """
         Called when destination text area content change
         :return: None
         :rtype: None
         """
 
-        if not os.path.exists(os.path.dirname(self.QgsFW_osmand_root_path.filePath())):
-            QgsMessageLog.logMessage(self.tr('not valid OsmAnd file path.'), self.plugin_name, level=Qgis.Critical)
+        if not os.path.exists(os.path.dirname(self.QgsFW_dest_path.filePath())):
+            QgsMessageLog.logMessage(self.tr('not valid output file path.'), self.plugin_name, level=Qgis.Critical)
+        self.enable_ok_button()
 
 
     def osmand_root_path_changed(self) -> None:
@@ -100,7 +110,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         :rtype: None
         """
 
-        if not os.path.exists(os.path.dirname(self.QgsFW_osmand_root_path.filePath())):
+        if not os.path.isdir(self.QgsFW_osmand_root_path.filePath()):
             QgsMessageLog.logMessage(self.tr('not valid OsmAnd file path.'), self.plugin_name, level=Qgis.Critical)
             self.init_widget()
         else:
@@ -120,7 +130,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         self.tW_tracks.setRowCount(0)
             except:
                 QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)
-                pass
+
 
             # checkbox favorites
             try:
@@ -163,6 +173,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
             except:
                 QgsMessageLog.logMessage(self.tr('no avnote file to import.'), self.plugin_name, level=Qgis.Critical)
+
+        self.enable_ok_button()
 
 
     def get_gpx_file_informations(self, pattern: str) -> None:
@@ -210,3 +222,26 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         """
 
         return str(bytes) + units[0] if bytes < 1024 else self.human_readable_filesize(bytes >> 10, units[1:])
+
+    def enable_ok_button(self):
+        """
+        Manage OK button. Make it only enable when params are OK.
+        :return: None
+        :rtype: None
+        """
+        flag = False
+        try:
+
+            if os.path.isdir(os.path.dirname(self.QgsFW_osmand_root_path.filePath())):
+                if os.path.isdir(self.QgsFW_dest_path.filePath()):
+                    if self.cB_AVnotes.isChecked() or self.cB_favourites.isChecked() or self.cB_itinerary.isChecked() \
+                            or len(set(index.row() for index in self.tW_tracks.selectedIndexes()))>0:
+                        flag=True
+
+        except:
+            pass
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(flag)
+
+
+
+

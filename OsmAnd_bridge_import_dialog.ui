@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>Dialog</class>
  <widget class="QDialog" name="Dialog">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,13 +20,10 @@
    <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
    <property name="geometry">
     <rect>
      <x>-110</x>
-     <y>640</y>
+     <y>660</y>
      <width>351</width>
      <height>32</height>
     </rect>
@@ -35,7 +35,7 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
   <widget class="QTableWidget" name="tW_tracks">
@@ -52,6 +52,9 @@
    </property>
    <property name="locale">
     <locale language="English" country="UnitedStates"/>
+   </property>
+   <property name="editTriggers">
+    <set>QAbstractItemView::NoEditTriggers</set>
    </property>
    <property name="rowCount">
     <number>0</number>
@@ -76,7 +79,7 @@
     <enum>QgsFileWidget::GetDirectory</enum>
    </property>
    <property name="options">
-    <set>QFileDialog::ReadOnly|QFileDialog::ShowDirsOnly</set>
+    <set>QFileDialog::ShowDirsOnly</set>
    </property>
   </widget>
   <widget class="QgsFileWidget" name="QgsFW_dest_path">
@@ -86,7 +89,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>590</y>
+     <y>610</y>
      <width>531</width>
      <height>34</height>
     </rect>
@@ -108,7 +111,7 @@
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>510</y>
+     <y>530</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -130,7 +133,7 @@
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>510</y>
+     <y>530</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -149,7 +152,7 @@
    <property name="geometry">
     <rect>
      <x>390</x>
-     <y>510</y>
+     <y>530</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -194,7 +197,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>480</y>
+     <y>500</y>
      <width>411</width>
      <height>20</height>
     </rect>
@@ -207,7 +210,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>560</y>
+     <y>580</y>
      <width>411</width>
      <height>20</height>
     </rect>
@@ -220,13 +223,13 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>100</y>
+     <y>130</y>
      <width>501</width>
-     <height>111</height>
+     <height>61</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;br/&gt;&lt;/span&gt;(default is : /Android/data/net.osmand/files&lt;br/&gt;or /Android/data/net.osmand.plus/files on android phones.&lt;br/&gt;You might have to copy this folder on your computer.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>(default is : /Android/data/net.osmand/files&lt;br/&gt;or /Android/data/net.osmand.plus/files on android phones.&lt;br/&gt;You might have to copy this folder on your computer.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_6">
@@ -246,6 +249,23 @@
    </property>
    <property name="scaledContents">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="clearPB">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>450</y>
+     <width>41</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>svg_markers/checkbox-152188.svg</normaloff>svg_markers/checkbox-152188.svg</iconset>
    </property>
   </widget>
  </widget>
