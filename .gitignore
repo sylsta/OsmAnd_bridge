@@ -4,5 +4,5 @@
 /.idea/
 /____tmp/
 /__pycache__/
-
+/*.db
 /clean-ignore.py
