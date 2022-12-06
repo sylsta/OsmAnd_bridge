@@ -319,3 +319,4 @@ def decode_short_code(shortcode: str) -> list:
             z += 1
 
     return [y, x, z]
+
