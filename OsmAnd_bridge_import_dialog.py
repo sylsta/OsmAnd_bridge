@@ -123,7 +123,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 else:
                     pattern = f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/*.gpx'
                     if len(glob.glob(pattern)) >= 0:
-                        self.get_gpx_file_informations(pattern)
+                        self.get_gpx_file_information(pattern)
                         self.tW_tracks.setEnabled(True)
                         self.tW_tracks.resizeColumnsToContents()
                     else:
@@ -134,13 +134,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
             # checkbox favorites
             try:
-                with open(f'{self.QgsFW_osmand_root_path.filePath()}/favourites.gpx'):
-                    QgsMessageLog.logMessage(self.tr('found ./favourites.gpx.'), self.plugin_name, level=Qgis.Info)
+                with open(f'{self.QgsFW_osmand_root_path.filePath()}/favorites/favorites.gpx'):
+                    QgsMessageLog.logMessage(self.tr('found favorites.gpx.'), self.plugin_name, level=Qgis.Info)
                     self.cB_favourites.setEnabled(True)
                     self.cB_favourites.setChecked(True)
 
             except IOError:
-                QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), self.plugin_name, level=Qgis.Warning)
+                QgsMessageLog.logMessage(self.tr('No favorites found.'), self.plugin_name, level=Qgis.Warning)
                 self.cB_favourites.setEnabled(False)
                 self.cB_favourites.setChecked(False)
 
@@ -153,7 +153,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     self.cB_itinerary.setChecked(True)
 
             except IOError:
-                QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), self.plugin_name, level=Qgis.Warning)
+                QgsMessageLog.logMessage(self.tr('./itinerary.gpx not found.'), self.plugin_name, level=Qgis.Warning)
                 self.cB_itinerary.setEnabled(False)
                 self.cB_itinerary.setChecked(False)
 
@@ -177,7 +177,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.enable_ok_button()
 
 
-    def get_gpx_file_informations(self, pattern: str) -> None:
+    def get_gpx_file_information(self, pattern: str) -> None:
         """
         List files according to pattern and send info the function that feed dialog table
         :param pattern: a file pattern whit directory (eg. '/home/sylvain/test/*.gpx)

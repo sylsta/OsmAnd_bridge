@@ -25,12 +25,14 @@ repository=https://gitlab.huma-num.fr/sthery/OsmAnd_bridge
 homepage=https://gitlab.huma-num.fr/sthery/OsmAnd_bridge
 
 changelog=
+    1.0 (2022-12-8):
+        - fix bug with image maptip
     1.0 (2022-11-30):
         - release
-    0.3 (2022-11-21):
-        – imoprt AV notes
-    0.2 (2022-08-05):
-        – major refactor
+        0.3 (2022-11-21):
+            – import AV notes
+        0.2 (2022-08-05):
+            – major refactor
     0.1 (2022-06-14):
         – first commit :)
 

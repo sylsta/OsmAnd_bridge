@@ -135,7 +135,17 @@ def import_avnotes(self: object, source_path: str) -> bool:
                 # new_sublayer.setMapTipTemplate('<video controls width=\'250\'><source src=\'[% "full_path" %]\' type=\'video/mp4\{></video>')
             elif options.layerName =='picture':
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Font_Awesome_5_solid_camera.svg')
-                new_sublayer.setMapTipTemplate('<img src=\'file://[% "full_path" %]\'/>')
+                # strange values for the following html code but it works :/ Don't know why
+                new_sublayer.setMapTipTemplate("""
+                    <style>
+                        body {width:800px!;}
+                        div {width:200px;}
+                        img { width:100%; max-width:500px; }
+                    </style>
+                    <div>
+                       <img src='file://[% "full_path" %]'/>
+                    </div>   
+                    """)
             symbol.setSize(6)
 
             new_sublayer.renderer().symbol().changeSymbolLayer(0, symbol)
