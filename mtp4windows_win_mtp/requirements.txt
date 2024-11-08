@@ -1,4 +1,0 @@
-# For the python program
-comtypes
-psutil
-
