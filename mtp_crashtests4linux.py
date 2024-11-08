@@ -38,7 +38,7 @@ if not path_found:
 # copy data to tmp folder
 print('Copying data to tmp folder')
 tmp_dir_name = tempfile.TemporaryDirectory().name
-items_list = ['/tracks/rec/', '/favourites.gpx', '/itinerary.gpx', '/avnotes/']
+items_list = ['/tracks/rec/', '/favorites.gpx', '/itinerary.gpx', '/avnotes/']
 for item in items_list:
     print(path+item)
     try:
