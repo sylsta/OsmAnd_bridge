@@ -134,13 +134,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
             # checkbox favorites
             try:
-                with open(f'{self.QgsFW_osmand_root_path.filePath()}/favourites.gpx'):
-                    QgsMessageLog.logMessage(self.tr('found ./favourites.gpx.'), self.plugin_name, level=Qgis.Info)
+                with open(f'{self.QgsFW_osmand_root_path.filePath()}/favorites/favorites.gpx'):
+                    QgsMessageLog.logMessage(self.tr('found favorites.gpx.'), self.plugin_name, level=Qgis.Info)
                     self.cB_favourites.setEnabled(True)
                     self.cB_favourites.setChecked(True)
 
             except IOError:
-                QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), self.plugin_name, level=Qgis.Warning)
+                QgsMessageLog.logMessage(self.tr('No favorites found.'), self.plugin_name, level=Qgis.Warning)
                 self.cB_favourites.setEnabled(False)
                 self.cB_favourites.setChecked(False)
 
@@ -153,7 +153,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     self.cB_itinerary.setChecked(True)
 
             except IOError:
-                QgsMessageLog.logMessage(self.tr('./favourites.gpx not found.'), self.plugin_name, level=Qgis.Warning)
+                QgsMessageLog.logMessage(self.tr('./itinerary.gpx not found.'), self.plugin_name, level=Qgis.Warning)
                 self.cB_itinerary.setEnabled(False)
                 self.cB_itinerary.setChecked(False)
 
