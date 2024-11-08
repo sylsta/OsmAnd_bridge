@@ -7,7 +7,7 @@ name=OsmAnd bridge
 
 qgisMinimumVersion=3.0
 
-description=Import tracks, favourites, itinerary and AV notes from OsmAnd
+description=Import tracks, favorites, itinerary and AV notes from OsmAnd
 
 description[fr]=Importe des traces, favoris, marques et AV notes from OsmAnd
 
@@ -16,7 +16,7 @@ version=1.1
 author=Sylvain Théry - UMR 5281 ART-Dev
 email=sylvain.thery@cnrs.fr
 
-about=Import tracks, favourites, itinerary and AV notes from OsmAnd
+about=Import tracks, favorites, itinerary and AV notes from OsmAnd
 
 about[fr]=Import de traces, favoris, marques et notes audios, vidéos et photos depuis un téléphone disposant d'OsmAnd
 

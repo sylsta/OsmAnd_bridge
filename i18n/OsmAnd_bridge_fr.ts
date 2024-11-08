@@ -55,7 +55,7 @@
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="207"/>
-        <source>Favourites</source>
+        <source>favorites</source>
         <translation>Favoris</translation>
     </message>
     <message>
@@ -73,7 +73,7 @@
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="120"/>
-        <source>Favourites</source>
+        <source>favorites</source>
         <translation>Favoris</translation>
     </message>
     <message>
@@ -121,7 +121,7 @@
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="185"/>
-        <source>Import tracks, favourites, itinerary and AV notes</source>
+        <source>Import tracks, favorites, itinerary and AV notes</source>
         <translation>Import de traces, favoris, marques et notes AV</translation>
     </message>
     <message>
@@ -131,12 +131,12 @@
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="266"/>
-        <source>Importing favourites ({file})</source>
+        <source>Importing favorites ({file})</source>
         <translation>Import des favoris  ({file})</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="273"/>
-        <source>Something went wrong while importing favourites ({file})</source>
+        <source>Something went wrong while importing favorites ({file})</source>
         <translation>Erreur en important les favoris</translation>
     </message>
     <message>
@@ -209,13 +209,13 @@
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="128"/>
-        <source>found ./favourites.gpx.</source>
-        <translation>fichier  ./favourites.gpx détecté.</translation>
+        <source>found ./favorites.gpx.</source>
+        <translation>fichier  ./favorites.gpx détecté.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="146"/>
-        <source>./favourites.gpx not found.</source>
-        <translation>fichier ./favourites.gpx introuvable.</translation>
+        <source>./favorites.gpx not found.</source>
+        <translation>fichier ./favorites.gpx introuvable.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="141"/>
