@@ -123,7 +123,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 else:
                     pattern = f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/*.gpx'
                     if len(glob.glob(pattern)) >= 0:
-                        self.get_gpx_file_informations(pattern)
+                        self.get_gpx_file_information(pattern)
                         self.tW_tracks.setEnabled(True)
                         self.tW_tracks.resizeColumnsToContents()
                     else:
@@ -177,7 +177,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.enable_ok_button()
 
 
-    def get_gpx_file_informations(self, pattern: str) -> None:
+    def get_gpx_file_information(self, pattern: str) -> None:
         """
         List files according to pattern and send info the function that feed dialog table
         :param pattern: a file pattern whit directory (eg. '/home/sylvain/test/*.gpx)
