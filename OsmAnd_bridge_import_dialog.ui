@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>633</width>
-    <height>705</height>
+    <width>571</width>
+    <height>649</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,8 +22,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>-110</x>
-     <y>660</y>
+     <x>150</x>
+     <y>610</y>
      <width>351</width>
      <height>32</height>
     </rect>
@@ -44,8 +44,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>250</y>
+     <x>13</x>
+     <y>200</y>
      <width>531</width>
      <height>192</height>
     </rect>
@@ -66,8 +66,8 @@
   <widget class="QgsFileWidget" name="QgsFW_osmand_root_path">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>100</y>
+     <x>13</x>
+     <y>120</y>
      <width>531</width>
      <height>34</height>
     </rect>
@@ -88,8 +88,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>610</y>
+     <x>13</x>
+     <y>560</y>
      <width>531</width>
      <height>34</height>
     </rect>
@@ -104,14 +104,14 @@
     <set>QFileDialog::ShowDirsOnly</set>
    </property>
   </widget>
-  <widget class="QCheckBox" name="cB_favourites">
+  <widget class="QCheckBox" name="cB_favorites">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>530</y>
+     <x>43</x>
+     <y>480</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -132,8 +132,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>230</x>
-     <y>530</y>
+     <x>193</x>
+     <y>480</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -151,8 +151,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>390</x>
-     <y>530</y>
+     <x>353</x>
+     <y>480</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -167,14 +167,14 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>70</y>
+     <x>13</x>
+     <y>90</y>
      <width>411</width>
      <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the&lt;a href='https://osmand.net/' tagert='_blank'&gt; OsmAnd &lt;/a&gt;file directory of your phone:</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the 'file' directory on you computer:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="openExternalLinks">
     <bool>true</bool>
@@ -183,8 +183,8 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>220</y>
+     <x>13</x>
+     <y>170</y>
      <width>411</width>
      <height>20</height>
     </rect>
@@ -196,8 +196,8 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>500</y>
+     <x>13</x>
+     <y>450</y>
      <width>411</width>
      <height>20</height>
     </rect>
@@ -209,8 +209,8 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>580</y>
+     <x>13</x>
+     <y>530</y>
      <width>411</width>
      <height>20</height>
     </rect>
@@ -219,23 +219,10 @@
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Choose the destination folder on your computer:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_5">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>130</y>
-     <width>501</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>(default is : /Android/data/net.osmand/files&lt;br/&gt;or /Android/data/net.osmand.plus/files on android phones.&lt;br/&gt;You might have to copy this folder on your computer.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>530</x>
+     <x>473</x>
      <y>20</y>
      <width>71</width>
      <height>71</height>
@@ -254,8 +241,8 @@
   <widget class="QPushButton" name="clearPB">
    <property name="geometry">
     <rect>
-     <x>540</x>
-     <y>450</y>
+     <x>503</x>
+     <y>400</y>
      <width>41</width>
      <height>21</height>
     </rect>
@@ -266,6 +253,77 @@
    <property name="icon">
     <iconset>
      <normaloff>svg_markers/checkbox-152188.svg</normaloff>svg_markers/checkbox-152188.svg</iconset>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="rBdevice">
+   <property name="geometry">
+    <rect>
+     <x>13</x>
+     <y>40</y>
+     <width>105</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Device</string>
+   </property>
+   <attribute name="buttonGroup">
+    <string notr="true">buttonGroup</string>
+   </attribute>
+  </widget>
+  <widget class="QRadioButton" name="rBdir">
+   <property name="geometry">
+    <rect>
+     <x>133</x>
+     <y>40</y>
+     <width>151</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Local directory</string>
+   </property>
+   <attribute name="buttonGroup">
+    <string notr="true">buttonGroup</string>
+   </attribute>
+  </widget>
+  <widget class="QComboBox" name="cBdeviceList">
+   <property name="geometry">
+    <rect>
+     <x>13</x>
+     <y>120</y>
+     <width>491</width>
+     <height>32</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>13</x>
+     <y>10</y>
+     <width>411</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Import &lt;/span&gt;&lt;a href=&quot;https://osmand.net/&quot;&gt;&lt;span style=&quot; font-weight:600; text-decoration: underline; color:#1d99f3;&quot;&gt;OsmAnd&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-weight:600;&quot;&gt; data from...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="openExternalLinks">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="qbRefresh">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>120</y>
+     <width>31</width>
+     <height>34</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>
@@ -311,4 +369,7 @@
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
 </ui>
