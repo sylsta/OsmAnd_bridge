@@ -134,9 +134,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 devices = get_raw_devices()
             except:
                 if self.first:
-                    QMessageBox.warning(self, 'No device found!',
-                                        self.tr("Check that your devvice is properly connected and unlocked."))
-                self.first = False
+                    QMessageBox.warning(self, self.tr('No device found!'),
+                                        self.tr("Check that your device is properly connected and unlocked."))
                 QGuiApplication.restoreOverrideCursor()
                 return
 
@@ -189,7 +188,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     device_open.close()
             except:
                 print('Can\'t connect to device')
-                QMessageBox.warning(self, 'Can\'t connect to device',
+                QMessageBox.warning(self, self.tr('Can\'t connect to device'),
                                     self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
                                             "and replugging it."))
                 QGuiApplication.restoreOverrideCursor()
@@ -230,7 +229,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 try:
                     devices = get_raw_devices()
                 except:
-                    QMessageBox.warning(self, 'No device found!',
+                    QMessageBox.warning(self, self.tr('No device found!'),
                                         self.tr("Check that your device is properly connected and unlocked."))
                     return
 
@@ -243,7 +242,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         device_open.close()
                 except:
                     print('Can\'t connect to device')
-                    QMessageBox.warning(self, 'Can\'t connect to device',
+                    QMessageBox.warning(self, self.tr('Can\'t connect to device'),
                                         self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
                                                 "and replugging it."))
                     return
@@ -290,11 +289,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def osmand_root_path_changed(self) -> None:
         """
-        Called when destination text area content change
+        Called when source text area content change
         :return: None
         :rtype: None
         """
         print('osmand_root_path_changed(self) call')
+        self.tW_tracks.clearContents()
+        self.tW_tracks.setRowCount(0)
         if not os.path.isdir(self.QgsFW_osmand_root_path.filePath()):
             QgsMessageLog.logMessage(self.tr('*Not a valid directory.'), self.plugin_name, level=Qgis.Critical)
             # self.init_widget()
@@ -304,15 +305,14 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/'):
                     QgsMessageLog.logMessage(self.tr('no valid OsmAnd tracks path.'), self.plugin_name,
                                              level=Qgis.Critical)
-                    self.tW_tracks.setRowCount(0)
+
                 else:
                     pattern = f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/*.gpx'
                     if len(glob.glob(pattern)) >= 0:
                         self.get_gpx_file_information(pattern)
                         self.tW_tracks.setEnabled(True)
                         self.tW_tracks.resizeColumnsToContents()
-                    else:
-                        self.tW_tracks.setRowCount(0)
+
             except:
                 QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)
 
