@@ -120,7 +120,7 @@
     <locale language="English" country="UnitedStates"/>
    </property>
    <property name="text">
-    <string>Favourites</string>
+    <string>Favorites</string>
    </property>
    <property name="tristate">
     <bool>true</bool>
