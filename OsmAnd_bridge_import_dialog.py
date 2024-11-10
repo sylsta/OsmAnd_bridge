@@ -199,6 +199,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
     def on_radio_button_toggled(self):
         self.label.show()
         if self.rBdir.isChecked():
+            self.QgsFW_osmand_root_path.setFilePath('')
             self.QgsFW_osmand_root_path.show()
             self.cBdeviceList.hide()
             self.qbRefresh.hide()
@@ -212,8 +213,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.cBdeviceList.show()
             self.qbRefresh.show()
             self.qbGoMTP.show()
-            self.label.setText(self.tr('<html><head/><body><p><span style=" font-weight:600;">Select your device from '
-                                       'the list:</span></p></body></html>'))
+            self.label.setText(self.tr('<html><head/><body><p><span style=" font-weight:600;">Select your device:'
+                                       '</span></p></body></html>'))
             print('rBdevice')
 
             self.list_MTP_Device()

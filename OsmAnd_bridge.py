@@ -203,11 +203,11 @@ class OsmAndBridge:
     def run(self):
         """Run method that performs all the real work"""
 
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start:
-            self.first_start = False
-            self.dlg_import = OsmAndBridgeImportDialog()
+        # # Create the dialog with elements (after translation) and keep reference
+        # # Only create GUI ONCE in callback, so that it will only load when the plugin is started
+        # if self.first_start:
+        #     self.first_start = False
+        self.dlg_import = OsmAndBridgeImportDialog()
 
         # show the dialog
         self.dlg_import.show()
