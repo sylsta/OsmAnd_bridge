@@ -26,28 +26,32 @@ import os
 import datetime as dt
 import platform
 import tempfile
-
+from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
     QRadioButton, QComboBox, QMessageBox
-from qgis.PyQt import uic
-from qgis.PyQt import QtWidgets
+from qgis.PyQt import uic, QtWidgets
 import glob
-
-from qgis._gui import QgsFileWidget
+from PyQt5.QtCore import Qt
+from qgis.utils import OverrideCursor
+from qgis.gui import QgsFileWidget
 from qgis.core import QgsMessageLog, Qgis
-
 
 if platform.system() == 'Linux':
     from .mtp4linux_mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
 
-elif platform.system()  == 'Windows':
+elif platform.system() == 'Windows':
     import mtp4win_win_mtp as win_mtp
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'), resource_suffix='')
 
+
 class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
+    """
+
+    """
+    # annotations for completion
     buttonBox: QDialogButtonBox
     tW_tracks: QTableWidget
     QgsFW_osmand_root_path: QgsFileWidget
@@ -103,7 +107,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
         self.clearPB.clicked.connect(self.clear_selection)
 
-        #radio buttons to switch beetween device and directory
+        # radio buttons to switch beetween device and directory
         self.rBdir.toggled.connect(self.on_radio_button_toggled)
         self.rBdevice.toggled.connect(self.on_radio_button_toggled)
         self.cBdeviceList.hide()
@@ -119,7 +123,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # self.qbRefresh.setIcon(icon)
 
     def search_copy_osmand_file_from_device(self):
-        print('search_copy_osmand_file_from_device(self) call')
+
+        # https://gis.stackexchange.com/questions/42542/changing-cursor-shape-in-pyqgis
+        QGuiApplication.setOverrideCursor(Qt.WaitCursor)
+        print('search_copy_osmand_file_from_device(self) call')  # DEBUG
         if self.os == 'Linux':
             print('Linux')
             self.kill_pid()
@@ -130,6 +137,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     QMessageBox.warning(self, 'No device found!',
                                         self.tr("Check that your devvice is properly connected and unlocked."))
                 self.first = False
+                QGuiApplication.restoreOverrideCursor()
                 return
 
             try:
@@ -157,9 +165,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         tmp_dir_name = tempfile.TemporaryDirectory().name
                         print(f'Copying data to tmp folder: {tmp_dir_name}')
                         items_list = ['/avnotes/', '/tracks/rec/', '/favorites/favorites.gpx', '/itinerary.gpx']
-                        os.makedirs(tmp_dir_name+items_list[0])
-                        os.makedirs(tmp_dir_name+items_list[1])
-                        os.makedirs(tmp_dir_name+'/favorites')
+                        os.makedirs(tmp_dir_name + items_list[0])
+                        os.makedirs(tmp_dir_name + items_list[1])
+                        os.makedirs(tmp_dir_name + '/favorites')
                         for item in items_list:
                             print(path + item)
                             try:
@@ -184,10 +192,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 QMessageBox.warning(self, 'Can\'t connect to device',
                                     self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
                                             "and replugging it."))
+                QGuiApplication.restoreOverrideCursor()
                 return
+        QGuiApplication.restoreOverrideCursor()
 
-
-    
     def on_radio_button_toggled(self):
         self.label.show()
         if self.rBdir.isChecked():
@@ -225,14 +233,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                         self.tr("Check that your device is properly connected and unlocked."))
                     return
 
-
                 try:
                     for device in devices:
-                            self.kill_pid()
-                            device_open = device.open()
-                            device_model_name=str(device_open.get_model_name())
-                            self.cBdeviceList.addItem(f'{device_model_name} - {str(device_open)[9:-2]}')
-                            device_open.close()
+                        self.kill_pid()
+                        device_open = device.open()
+                        device_model_name = str(device_open.get_model_name())
+                        self.cBdeviceList.addItem(f'{device_model_name} - {str(device_open)[9:-2]}')
+                        device_open.close()
                 except:
                     print('Can\'t connect to device')
                     QMessageBox.warning(self, 'Can\'t connect to device',
@@ -247,7 +254,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 pass
             elif self.os == 'Darwin':
                 pass
-            else :
+            else:
                 pass
         except:
             print("plantage")
@@ -280,7 +287,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             QgsMessageLog.logMessage(self.tr('not valid output file path.'), self.plugin_name, level=Qgis.Critical)
         self.enable_ok_button()
 
-
     def osmand_root_path_changed(self) -> None:
         """
         Called when destination text area content change
@@ -309,7 +315,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             except:
                 QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)
 
-
             # checkbox favorites
             try:
                 with open(f'{self.QgsFW_osmand_root_path.filePath()}/favorites/favorites.gpx'):
@@ -321,7 +326,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 QgsMessageLog.logMessage(self.tr('No favorites found.'), self.plugin_name, level=Qgis.Warning)
                 self.cB_favorites.setEnabled(False)
                 self.cB_favorites.setChecked(False)
-
 
             # checkbox itinerary
             try:
@@ -353,7 +357,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 QgsMessageLog.logMessage(self.tr('no avnote file to import.'), self.plugin_name, level=Qgis.Critical)
 
         self.enable_ok_button()
-
 
     def get_gpx_file_information(self, pattern: str) -> None:
         """
@@ -413,13 +416,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             if os.path.isdir(os.path.dirname(self.QgsFW_osmand_root_path.filePath())):
                 if os.path.isdir(self.QgsFW_dest_path.filePath()):
                     if self.cB_AVnotes.isChecked() or self.cB_favorites.isChecked() or self.cB_itinerary.isChecked() \
-                            or len(set(index.row() for index in self.tW_tracks.selectedIndexes()))>0:
-                        flag=True
+                            or len(set(index.row() for index in self.tW_tracks.selectedIndexes())) > 0:
+                        flag = True
 
         except:
             pass
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(flag)
-
-
-
-
