@@ -80,31 +80,11 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
-        self.init_widget()
+
         self.plugin_name = 'OsmAnd bridge'
         self.debug = True
         self.os = platform.system()
-        #
-        if self.debug:
-            self.QgsFW_osmand_root_path.setFilePath(
-                '/home/sylvain/.local/share/QGIS/QGIS3/profiles/dev/python/plugins/OsmAnd_bridge/NO_NAS/Athena/files/')
-            self.QgsFW_dest_path.setFilePath(
-                '/home/sylvain/.local/share/QGIS/QGIS3/profiles/dev/python/plugins/OsmAnd_bridge/NO_NAS/Athena'
-                '/osmand_bridge_output/')
-            # try:
-            #     import pydevd_pycharm
-            #     pydevd_pycharm.settrace('localhost', port=53100, suspend=False)
-            # except:
-            #     pass
 
-
-
-    def init_widget(self) -> None:
-        """
-        Init dialog GUI
-        :return: None
-        :rtype: None
-        """
         # Manage table view of tracks
         self.tW_tracks.setColumnCount(3)
         columns = [self.tr("Name"), self.tr("Size"), self.tr("Last Modified")]
@@ -139,13 +119,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # self.qbRefresh.setIcon(icon)
 
     def search_copy_osmand_file_from_device(self):
+        print('search_copy_osmand_file_from_device(self) call')
         if self.os == 'Linux':
             print('Linux')
             self.kill_pid()
             try:
                 devices = get_raw_devices()
             except:
-                print('No device found')
                 if self.first:
                     QMessageBox.warning(self, 'No device found!',
                                         self.tr("Check that your devvice is properly connected and unlocked."))
@@ -156,11 +136,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 for device in devices:
                     self.kill_pid()
                     device_open = device.open()
-                    print("coucou")
                     device_model_name = str(device_open.get_model_name())
 
                     if self.cBdeviceList.currentText() == (f'{device_model_name} - {str(device_open)[9:-2]}'):
-                        print(f'Looking for osmand files on {device_model_name} - {str(device_open)}')
+                        print(f'Looking for osmand files on {device_model_name} - {str(device_open)[9:-2]}')
 
                         potential_paths = ['/Android/data/net.osmand/files', '/Android/obb/net.osmand/files',
                                            '/Android/data/net.osmand.plus/files', '/Android/obb/net.osmand.plus/files']
@@ -171,20 +150,23 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                 path_found = True
                                 break
                         if not path_found:
-                            exit()
+                            return
 
                         # copy data to tmp folder
-                        print('Copying data to tmp folder')
+
                         tmp_dir_name = tempfile.TemporaryDirectory().name
+                        print(f'Copying data to tmp folder: {tmp_dir_name}')
                         items_list = ['/avnotes/', '/tracks/rec/', '/favorites/favorites.gpx', '/itinerary.gpx']
-                        os.makedirs(items_list[0])
-                        os.makedirs(items_list[1])
+                        os.makedirs(tmp_dir_name+items_list[0])
+                        os.makedirs(tmp_dir_name+items_list[1])
                         for item in items_list:
                             print(path + item)
                             try:
                                 # copy item to tmp dir
+                                self.kill_pid()
                                 item_content = device_open.get_descendant_by_path(path + item)
                                 if item_content is not None:
+                                    self.kill_pid()
                                     common_retrieve_to_folder(item_content, tmp_dir_name + item)
                                     print(f'Copying {item}')
                                 else:
@@ -216,7 +198,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                        'directory on you computer:</span></p></body></html>'))
             print('rBdir')
         elif self.rBdevice.isChecked():
-            self.first = True
             self.QgsFW_osmand_root_path.hide()
             self.QgsFW_osmand_root_path.setFilePath('')
             self.cBdeviceList.show()
@@ -234,16 +215,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.cBdeviceList.clear()
 
             if self.os == 'Linux':
-                print('Linux')
+
                 self.kill_pid()
                 try:
                     devices = get_raw_devices()
                 except:
-                    print('No device found')
-                    if self.first:
-                        QMessageBox.warning(self, 'No device found!',
-                                        self.tr("Check that your devvice is properly connected and unlocked."))
-                    self.first=False
+                    QMessageBox.warning(self, 'No device found!',
+                                        self.tr("Check that your device is properly connected and unlocked."))
                     return
 
 
@@ -308,10 +286,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         :return: None
         :rtype: None
         """
-
+        print('osmand_root_path_changed(self) call')
         if not os.path.isdir(self.QgsFW_osmand_root_path.filePath()):
             QgsMessageLog.logMessage(self.tr('*Not a valid directory.'), self.plugin_name, level=Qgis.Critical)
-            self.init_widget()
+            # self.init_widget()
         else:
             # tracks table
             try:

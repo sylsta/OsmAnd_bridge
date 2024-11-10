@@ -113,7 +113,7 @@
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="123"/>
-        <source>Favourites</source>
+        <source>Favorites</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
