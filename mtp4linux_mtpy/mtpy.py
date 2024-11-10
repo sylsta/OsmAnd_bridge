@@ -778,9 +778,9 @@ def common_retrieve_to_folder(self, dest) :
     """retrieves the entire contents of this Device/Folder (and recursively of all
     its subfolders) into the specified destination directory on the host filesystem."""
     try :
-        # only create leaf dir on demand, rest must already exist [CORRECTED]
-        # os.mkdir(dest)
-        os.makedirs(dest)
+        # only create leaf dir on demand, rest must already exist
+        os.mkdir(dest)
+
     except OSError as Err :
         if Err.errno == errno.EEXIST :
             pass

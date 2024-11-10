@@ -25,6 +25,7 @@
 import os
 import datetime as dt
 import platform
+import tempfile
 
 from PyQt5.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
     QRadioButton, QComboBox, QMessageBox
@@ -37,7 +38,7 @@ from qgis.core import QgsMessageLog, Qgis
 
 
 if platform.system() == 'Linux':
-    from .mtp4linux_mtpy.mtpy import get_raw_devices
+    from .mtp4linux_mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
 
 elif platform.system()  == 'Windows':
     import mtp4win_win_mtp as win_mtp
@@ -78,7 +79,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # self.<objectname>, and you can use autoconnect slots - see
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
-        self.device_model_name = None
         self.setupUi(self)
         self.init_widget()
         self.plugin_name = 'OsmAnd bridge'
@@ -89,12 +89,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.QgsFW_osmand_root_path.setFilePath(
                 '/home/sylvain/.local/share/QGIS/QGIS3/profiles/dev/python/plugins/OsmAnd_bridge/NO_NAS/Athena/files/')
             self.QgsFW_dest_path.setFilePath(
-                '/home/sylvain/.local/share/QGIS/QGIS3/profiles/dev/python/plugins/OsmAnd_bridge/NO_NAS/Athena/osmand_bridge_output/')
-            try:
-                import pydevd_pycharm
-                pydevd_pycharm.settrace('localhost', port=53100, suspend=False)
-            except:
-                pass
+                '/home/sylvain/.local/share/QGIS/QGIS3/profiles/dev/python/plugins/OsmAnd_bridge/NO_NAS/Athena'
+                '/osmand_bridge_output/')
+            # try:
+            #     import pydevd_pycharm
+            #     pydevd_pycharm.settrace('localhost', port=53100, suspend=False)
+            # except:
+            #     pass
 
 
 
@@ -132,12 +133,76 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.qbRefresh.clicked.connect(self.list_MTP_Device)
         self.qbGoMTP.hide()
         self.qbGoMTP.clicked.connect(self.search_copy_osmand_file_from_device)
+        self.qbGoMTP.setEnabled(False)
 
         # icon = self.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
         # self.qbRefresh.setIcon(icon)
 
     def search_copy_osmand_file_from_device(self):
-        pass
+        if self.os == 'Linux':
+            print('Linux')
+            self.kill_pid()
+            try:
+                devices = get_raw_devices()
+            except:
+                print('No device found')
+                if self.first:
+                    QMessageBox.warning(self, 'No device found!',
+                                        self.tr("Check that your devvice is properly connected and unlocked."))
+                self.first = False
+                return
+
+            try:
+                for device in devices:
+                    self.kill_pid()
+                    device_open = device.open()
+                    print("coucou")
+                    device_model_name = str(device_open.get_model_name())
+
+                    if self.cBdeviceList.currentText() == (f'{device_model_name} - {str(device_open)[9:-2]}'):
+                        print(f'Looking for osmand files on {device_model_name} - {str(device_open)}')
+
+                        potential_paths = ['/Android/data/net.osmand/files', '/Android/obb/net.osmand/files',
+                                           '/Android/data/net.osmand.plus/files', '/Android/obb/net.osmand.plus/files']
+                        path_found = False
+                        for path in potential_paths:
+                            print(f'Searching in {path}')
+                            if device_open.get_descendant_by_path(path) is not None:
+                                path_found = True
+                                break
+                        if not path_found:
+                            exit()
+
+                        # copy data to tmp folder
+                        print('Copying data to tmp folder')
+                        tmp_dir_name = tempfile.TemporaryDirectory().name
+                        items_list = ['/avnotes/', '/tracks/rec/', '/favorites/favorites.gpx', '/itinerary.gpx']
+                        os.makedirs(items_list[0])
+                        os.makedirs(items_list[1])
+                        for item in items_list:
+                            print(path + item)
+                            try:
+                                # copy item to tmp dir
+                                item_content = device_open.get_descendant_by_path(path + item)
+                                if item_content is not None:
+                                    common_retrieve_to_folder(item_content, tmp_dir_name + item)
+                                    print(f'Copying {item}')
+                                else:
+                                    print(f'No {item}')
+                            except:
+                                print(f'Issue copying {item}')
+                                pass
+                        print(tmp_dir_name)
+                        self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
+
+                    device_open.close()
+            except:
+                print('Can\'t connect to device')
+                QMessageBox.warning(self, 'Can\'t connect to device',
+                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
+                                            "and replugging it."))
+                return
+
 
     
     def on_radio_button_toggled(self):
@@ -164,43 +229,49 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.list_MTP_Device()
 
     def list_MTP_Device(self):
-        print("list_MTP_Device(self) call")
-        self.cBdeviceList.clear()
+        try:
+            print("list_MTP_Device(self) call")
+            self.cBdeviceList.clear()
 
-        if self.os == 'Linux':
-            print('Linux')
-            self.kill_pid()
-            try:
-                devices = get_raw_devices()
-            except:
-                print('No device found')
-                if self.first:
-                    QMessageBox.warning(self, 'No device found!',
-                                    self.tr("Check that your devvice is properly connected and unlocked."))
-                self.first=False
-                return
-
-            for device in devices:
+            if self.os == 'Linux':
+                print('Linux')
+                self.kill_pid()
                 try:
-                        self.kill_pid()
-                        device_open = device.open()
-                        self.device_model_name=str(device_open.get_model_name())
-                        self.cBdeviceList.addItem(f'{self.device_model_name} - {str(device_open)[9:-2]}')
-                        device_open.close()
+                    devices = get_raw_devices()
                 except:
                     print('No device found')
+                    if self.first:
+                        QMessageBox.warning(self, 'No device found!',
+                                        self.tr("Check that your devvice is properly connected and unlocked."))
+                    self.first=False
+                    return
+
+
+                try:
+                    for device in devices:
+                            self.kill_pid()
+                            device_open = device.open()
+                            device_model_name=str(device_open.get_model_name())
+                            self.cBdeviceList.addItem(f'{device_model_name} - {str(device_open)[9:-2]}')
+                            device_open.close()
+                except:
+                    print('Can\'t connect to device')
                     QMessageBox.warning(self, 'Can\'t connect to device',
                                         self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
                                                 "and replugging it."))
                     return
+                if self.cBdeviceList.count() > 0:
+                    self.qbGoMTP.setEnabled(True)
 
 
-        elif self.os == 'Windows':
-            pass
-        elif self.os == 'Darwin':
-            pass
-        else :
-            pass
+            elif self.os == 'Windows':
+                pass
+            elif self.os == 'Darwin':
+                pass
+            else :
+                pass
+        except:
+            print("plantage")
 
     def kill_pid(self):
         try:
@@ -210,7 +281,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             print(pid)
             os.system("kill -9 " + pid)
             os.system('killall kiod5')
-            # pid = os.popen("pgrep -f 'kiod'").read()
             print('kill')
         except:
             print('no kill pid')
@@ -240,7 +310,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         """
 
         if not os.path.isdir(self.QgsFW_osmand_root_path.filePath()):
-            QgsMessageLog.logMessage(self.tr('not valid OsmAnd file path.'), self.plugin_name, level=Qgis.Critical)
+            QgsMessageLog.logMessage(self.tr('*Not a valid directory.'), self.plugin_name, level=Qgis.Critical)
             self.init_widget()
         else:
             # tracks table
