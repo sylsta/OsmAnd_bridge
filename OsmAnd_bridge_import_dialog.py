@@ -159,6 +159,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         items_list = ['/avnotes/', '/tracks/rec/', '/favorites/favorites.gpx', '/itinerary.gpx']
                         os.makedirs(tmp_dir_name+items_list[0])
                         os.makedirs(tmp_dir_name+items_list[1])
+                        os.makedirs(tmp_dir_name+'/favorites')
                         for item in items_list:
                             print(path + item)
                             try:
