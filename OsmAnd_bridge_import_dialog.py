@@ -24,14 +24,23 @@
 
 import os
 import datetime as dt
+import platform
+
 from PyQt5.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
-    QRadioButton, QComboBox
+    QRadioButton, QComboBox, QMessageBox
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 import glob
 
 from qgis._gui import QgsFileWidget
 from qgis.core import QgsMessageLog, Qgis
+
+
+if platform.system() == 'Linux':
+    from .mtp4linux_mtpy.mtpy import get_raw_devices
+
+elif platform.system()  == 'Windows':
+    import mtp4win_win_mtp as win_mtp
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -55,6 +64,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
     rBdir: QRadioButton
     cBdeviceList: QComboBox
     qbRefresh: QPushButton
+    qbGoMTP: QPushButton
 
     def __init__(self, parent=None):
         """
@@ -68,18 +78,24 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # self.<objectname>, and you can use autoconnect slots - see
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
+        self.device_model_name = None
         self.setupUi(self)
         self.init_widget()
         self.plugin_name = 'OsmAnd bridge'
-        self.debug()
-    def debug(self):
-        """
-        TODO remove for relaese
-        """
-        self.QgsFW_osmand_root_path.setFilePath(
-            '/home/sylvain/.local/share/QGIS/QGIS3/profiles/dev/python/plugins/OsmAnd_bridge/NO_NAS/Athena/files/')
-        self.QgsFW_dest_path.setFilePath(
-            '/home/sylvain/.local/share/QGIS/QGIS3/profiles/dev/python/plugins/OsmAnd_bridge/NO_NAS/Athena/osmand_bridge_output/')
+        self.debug = True
+        self.os = platform.system()
+        #
+        if self.debug:
+            self.QgsFW_osmand_root_path.setFilePath(
+                '/home/sylvain/.local/share/QGIS/QGIS3/profiles/dev/python/plugins/OsmAnd_bridge/NO_NAS/Athena/files/')
+            self.QgsFW_dest_path.setFilePath(
+                '/home/sylvain/.local/share/QGIS/QGIS3/profiles/dev/python/plugins/OsmAnd_bridge/NO_NAS/Athena/osmand_bridge_output/')
+            try:
+                import pydevd_pycharm
+                pydevd_pycharm.settrace('localhost', port=53100, suspend=False)
+            except:
+                pass
+
 
 
     def init_widget(self) -> None:
@@ -113,9 +129,15 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.QgsFW_osmand_root_path.hide()
         self.label.hide()
         self.qbRefresh.hide()
+        self.qbRefresh.clicked.connect(self.list_MTP_Device)
+        self.qbGoMTP.hide()
+        self.qbGoMTP.clicked.connect(self.search_copy_osmand_file_from_device)
 
         # icon = self.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
         # self.qbRefresh.setIcon(icon)
+
+    def search_copy_osmand_file_from_device(self):
+        pass
 
     
     def on_radio_button_toggled(self):
@@ -124,16 +146,76 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.QgsFW_osmand_root_path.show()
             self.cBdeviceList.hide()
             self.qbRefresh.hide()
+            self.qbGoMTP.hide()
             self.label.setText(self.tr('<html><head/><body><p><span style=" font-weight:600;">Select the \'file\' '
                                        'directory on you computer:</span></p></body></html>'))
             print('rBdir')
         elif self.rBdevice.isChecked():
+            self.first = True
             self.QgsFW_osmand_root_path.hide()
+            self.QgsFW_osmand_root_path.setFilePath('')
             self.cBdeviceList.show()
             self.qbRefresh.show()
+            self.qbGoMTP.show()
             self.label.setText(self.tr('<html><head/><body><p><span style=" font-weight:600;">Select your device from '
                                        'the list:</span></p></body></html>'))
             print('rBdevice')
+
+            self.list_MTP_Device()
+
+    def list_MTP_Device(self):
+        print("list_MTP_Device(self) call")
+        self.cBdeviceList.clear()
+
+        if self.os == 'Linux':
+            print('Linux')
+            self.kill_pid()
+            try:
+                devices = get_raw_devices()
+            except:
+                print('No device found')
+                if self.first:
+                    QMessageBox.warning(self, 'No device found!',
+                                    self.tr("Check that your devvice is properly connected and unlocked."))
+                self.first=False
+                return
+
+            for device in devices:
+                try:
+                        self.kill_pid()
+                        device_open = device.open()
+                        self.device_model_name=str(device_open.get_model_name())
+                        self.cBdeviceList.addItem(f'{self.device_model_name} - {str(device_open)[9:-2]}')
+                        device_open.close()
+                except:
+                    print('No device found')
+                    QMessageBox.warning(self, 'Can\'t connect to device',
+                                        self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
+                                                "and replugging it."))
+                    return
+
+
+        elif self.os == 'Windows':
+            pass
+        elif self.os == 'Darwin':
+            pass
+        else :
+            pass
+
+    def kill_pid(self):
+        try:
+            # see https://bugs.kde.org/show_bug.cgi?id=412257
+            # find and kill process by its PID
+            pid = os.popen("pgrep -f 'kiod'").read()
+            print(pid)
+            os.system("kill -9 " + pid)
+            os.system('killall kiod5')
+            # pid = os.popen("pgrep -f 'kiod'").read()
+            print('kill')
+        except:
+            print('no kill pid')
+            pass
+
     def clear_selection(self):
         self.tW_tracks.clearSelection()
         self.enable_ok_button()

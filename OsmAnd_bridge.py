@@ -48,7 +48,6 @@ debug = False
 if debug:
     try:
         import pydevd_pycharm
-
         pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
         print("Debugging into pycharm")
     except Exception as e:

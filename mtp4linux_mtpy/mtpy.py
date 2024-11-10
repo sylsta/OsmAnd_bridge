@@ -858,56 +858,56 @@ def common_send_track \
     return result
 #end common_send_track
 
-def common_create_playlist(device, parentid, name, storageid) :
-    with LeakProtect(mtp.LIBMTP_new_playlist_t(), mtp.LIBMTP_destroy_playlist_t) as playlist :
-        playlist.contents.parent_id = parentid
-        playlist.contents.storage_id = storageid
-        playlist.name = libc.strdup(name.encode("utf-8"))
-        # initially no tracks
-        check_status \
-          (
-            mtp.LIBMTP_Create_New_Playlist(device.device, playlist)
-          )
-        result = playlist.contents.playlist_id
-    #end with
-    return result
+# def common_create_playlist(device, parentid, name, storageid) :
+#     with LeakProtect(mtp.LIBMTP_new_playlist_t(), mtp.LIBMTP_destroy_playlist_t) as playlist :
+#         playlist.contents.parent_id = parentid
+#         playlist.contents.storage_id = storageid
+#         playlist.name = libc.strdup(name.encode("utf-8"))
+#         # initially no tracks
+#         check_status \
+#           (
+#             mtp.LIBMTP_Create_New_Playlist(device.device, playlist)
+#           )
+#         result = playlist.contents.playlist_id
+#     #end with
+#     return result
 #end common_create_playlist
 
-def common_create_album(device, parentid, name, storageid, artist = None, composer = None, genre = None) :
-    with LeakProtect(mtp.LIBMTP_new_album_t(), mtp.LIBMTP_destroy_album_t) as album :
-        album.contents.parent_id = parentid
-        album.contents.storage_id = storageid
-        album.contents.name = libc.strdup(name.encode("utf-8"))
-        for \
-            (attr, value) \
-        in \
-            (
-                ("artist", artist),
-                ("composer", composer),
-                ("genre", genre),
-            ) \
-        :
-            if value != None :
-                setattr(album.contents, attr, libc.strdup(value.encode("utf-8")))
-                  # will be disposed by libmtp
-            #end if
-        #end for
-        # initially no tracks
-        check_status \
-          (
-            mtp.LIBMTP_Create_New_Album(device.device, album)
-          )
-        result = album.contents.album_id
-    #end with
-    return result
+# def common_create_album(device, parentid, name, storageid, artist = None, composer = None, genre = None) :
+#     with LeakProtect(mtp.LIBMTP_new_album_t(), mtp.LIBMTP_destroy_album_t) as album :
+#         album.contents.parent_id = parentid
+#         album.contents.storage_id = storageid
+#         album.contents.name = libc.strdup(name.encode("utf-8"))
+#         for \
+#             (attr, value) \
+#         in \
+#             (
+#                 ("artist", artist),
+#                 ("composer", composer),
+#                 ("genre", genre),
+#             ) \
+#         :
+#             if value != None :
+#                 setattr(album.contents, attr, libc.strdup(value.encode("utf-8")))
+#                   # will be disposed by libmtp
+#             #end if
+#         #end for
+#         # initially no tracks
+#         check_status \
+#           (
+#             mtp.LIBMTP_Create_New_Album(device.device, album)
+#           )
+#         result = album.contents.album_id
+#     #end with
+#     return result
 #end common_create_album
 
-def common_delete_object(device, objectid) :
-    check_status \
-      (
-        mtp.LIBMTP_Delete_Object(device.device, objectid)
-      )
-    device.set_contents_changed()
+# def common_delete_object(device, objectid) :
+#     check_status \
+#       (
+#         mtp.LIBMTP_Delete_Object(device.device, objectid)
+#       )
+#     device.set_contents_changed()
 #end common_delete_object
 
 #+
