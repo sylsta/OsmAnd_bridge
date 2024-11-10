@@ -356,5 +356,9 @@ class OsmAndBridge:
 
             # close dialog and save project
             self.dlg_import.close()
-            self.project.write(qgis_project_filename)
+            try:
+                # since qgis_project_filename can be not defined if import cancelled
+                self.project.write(qgis_project_filename)
+            except:
+                pass
 
