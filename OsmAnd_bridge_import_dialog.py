@@ -220,8 +220,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.cBdeviceList.hide()
             self.qbRefresh.hide()
             self.qbGoMTP.hide()
-            self.label.setText(self.tr('<html><head/><body><p><span style=" font-weight:600;">Select the \'file\' '
-                                       'directory on you computer:</span></p></body></html>'))
+            self.label.setText(self.tr('<html><head/><body><p><span style=" font-weight:600;">Select the OSMand'
+                                       ' \'file\' directory on you computer:</span></p></body></html>'))
             print('rBdir')
         elif self.rBdevice.isChecked():
             self.QgsFW_osmand_root_path.hide()
@@ -246,7 +246,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             try:
                 devices = get_raw_devices()
             except:
-                QMessageBox.warning(self, self.tr('No device found!2'),
+                QMessageBox.warning(self, self.tr('No device found!'),
                                     self.tr("Check that your device is properly connected and unlocked."))
                 return
 
