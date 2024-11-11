@@ -236,45 +236,43 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.list_MTP_Device()
 
     def list_MTP_Device(self):
-        try:
-            print("list_MTP_Device(self) call")
-            self.cBdeviceList.clear()
 
-            if self.os == 'Linux':
+        print("list_MTP_Device(self) call")
+        self.cBdeviceList.clear()
+        self.qbGoMTP.setEnabled(False)
+        if self.os == 'Linux':
 
-                self.kill_pid()
-                try:
-                    devices = get_raw_devices()
-                except:
-                    QMessageBox.warning(self, self.tr('No device found!'),
-                                        self.tr("Check that your device is properly connected and unlocked."))
-                    return
+            self.kill_pid()
+            try:
+                devices = get_raw_devices()
+            except:
+                QMessageBox.warning(self, self.tr('No device found!2'),
+                                    self.tr("Check that your device is properly connected and unlocked."))
+                return
 
-                try:
-                    for device in devices:
-                        self.kill_pid()
-                        device_open = device.open()
-                        device_model_name = str(device_open.get_model_name())
-                        self.cBdeviceList.addItem(f'{device_model_name} - {str(device_open)[9:-2]}')
-                        device_open.close()
-                except:
-                    print('Can\'t connect to device')
-                    QMessageBox.warning(self, self.tr('Can\'t connect to device'),
-                                        self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
-                                                "and replugging it."))
-                    return
-                if self.cBdeviceList.count() > 0:
-                    self.qbGoMTP.setEnabled(True)
+            try:
+                for device in devices:
+                    self.kill_pid()
+                    device_open = device.open()
+                    device_model_name = str(device_open.get_model_name())
+                    self.cBdeviceList.addItem(f'{device_model_name} - {str(device_open)[9:-2]}')
+                    device_open.close()
+            except:
+                print('Can\'t connect to device')
+                QMessageBox.warning(self, self.tr('Can\'t connect to device'),
+                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
+                                            "and replugging it."))
+                return
+            if self.cBdeviceList.count() > 0:
+                self.qbGoMTP.setEnabled(True)
 
 
-            elif self.os == 'Windows':
-                pass
-            elif self.os == 'Darwin':
-                pass
-            else:
-                pass
-        except:
-            print("plantage")
+        elif self.os == 'Windows':
+            pass
+        elif self.os == 'Darwin':
+            pass
+        else:
+            pass
 
     def kill_pid(self):
         try:
