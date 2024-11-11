@@ -25,6 +25,7 @@ import os.path
 import socket
 from datetime import datetime
 
+from PyQt5.QtWidgets import QMessageBox, QCheckBox
 from qgis import processing
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt
 
@@ -33,6 +34,7 @@ from qgis.PyQt.QtWidgets import QAction, QProgressBar, QApplication
 from qgis.core import QgsWkbTypes, QgsField, QgsMessageLog, Qgis, QgsProject, QgsFields, QgsRasterLayer, \
     QgsRectangle, QgsCoordinateReferenceSystem, QgsSettings
 
+
 # Initialize Qt resources from file resources.py
 # from .resources import *
 # Import the code for the dialog
@@ -40,11 +42,12 @@ from .OsmAnd_bridge_import_dialog import OsmAndBridgeImportDialog
 # Import the code for the process
 from .OsmAnd_bridge_import_process import import_gpx_track_file, import_avnotes, move_to_group
 from .OsmAnd_bridge_geopackage_management import create_empty_gpkg_layer
+from .OsmAnd_bridge_settings_management import msgbox_setting
 
 # Pycharm debug server
 # To use it, you need to use a 'python remote debug' configuration into pycharm *pro*
 # Then 'pip install pydevd-pycharm~=221.5591.52' # at the time of writing (20022-05-27)
-debug = False
+debug = True
 if debug:
     try:
         import pydevd_pycharm
@@ -99,8 +102,10 @@ class OsmAndBridge:
         self.toolbar = self.iface.addToolBar(u'OsmAnd bridge')
         self.toolbar.setObjectName(u'OsmAnd bridge')
 
-        # delai for maptip display
+        # delai for map tip display
         QgsSettings().setValue('qgis/mapTipsDelay', 500)
+
+        self.PARAM_FILE = f"{os.path.dirname(__file__)}/settings.json"
 
     def tr(self, message):
         """
@@ -200,8 +205,15 @@ class OsmAndBridge:
         # remove the toolbar
         del self.toolbar
 
+    # Fonction pour sauvegarder les paramètres dans le fichier
     def run(self):
         """Run method that performs all the real work"""
+
+        setting_name = "hide_unstable_warning_message"
+        title = "Warning"
+        message = "This plugin uses libraries known to be unstable to access devices (MTP protocol). " \
+                  "\nIn rare cases, it can cause Qgis to crash."
+        msgbox_setting(self, message, setting_name, title)
 
         # # Create the dialog with elements (after translation) and keep reference
         # # Only create GUI ONCE in callback, so that it will only load when the plugin is started
@@ -361,4 +373,6 @@ class OsmAndBridge:
                 self.project.write(qgis_project_filename)
             except:
                 pass
+
+
 
