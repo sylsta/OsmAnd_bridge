@@ -146,63 +146,63 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 QGuiApplication.restoreOverrideCursor()
                 return
 
-            # try:
-            for device in devices:
-                self.kill_pid()
-                device_open = device.open()
-                device_model_name = str(device_open.get_model_name())
+            try:
+                for device in devices:
+                    self.kill_pid()
+                    device_open = device.open()
+                    device_model_name = str(device_open.get_model_name())
 
-                if self.cBdeviceList.currentText() == (f'{device_model_name} - {str(device_open)[9:-2]}'):
-                    print(f'Looking for osmand files on {device_model_name} - {str(device_open)[9:-2]}')
+                    if self.cBdeviceList.currentText() == (f'{device_model_name} - {str(device_open)[9:-2]}'):
+                        print(f'Looking for osmand files on {device_model_name} - {str(device_open)[9:-2]}')
 
-                    potential_paths = ['/Android/data/net.osmand/files', '/Android/data/net.osmand.plus/files',
-                                       '/Android/obb/net.osmand/files', '/Android/obb/net.osmand.plus/files']
-                    path_found = False
-                    for path in potential_paths:
-                        print(f'Searching in {path}')
-                        if device_open.get_descendant_by_path(path) is not None:
-                            path_found = True
-                            break
-                    if not path_found:
-                        return
+                        potential_paths = ['/Android/data/net.osmand/files', '/Android/data/net.osmand.plus/files',
+                                           '/Android/obb/net.osmand/files', '/Android/obb/net.osmand.plus/files']
+                        path_found = False
+                        for path in potential_paths:
+                            print(f'Searching in {path}')
+                            if device_open.get_descendant_by_path(path) is not None:
+                                path_found = True
+                                break
+                        if not path_found:
+                            return
 
-                    # copy data to tmp folder
+                        # copy data to tmp folder
 
-                    tmp_dir_name = tempfile.TemporaryDirectory().name
-                    print(f'Copying data to tmp folder: {tmp_dir_name}')
-                    items_list = ['/avnotes/', '/tracks/rec/', '/favorites/', '/itinerary.gpx']
-                    os.makedirs(tmp_dir_name + items_list[0])
-                    os.makedirs(tmp_dir_name + items_list[1])
-                    os.makedirs(tmp_dir_name + items_list[2])
-                    for item in items_list:
-                        print(path + item)
-                        # try:
-                        #     # copy item to tmp dir
-                        self.kill_pid()
-                        item_content = device_open.get_descendant_by_path(path + item)
-                        if item_content is not None:
-                            self.kill_pid()
-                            if item == '/itinerary.gpx':  # since it's a file not a dir
-                                item_content.retrieve_to_file(tmp_dir_name)
-                            else:
-                                common_retrieve_to_folder(item_content, tmp_dir_name + item)
-                            print(f'Copying {item}')
-                        else:
-                            print(f'No {item}')
-                        # except:
-                        #     print(f'Issue copying {item}')
-                        #     pass
-                    print(tmp_dir_name)
-                    self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
+                        tmp_dir_name = tempfile.TemporaryDirectory().name
+                        print(f'Copying data to tmp folder: {tmp_dir_name}')
+                        items_list = ['/avnotes/', '/tracks/rec/', '/favorites/', '/itinerary.gpx']
+                        os.makedirs(tmp_dir_name + items_list[0])
+                        os.makedirs(tmp_dir_name + items_list[1])
+                        os.makedirs(tmp_dir_name + items_list[2])
+                        for item in items_list:
+                            print(path + item)
+                            try:
+                                # copy item to tmp dir
+                                self.kill_pid()
+                                item_content = device_open.get_descendant_by_path(path + item)
+                                if item_content is not None:
+                                    self.kill_pid()
+                                    if item == '/itinerary.gpx':  # since it's a file not a dir
+                                        item_content.retrieve_to_file(tmp_dir_name)
+                                    else:
+                                        common_retrieve_to_folder(item_content, tmp_dir_name + item)
+                                    print(f'Copying {item}')
+                                else:
+                                    print(f'No {item}')
+                            except:
+                                print(f'Issue copying {item}')
+                                pass
+                        print(tmp_dir_name)
+                        self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
 
-                device_open.close()
-            # except:
-            #     print('Can\'t connect to device')
-            #     QMessageBox.warning(self, self.tr('Can\'t connect to device'),
-            #                         self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
-            #                                 "and replugging it."))
-            #     QGuiApplication.restoreOverrideCursor()
-            #     return
+                    device_open.close()
+            except:
+                print('Can\'t connect to device')
+                QMessageBox.warning(self, self.tr('Can\'t connect to device'),
+                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
+                                            "and replugging it."))
+                QGuiApplication.restoreOverrideCursor()
+                return
         QGuiApplication.restoreOverrideCursor()
 
     def on_radio_button_toggled(self):
