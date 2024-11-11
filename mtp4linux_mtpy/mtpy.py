@@ -788,10 +788,10 @@ def common_retrieve_to_folder(self, dest) :
             raise
         #end if
     #end try
-    for item in self.get_children() :
-        if isinstance(item, File) :
+    for item in self.get_children():
+        if isinstance(item, File):
             item.retrieve_to_file(os.path.join(dest, item.name))
-        elif isinstance(item, Folder) :
+        elif isinstance(item, Folder):
             item.retrieve_to_folder(os.path.join(dest, item.name))
         #end if
     #end for
