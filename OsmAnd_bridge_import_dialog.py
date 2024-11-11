@@ -108,8 +108,11 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             cBB.stateChanged.connect(self.enable_ok_button)
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
         self.clearPB.clicked.connect(self.clear_selection)
+        icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCloseButton)
+        self.clearPB.setIcon(icon)
+        self.clearPB.setEnabled(False)
 
-        # radio buttons to switch beetween device and directory
+        # radio buttons to switch between device and directory
         self.rBdir.toggled.connect(self.on_radio_button_toggled)
         self.rBdevice.toggled.connect(self.on_radio_button_toggled)
         self.cBdeviceList.hide()
@@ -121,7 +124,11 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.qbGoMTP.clicked.connect(self.search_copy_osmand_file_from_device)
         self.qbGoMTP.setEnabled(False)
 
-        # icon = self.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
+        icon = self.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
+        self.qbRefresh.setIcon(icon)
+        icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogOkButton)
+        self.qbGoMTP.setIcon(icon)
+
         # self.qbRefresh.setIcon(icon)
         self.PARAM_FILE = f"{os.path.dirname(__file__)}/settings.json"
 
@@ -306,6 +313,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         print('osmand_root_path_changed(self) call')
         self.tW_tracks.clearContents()
         self.tW_tracks.setRowCount(0)
+        self.clearPB.setEnabled(False)
         if not os.path.isdir(self.QgsFW_osmand_root_path.filePath()):
             QgsMessageLog.logMessage(self.tr('*Not a valid directory.'), self.plugin_name, level=Qgis.Critical)
             # self.init_widget()
@@ -322,6 +330,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         self.get_gpx_file_information(pattern)
                         self.tW_tracks.setEnabled(True)
                         self.tW_tracks.resizeColumnsToContents()
+                        self.clearPB.setEnabled(True)
 
             except:
                 QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)

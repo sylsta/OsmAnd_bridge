@@ -238,23 +238,6 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="clearPB">
-   <property name="geometry">
-    <rect>
-     <x>503</x>
-     <y>400</y>
-     <width>41</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>svg_markers/checkbox-152188.svg</normaloff>svg_markers/checkbox-152188.svg</iconset>
-   </property>
-  </widget>
   <widget class="QRadioButton" name="rBdevice">
    <property name="geometry">
     <rect>
@@ -322,6 +305,9 @@
      <height>34</height>
     </rect>
    </property>
+   <property name="toolTip">
+    <string>Select device</string>
+   </property>
    <property name="text">
     <string/>
    </property>
@@ -334,6 +320,25 @@
      <width>31</width>
      <height>34</height>
     </rect>
+   </property>
+   <property name="toolTip">
+    <string>Refresh device list</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="clearPB">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>400</y>
+     <width>31</width>
+     <height>34</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Select device</string>
    </property>
    <property name="text">
     <string/>
