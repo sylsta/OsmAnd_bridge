@@ -36,6 +36,8 @@ from qgis.utils import OverrideCursor
 from qgis.gui import QgsFileWidget
 from qgis.core import QgsMessageLog, Qgis
 
+from .OsmAnd_bridge_settings_management import msgbox_setting
+
 if platform.system() == 'Linux':
     from .mtp4linux_mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
 
@@ -121,8 +123,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
         # icon = self.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
         # self.qbRefresh.setIcon(icon)
+        self.PARAM_FILE = f"{os.path.dirname(__file__)}/settings.json"
 
     def search_copy_osmand_file_from_device(self):
+        setting_name = "hide_duration_message"
+        title = "Warning"
+        message = "Be patient! \nThis operation can take several minutes\nIn rare cases, it can cause Qgis to crash."
+        msgbox_setting(self, message, setting_name, title)
 
         # https://gis.stackexchange.com/questions/42542/changing-cursor-shape-in-pyqgis
         QGuiApplication.setOverrideCursor(Qt.WaitCursor)
