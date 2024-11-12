@@ -42,7 +42,7 @@ if platform.system() == 'Linux':
     from .mtp4linux_mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
 
 elif platform.system() == 'Windows':
-    import mtp4win_win_mtp as win_mtp
+    from .mtp4windows_win_mtp.access import get_portable_devices
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -147,11 +147,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             try:
                 devices = get_raw_devices()
             except:
-                if self.first:
-                    QMessageBox.warning(self, self.tr('No device found!'),
+               QMessageBox.warning(self, self.tr('No device found!'),
                                         self.tr("Check that your device is properly connected and unlocked."))
-                QGuiApplication.restoreOverrideCursor()
-                return
+               QGuiApplication.restoreOverrideCursor()
+               return
 
             try:
                 for device in devices:
@@ -171,6 +170,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                 path_found = True
                                 break
                         if not path_found:
+                            # TODO a message box to say no path found
                             return
 
                         # copy data to tmp folder
@@ -203,6 +203,17 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
 
                     device_open.close()
+            except:
+                print('Can\'t connect to device')
+                QMessageBox.warning(self, self.tr('Can\'t connect to device'),
+                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
+                                            "and replugging it."))
+                QGuiApplication.restoreOverrideCursor()
+                return
+        elif self.os == 'Windows':
+            print('Windows')
+            try:
+                pass
             except:
                 print('Can\'t connect to device')
                 QMessageBox.warning(self, self.tr('Can\'t connect to device'),
@@ -268,7 +279,23 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
 
         elif self.os == 'Windows':
-            pass
+            print('Windows')
+            self.kill_pid()
+            try:
+                devices = get_portable_devices()
+            except:
+                QMessageBox.warning(self, self.tr('No device found!'),
+                                    self.tr("Check that your device is properly connected and unlocked."))
+                return
+            try:
+                for device in devices:
+                    self.cBdeviceList.addItem(f"{device.get_description()[0]} - {device.get_description()[1]}")
+            except:
+                print('Can\'t connect to device')
+                QMessageBox.warning(self, self.tr('Can\'t connect to device'),
+                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
+                                            "and replugging it."))
+
         elif self.os == 'Darwin':
             pass
         else:
