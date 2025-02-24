@@ -23,13 +23,14 @@
 """
 import os.path
 import socket
+from configparser import ConfigParser
 from datetime import datetime
 
 from PyQt5.QtWidgets import QMessageBox, QCheckBox
 from qgis import processing
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt
 
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtGui import QIcon, QGuiApplication
 from qgis.PyQt.QtWidgets import QAction, QProgressBar, QApplication
 from qgis.core import QgsWkbTypes, QgsField, QgsMessageLog, Qgis, QgsProject, QgsFields, QgsRasterLayer, \
     QgsRectangle, QgsCoordinateReferenceSystem, QgsSettings
@@ -68,6 +69,17 @@ class OsmAndBridge:
             application at run time.
         :type iface: QgsInterface
         """
+        # initialize plugin directory
+        self.plugin_dir = os.path.dirname(__file__)
+        # print version number
+        config = ConfigParser()
+        config.read(f'{self.plugin_dir}/metadata.txt')
+        print(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded")
+
+        config = ConfigParser()
+        config.read(f'{self.plugin_dir}/metadata.txt')
+        print(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded")
+
 
         # Save reference to the QGIS interface
         self.iface = iface
@@ -225,6 +237,7 @@ class OsmAndBridge:
         self.dlg_import.show()
         # Run the dialog event loop
         result = self.dlg_import.exec_()
+        QGuiApplication.restoreOverrideCursor()
         # See if OK was pressed
         if result:
             ## define empty extent that will be updated when adding layers
