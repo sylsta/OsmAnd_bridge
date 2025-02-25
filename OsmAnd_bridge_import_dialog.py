@@ -164,6 +164,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         print(f'Looking for osmand files on {device_model_name} - {str(device_open)[9:-2]}')
 
                         potential_paths = ['/Android/data/net.osmand/files', '/Android/data/net.osmand.plus/files',
+                                           '/Android/media/net.osmand/files', '/Android/media/net.osmand.plus/files',
                                            '/Android/obb/net.osmand/files', '/Android/obb/net.osmand.plus/files']
                         path_found = False
                         begin = time.strftime("%H:%M:%S")
@@ -183,6 +184,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                 path_found = True
                                 next = time.time()
                                 duration = next - begin
+                                print("path found")
                                 print(f"Duration: {duration:.2f} secondes")
                                 break
                             next = time.time()
@@ -192,6 +194,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
                         if not path_found:
                             # TODO a message box to say no path found
+                            print("No path found")
                             QGuiApplication.restoreOverrideCursor()
                             return
 
@@ -351,7 +354,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             # see https://bugs.kde.org/show_bug.cgi?id=412257
             # find and kill process by its PID
             pid = os.popen("pgrep -f 'kiod'").read()
-            print(pid)
             os.system("kill -9 " + pid)
             os.system('killall kiod5')
         except:
