@@ -26,6 +26,8 @@ import os
 import datetime as dt
 import platform
 import tempfile
+import time
+
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
     QRadioButton, QComboBox, QMessageBox
@@ -164,11 +166,30 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         potential_paths = ['/Android/data/net.osmand/files', '/Android/data/net.osmand.plus/files',
                                            '/Android/obb/net.osmand/files', '/Android/obb/net.osmand.plus/files']
                         path_found = False
+                        begin = time.strftime("%H:%M:%S")
+                        print(f"starting : {begin}")
+                        begin = time.time()
+                        first=True
                         for path in potential_paths:
                             print(f'Searching in {path}')
+                            if first:
+                                print(f"starting : {time.strftime('%H:%M:%S')}")
+                                first=False
+                                next = time.time()
+                                duration = next - begin
+                                print("first_iteration")
+                                print(f"Duration: {duration:.2f} secondes")
                             if device_open.get_descendant_by_path(path) is not None:
                                 path_found = True
+                                next = time.time()
+                                duration = next - begin
+                                print(f"Duration: {duration:.2f} secondes")
                                 break
+                            next = time.time()
+                            duration = next-begin
+                            print(f"Duration: {duration:.2f} secondes")
+
+
                         if not path_found:
                             # TODO a message box to say no path found
                             QGuiApplication.restoreOverrideCursor()
@@ -321,6 +342,11 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             pass
 
     def kill_pid(self):
+        """
+        see https://bugs.kde.org/show_bug.cgi?id=412257
+        Since kiod5 doesn't release usb device when it is not in use, we kill kiod* processes
+        :return:
+        """
         try:
             # see https://bugs.kde.org/show_bug.cgi?id=412257
             # find and kill process by its PID
@@ -328,9 +354,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             print(pid)
             os.system("kill -9 " + pid)
             os.system('killall kiod5')
-            print('kill')
         except:
-            print('no kill pid')
             pass
 
     def clear_selection(self):

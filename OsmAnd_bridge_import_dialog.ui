@@ -241,7 +241,7 @@
   <widget class="QRadioButton" name="rBdevice">
    <property name="geometry">
     <rect>
-     <x>130</x>
+     <x>90</x>
      <y>40</y>
      <width>105</width>
      <height>22</height>
@@ -257,7 +257,7 @@
   <widget class="QRadioButton" name="rBdir">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>260</x>
      <y>40</y>
      <width>151</width>
      <height>22</height>
