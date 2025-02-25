@@ -1,6 +1,6 @@
 import json
 
-from PyQt5.QtWidgets import QMessageBox, QCheckBox
+from qgis.PyQt.QtWidgets import QMessageBox, QCheckBox
 
 
 def load_settings(PARAM_FILE):

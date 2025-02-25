@@ -28,12 +28,12 @@ import platform
 import tempfile
 import time
 
-from PyQt5.QtGui import QGuiApplication
-from PyQt5.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
+from qgis.PyQt.QtGui import QGuiApplication
+from qgis.PyQt.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
     QRadioButton, QComboBox, QMessageBox
 from qgis.PyQt import uic, QtWidgets
 import glob
-from PyQt5.QtCore import Qt
+from qgis.PyQt.QtCore import Qt
 from qgis.utils import OverrideCursor
 from qgis.gui import QgsFileWidget
 from qgis.core import QgsMessageLog, Qgis

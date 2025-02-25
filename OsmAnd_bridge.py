@@ -26,7 +26,7 @@ import socket
 from configparser import ConfigParser
 from datetime import datetime
 
-from PyQt5.QtWidgets import QMessageBox, QCheckBox
+from qgis.PyQt.QtWidgets import QMessageBox, QCheckBox
 from qgis import processing
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt
 
