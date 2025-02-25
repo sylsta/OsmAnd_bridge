@@ -76,11 +76,6 @@ class OsmAndBridge:
         config.read(f'{self.plugin_dir}/metadata.txt')
         print(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded")
 
-        config = ConfigParser()
-        config.read(f'{self.plugin_dir}/metadata.txt')
-        print(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded")
-
-
         # Save reference to the QGIS interface
         self.iface = iface
         # Save reference to the QGIS project instance
