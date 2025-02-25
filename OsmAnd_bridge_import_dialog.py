@@ -171,6 +171,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                 break
                         if not path_found:
                             # TODO a message box to say no path found
+                            QGuiApplication.restoreOverrideCursor()
                             return
 
                         # copy data to tmp folder
@@ -225,6 +226,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def on_radio_button_toggled(self):
         self.label.show()
+        self.clear_UI_items()
         if self.rBdir.isChecked():
             self.QgsFW_osmand_root_path.setFilePath('')
             self.QgsFW_osmand_root_path.show()
@@ -246,10 +248,27 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
             self.list_MTP_Device()
 
+    def clear_UI_items(self):
+        """
+        Clear UI items.
+        """
+        self.cBdeviceList.clear()
+        self.table_widget.clearContents()
+        self.table_widget.setRowCount(0)
+        self.QgsFW_osmand_root_path.setFilePath('')
+        for item in [self.cB_itinerary, self.cB_favorites, self.cB_AVnotes]:
+            item.setEnabled(False)
+            item.setChecked(False)
+
+
+
+
     def list_MTP_Device(self):
 
         print("list_MTP_Device(self) call")
-        self.cBdeviceList.clear()
+        # Clear stuff on UI
+        self.clear_UI_items()
+
         self.qbGoMTP.setEnabled(False)
         if self.os == 'Linux':
 
