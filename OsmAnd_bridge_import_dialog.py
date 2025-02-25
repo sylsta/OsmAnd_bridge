@@ -253,8 +253,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         Clear UI items.
         """
         self.cBdeviceList.clear()
-        self.table_widget.clearContents()
-        self.table_widget.setRowCount(0)
+        self.tW_tracks.clearContents()
+        self.tW_tracks.setRowCount(0)
         self.QgsFW_osmand_root_path.setFilePath('')
         for item in [self.cB_itinerary, self.cB_favorites, self.cB_AVnotes]:
             item.setEnabled(False)
