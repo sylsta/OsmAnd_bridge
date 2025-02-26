@@ -28,30 +28,27 @@ devices = get_portable_devices()
 
 for device in devices:
     device_name, device_desc = device.get_description()
-    print(f"{device.get_description()[0]} - {device.get_description()[1]}")
-    root_path = None
-    for root, dirs, files in walk(device, device_name):
-        if len(dirs) > 0:
-            root_path = dirs[0].name
-            break
-    print(root_path)
-    if root_path is None:
-        print("Erreur : aucun répertoire racine trouvé.")
-        exit()
+    print(f"{device_name} - {device_desc}")
 
+    # Construction du point de montage
+    mount_point = f"Ce PC\\{device_name}\\{device_desc}\\"
+    print(f"Point de montage : {mount_point}")
+
+    # Récupération du contenu de l'appareil
     cont = device.get_content()
 
     # Chemins potentiels à explorer
     potential_paths = [
-        '/Android/data/net.osmand/files',
-        '/Android/data/net.osmand.plus/files',
-        '/Android/obb/net.osmand/files',
-        '/Android/obb/net.osmand.plus/files'
+        'Android\\data\\net.osmand\\files',
+        'Android\\data\\net.osmand.plus\\files',
+        'Android\\obb\\net.osmand\\files',
+        'Android\\obb\\net.osmand.plus\\files'
     ]
 
     path_found = False
     for path in potential_paths:
-        if cont.get_path(root_path + path) is not None:
+        full_path = mount_point + path
+        if cont.get_path(full_path) is not None:
             path_found = True
             break
 
@@ -59,26 +56,26 @@ for device in devices:
         print("Aucun chemin valide trouvé.")
         exit()
 
-    print(f"Chemin trouvé : {path}")
+    print(f"Chemin trouvé : {full_path}")
 
     # Création d'un répertoire temporaire pour stocker les fichiers téléchargés
     tmp_dir_name = tempfile.TemporaryDirectory().name
     print(f"Copie des données vers le dossier temporaire : {tmp_dir_name}")
 
     # Liste des éléments à télécharger
-    items_list = ['/avnotes/', '/tracks/rec/', '/favorites/', '/itinerary.gpx']
+    items_list = ['avnotes\\', 'tracks\\rec\\', 'favorites\\', 'itinerary.gpx']
 
     # Création des répertoires dans le dossier temporaire
     for item in items_list:
-        if item.endswith('/'):
-            os.makedirs(tmp_dir_name + item, exist_ok=True)
+        if item.endswith('\\'):
+            os.makedirs(os.path.join(tmp_dir_name, item), exist_ok=True)
 
     # Téléchargement des éléments
     for item in items_list:
-        src = root_path + path + item
-        dest = tmp_dir_name + item
+        src = os.path.join(full_path, item)
+        dest = os.path.join(tmp_dir_name, item)
 
-        if item == '/itinerary.gpx':  # Fichier
+        if item == 'itinerary.gpx':  # Fichier
             content = cont.get_path(src)
             if content:
                 print(f"Téléchargement de {src} vers {dest}")
