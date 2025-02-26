@@ -11,7 +11,7 @@ description=Import tracks, favorites, itinerary and AV notes from OsmAnd
 
 description[fr]=Importe des traces, favoris, marques et AV notes from OsmAnd
 
-version=1.1
+version=1.2
 supportsQt6=True
 
 author=Sylvain Théry - UMR 5281 ART-Dev
