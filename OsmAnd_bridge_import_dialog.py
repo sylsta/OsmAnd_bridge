@@ -47,8 +47,12 @@ elif platform.system() == 'Windows':
     from .mtp4windows_win_mtp.access import get_portable_devices
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'), resource_suffix='')
+try: # Qt5
+    FORM_CLASS, _ = uic.loadUiType(os.path.join(
+        os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'), resource_suffix='')
+except : # Qt6
+    FORM_CLASS, _ = uic.loadUiType(os.path.join(
+        os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'))
 
 
 class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):

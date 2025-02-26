@@ -36,19 +36,31 @@ def msgbox_setting(self, message, setting_name, title):
         message_box.setWindowTitle(title)
 
         message_box.setText(message)
-        message_box.setStandardButtons(QMessageBox.Ok)
+        try: # #Qt5
+            message_box.setStandardButtons(QMessageBox.Ok)
+        except AttributeError:
+            # Qt6
+            message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
         checkbox = QCheckBox(self.tr("Don't show this message again"))
         layout = message_box.layout()
         layout.addWidget(checkbox, layout.rowCount(), 0, 1, layout.columnCount())
 
         # Affichage de la boîte de message
-        result = message_box.exec_()
+        result = message_box.exec()
 
         # Sauvegarder l'état de la case à cocher si l'utilisateur clique sur OK
-        if result == QMessageBox.Ok and checkbox.isChecked():
-            settings[setting_name] = True
-        else:
-            settings[setting_name] = False
+        try:
+            # Qt5
+            if result == QMessageBox.Ok and checkbox.isChecked():
+                settings[setting_name] = True
+            else:
+                settings[setting_name] = False
+        except AttributeError:
+            # Qt6
+            if result ==  QMessageBox.StandardButton.Ok and checkbox.isChecked():
+                settings[setting_name] = True
+            else:
+                settings[setting_name] = False
 
             # Enregistrer les paramètres
         save_settings(self.PARAM_FILE, settings)

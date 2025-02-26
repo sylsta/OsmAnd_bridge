@@ -26,4 +26,4 @@ app = QApplication(sys.argv)
 w = Window()
 w.show()
 
-app.exec_()
+app.exec()

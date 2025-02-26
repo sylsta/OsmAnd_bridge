@@ -231,7 +231,7 @@ class OsmAndBridge:
         # show the dialog
         self.dlg_import.show()
         # Run the dialog event loop
-        result = self.dlg_import.exec_()
+        result = self.dlg_import.exec()
         QGuiApplication.restoreOverrideCursor()
         # See if OK was pressed
         if result:
