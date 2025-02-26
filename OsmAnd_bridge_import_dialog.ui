@@ -78,9 +78,9 @@
    <property name="storageMode">
     <enum>QgsFileWidget::GetDirectory</enum>
    </property>
-   <property name="options">
-    <set>QFileDialog::ShowDirsOnly</set>
-   </property>
+<!--   <property name="options">-->
+<!--    <set>QFileDialog::ShowDirsOnly</set>-->
+<!--   </property>-->
   </widget>
   <widget class="QgsFileWidget" name="QgsFW_dest_path">
    <property name="enabled">
@@ -100,9 +100,9 @@
    <property name="storageMode">
     <enum>QgsFileWidget::GetDirectory</enum>
    </property>
-   <property name="options">
-    <set>QFileDialog::ShowDirsOnly</set>
-   </property>
+<!--   <property name="options">-->
+<!--    <set>QFileDialog::ShowDirsOnly</set>-->
+<!--   </property>-->
   </widget>
   <widget class="QCheckBox" name="cB_favorites">
    <property name="enabled">

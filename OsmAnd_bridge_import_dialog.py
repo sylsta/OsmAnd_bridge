@@ -30,7 +30,7 @@ import time
 
 from qgis.PyQt.QtGui import QGuiApplication
 from qgis.PyQt.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
-    QRadioButton, QComboBox, QMessageBox
+    QRadioButton, QComboBox, QMessageBox, QFileDialog
 from qgis.PyQt import uic, QtWidgets
 import glob
 from qgis.PyQt.QtCore import Qt
@@ -103,18 +103,35 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.tW_tracks.setHorizontalHeaderLabels(columns)
         self.tW_tracks.setSortingEnabled(True)
         self.tW_tracks.setRowCount(0)
-        self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        try : # pyQt5
+            self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        except:  # PyQt6
+            self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
         self.tW_tracks.selectionModel().selectionChanged.connect(self.enable_ok_button)
-        #
+        self.QgsFW_osmand_root_path.setStorageMode(QgsFileWidget.StorageMode.GetDirectory)
+
         self.QgsFW_osmand_root_path.fileChanged.connect(self.osmand_root_path_changed)
+
+        self.QgsFW_dest_path.setStorageMode(QgsFileWidget.StorageMode.GetDirectory)
+
+
+
         self.QgsFW_dest_path.fileChanged.connect(self.destination_changed)
         for cBB in [self.cB_favorites, self.cB_itinerary, self.cB_AVnotes]:
             cBB.setEnabled(False)
             cBB.setChecked(False)
             cBB.stateChanged.connect(self.enable_ok_button)
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
+
+        try: # Qt5
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
+        except:  # Qt6
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setEnabled(False)
+
         self.clearPB.clicked.connect(self.clear_selection)
-        icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCloseButton)
+        try: # Qt5
+            icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCloseButton)
+        except:  # Qt6
+            icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogCloseButton)
         self.clearPB.setIcon(icon)
         self.clearPB.setEnabled(False)
 
@@ -129,10 +146,15 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.qbGoMTP.hide()
         self.qbGoMTP.clicked.connect(self.search_copy_osmand_file_from_device)
         self.qbGoMTP.setEnabled(False)
-
-        icon = self.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
+        try: # Qt5
+            icon = self.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
+        except:  # Qt6
+            icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_BrowserReload)
         self.qbRefresh.setIcon(icon)
-        icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogOkButton)
+        try: # Qt5
+            icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogOkButton)
+        except:  # Qt6
+            icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogOkButton)
         self.qbGoMTP.setIcon(icon)
 
         # self.qbRefresh.setIcon(icon)
@@ -515,4 +537,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
         except:
             pass
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(flag)
+
+        try: # Qt5
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(flag)
+        except:  # Qt6
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setEnabled(flag)

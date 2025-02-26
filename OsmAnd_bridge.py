@@ -322,7 +322,12 @@ class OsmAndBridge:
             progressMessageBar = self.iface.messageBar().createMessage(self.tr("Importing track files..."))
             progress = QProgressBar()
             progress.setMaximum(10)
-            progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            try:
+                # PyQt6
+                progress.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            except AttributeError:
+                # PyQt5
+                progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             progressMessageBar.layout().addWidget(progress)
             self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
 
