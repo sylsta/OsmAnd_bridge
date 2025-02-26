@@ -31,7 +31,7 @@ for device in devices:
     print(f"{device_name} - {device_desc}")
 
     # Construction du point de montage
-    mount_point = f"Ce PC\\{device_name}\\{device_desc}\\"
+    mount_point = f"{device_name}\\Espace de stockage interne partagé\\"
     print(f"Point de montage : {mount_point}")
 
     # Récupération du contenu de l'appareil

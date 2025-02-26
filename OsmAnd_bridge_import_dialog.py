@@ -168,7 +168,12 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         msgbox_setting(self, message, setting_name, title)
 
         # https://gis.stackexchange.com/questions/42542/changing-cursor-shape-in-pyqgis
-        QGuiApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            # PyQt6
+            QGuiApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        except AttributeError:
+            # PyQt5
+            QGuiApplication.setOverrideCursor(Qt.WaitCursor)
         print('search_copy_osmand_file_from_device(self) call')  # DEBUG
         if self.os == 'Linux':
             print('Linux')
@@ -365,6 +370,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 QMessageBox.warning(self, self.tr('Can\'t connect to device'),
                                     self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
                                             "and replugging it."))
+                return
+            if self.cBdeviceList.count() > 0:
+                self.qbGoMTP.setEnabled(True)
 
         elif self.os == 'Darwin':
             pass
