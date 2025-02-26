@@ -162,8 +162,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def search_copy_osmand_file_from_device(self):
         setting_name = "hide_duration_message"
-        title = "Warning"
-        message = "Be patient! \nThis operation can take several minutes\nIn rare cases, it can cause Qgis to crash."
+        title = self.tr("Warning")
+        linux = self.tr(", especially under GNU/Linux :/")
+        message = self.tr(f"Be patient! \nThis operation can take several minute{linux}.\nIn rare cases, it can cause Qgis to crash.")
         msgbox_setting(self, message, setting_name, title)
 
         # https://gis.stackexchange.com/questions/42542/changing-cursor-shape-in-pyqgis
