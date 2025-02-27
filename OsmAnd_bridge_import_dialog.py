@@ -44,7 +44,7 @@ if platform.system() == 'Linux':
     from .mtp4linux_mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
 
 elif platform.system() == 'Windows':
-    from .mtp4windows_win_mtp.access import get_portable_devices
+    from .mtp_packages.win_mtp.access import get_portable_devices
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 try: # Qt5
