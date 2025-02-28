@@ -1,29 +1,7 @@
-import sys
-
-from PyQt5.QtWidgets import QApplication, QGridLayout, QPushButton, QStyle, QWidget
-
-
-class Window(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        icons = sorted([attr for attr in dir(QStyle) if attr.startswith("SP_")])
-        layout = QGridLayout()
-
-        for n, name in enumerate(icons):
-            btn = QPushButton(name)
-
-            pixmapi = getattr(QStyle, name)
-            icon = self.style().standardIcon(pixmapi)
-            btn.setIcon(icon)
-            layout.addWidget(btn, int(n / 4), int(n % 4))
-
-        self.setLayout(layout)
-
-
-app = QApplication(sys.argv)
-
-w = Window()
-w.show()
-
-app.exec()
+net_osm_path = r"Smini\Espace de stockage interne partagé\Android\data\net.osmand.plus\files\tiles\Microsoft Earth\\"
+net_osm_path_element= net_osm_path.split('\\')
+path = ''
+for element in net_osm_path_element:
+    path += element + "/"
+    if 'net.osmand' in element:
+        break
