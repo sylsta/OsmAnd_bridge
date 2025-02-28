@@ -48,15 +48,6 @@ from .OsmAnd_bridge_settings_management import msgbox_setting
 # Pycharm debug server
 # To use it, you need to use a 'python remote debug' configuration into pycharm *pro*
 # Then 'pip install pydevd-pycharm~=221.5591.52' # at the time of writing (20022-05-27)
-debug = True
-if debug:
-    try:
-        import pydevd_pycharm
-        pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
-        print("Debugging into pycharm")
-    except Exception as e:
-        print("No remote debug configuration")
-
 
 class OsmAndBridge:
     """QGIS Plugin Implementation."""
@@ -69,6 +60,22 @@ class OsmAndBridge:
             application at run time.
         :type iface: QgsInterface
         """
+
+        # debug mode (also used for some print statements)
+        self.debug = True
+        if self.debug:
+            try:
+                import pydevd_pycharm
+                try:
+                    pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
+                    print("Debugging into pycharm")
+                except:
+                    print("No remote debug configuration")
+            except ImportError:
+                print("pydedv_pycharm package not found")
+
+
+
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # print version number
