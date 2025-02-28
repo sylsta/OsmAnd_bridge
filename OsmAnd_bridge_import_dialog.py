@@ -43,8 +43,9 @@ from .OsmAnd_bridge_settings_management import msgbox_setting
 if platform.system() == 'Linux':
     from .mtp4linux_mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
 
+
 elif platform.system() == 'Windows':
-    from .mtp_packages.win_mtp.access import get_portable_devices
+    from .mtp_packages.win_mtp.access import get_portable_devices, walk, get_content_from_device_path
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 try: # Qt5
@@ -160,11 +161,75 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # self.qbRefresh.setIcon(icon)
         self.PARAM_FILE = f"{os.path.dirname(__file__)}/settings.json"
 
+    def list_MTP_Device(self):
+
+        print("list_MTP_Device(self) call")
+        # Clear stuff on UI
+        self.clear_UI_items()
+
+        self.qbGoMTP.setEnabled(False)
+        if self.os == 'Linux':
+
+            self.kill_pid()
+            try:
+                devices = get_raw_devices()
+            except:
+                QMessageBox.warning(self, self.tr('No device found!'),
+                                    self.tr("Check that your device is properly connected and unlocked."))
+                return
+
+            try:
+                for device in devices:
+                    self.kill_pid()
+                    device_open = device.open()
+                    device_model_name = str(device_open.get_model_name())
+                    self.cBdeviceList.addItem(f'{device_model_name} - {str(device_open)[9:-2]}')
+                    device_open.close()
+            except:
+                print("Can't connect to device")
+                QMessageBox.warning(self, self.tr("Can't connect to device"),
+                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
+                                            "and replugging it."))
+                return
+            if self.cBdeviceList.count() > 0:
+                self.qbGoMTP.setEnabled(True)
+
+
+        elif self.os == 'Windows':
+            print('Windows')
+            self.kill_pid()
+            try:
+                devices = get_portable_devices()
+            except:
+                QMessageBox.warning(self, self.tr('No device found!'),
+                                    self.tr("Check that your device is properly connected and unlocked."))
+                return
+            try:
+                for device in devices:
+                    self.cBdeviceList.addItem(f"{device.get_description()[0]} - {device.get_description()[1]}")
+            except:
+                print("Can't connect to device")
+                QMessageBox.warning(self, self.tr("Can't connect to device"),
+                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
+                                            "and replugging it."))
+                return
+            if self.cBdeviceList.count() > 0:
+                self.qbGoMTP.setEnabled(True)
+
+        elif self.os == 'Darwin':
+            pass
+        else:
+            pass
+
     def search_copy_osmand_file_from_device(self):
         setting_name = "hide_duration_message"
         title = self.tr("Warning")
-        linux = self.tr(", especially under GNU/Linux :/")
-        message = self.tr(f"Be patient! \nThis operation can take several minute{linux}.\nIn rare cases, it can cause Qgis to crash.")
+        mtpy_msg = ''
+        if self.os != 'Windows':
+            mtpy_msg = self.tr(", especially under GNU/Linux and macOS:(")
+
+        message = self.tr(f"Be patient! \nThis operation can take several minutes{mtpy_msg}.\nIn rare cases, "
+                          f"it can cause Qgis to crash.")
         msgbox_setting(self, message, setting_name, title)
 
         # https://gis.stackexchange.com/questions/42542/changing-cursor-shape-in-pyqgis
@@ -175,6 +240,15 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             # PyQt5
             QGuiApplication.setOverrideCursor(Qt.WaitCursor)
         print('search_copy_osmand_file_from_device(self) call')  # DEBUG
+
+        # create temp folder for the downloaded data to be stored
+        tmp_dir_name = tempfile.TemporaryDirectory().name
+        print(f'Copying data to tmp folder: {tmp_dir_name}')
+        items_list = ['\\avnotes\\', '\\tracks\\rec\\', '\\favorites\\', '/itinerary.gpx']
+        os.makedirs(tmp_dir_name + items_list[0])
+        os.makedirs(tmp_dir_name + items_list[1])
+        os.makedirs(tmp_dir_name + items_list[2])
+
         if self.os == 'Linux':
             print('Linux')
             self.kill_pid()
@@ -225,19 +299,12 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
 
                         if not path_found:
+                            QGuiApplication.restoreOverrideCursor()
                             # TODO a message box to say no path found
                             print("No path found")
-                            QGuiApplication.restoreOverrideCursor()
                             return
 
                         # copy data to tmp folder
-
-                        tmp_dir_name = tempfile.TemporaryDirectory().name
-                        print(f'Copying data to tmp folder: {tmp_dir_name}')
-                        items_list = ['/avnotes/', '/tracks/rec/', '/favorites/', '/itinerary.gpx']
-                        os.makedirs(tmp_dir_name + items_list[0])
-                        os.makedirs(tmp_dir_name + items_list[1])
-                        os.makedirs(tmp_dir_name + items_list[2])
                         for item in items_list:
                             print(path + item)
                             try:
@@ -261,8 +328,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
                     device_open.close()
             except:
-                print('Can\'t connect to device')
-                QMessageBox.warning(self, self.tr('Can\'t connect to device'),
+                print("Can't connect to device")
+                QMessageBox.warning(self, self.tr("Can't connect to device"),
                                     self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
                                             "and replugging it."))
                 QGuiApplication.restoreOverrideCursor()
@@ -270,14 +337,80 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         elif self.os == 'Windows':
             print('Windows')
             try:
-                pass
+                devices = get_portable_devices()
             except:
-                print('Can\'t connect to device')
-                QMessageBox.warning(self, self.tr('Can\'t connect to device'),
-                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
-                                            "and replugging it."))
-                QGuiApplication.restoreOverrideCursor()
-                return
+               QMessageBox.warning(self, self.tr('No device found!'),
+                                        self.tr("Check that your device is properly connected and unlocked."))
+               QGuiApplication.restoreOverrideCursor()
+               return
+
+        # try:
+            for device in devices:
+                self.kill_pid()
+                device_model_name, device_desc = device.get_description()
+                selected_device = device
+                if self.cBdeviceList.currentText() == (f'{device_model_name} - {device_desc}'):
+                    print(f'Looking for osmand files on {device_model_name} - {device_desc}')
+                    net_osmand_dir = None
+                    for root, dirs, files in walk(device, device_model_name):
+                        for directory in dirs:
+                            if "net.osmand" in directory.full_filename:
+                                 net_osmand_dir = directory.full_filename
+                    if net_osmand_dir is not None:
+                        print(net_osmand_dir)
+                        # we have to build the root osmand path
+                        net_osm_path_element = net_osmand_dir.split('\\')
+                        path = ''
+                        for element in net_osm_path_element:
+                            path += element + "\\"
+                            if 'net.osmand' in element:
+                                path += 'files'
+                                break
+                        print(f'OSMAND PATH {path}')
+                    else:
+                        QGuiApplication.restoreOverrideCursor()
+                        # TODO a message box to say no path found
+                        print("No path found")
+                        return
+
+            for item in items_list:
+                print(item)
+                if item == '/itinerary.gpx':
+                    pass
+                # elif item == '/tracks/rec/':
+                #     pass
+                else:
+                    cont = get_content_from_device_path(selected_device, path + item)
+                    print(f"cont: {cont} path: {path + item}")
+
+                    if cont == get_content_from_device_path(selected_device, path+item):
+                        for child in cont.get_children():
+                            (
+                                cont_name,
+                                contenttype,
+                                size,
+                                date_created,
+                                capacity,
+                                free,
+                                _,
+                            ) = child.get_properties()
+                            print(f"{os.path.join(device, cont_name)} Size: {size} Created: {date_created} ", end="")
+
+
+
+
+
+
+
+
+        # except:
+        #     QGuiApplication.restoreOverrideCursor()
+        #     print("Can't connect to device")
+        #     QMessageBox.warning(self, self.tr("Can't connect to device"),
+        #                         self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
+        #                                 "and replugging it."))
+
+        #     return
         QGuiApplication.restoreOverrideCursor()
 
     def on_radio_button_toggled(self):
@@ -315,69 +448,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         for item in [self.cB_itinerary, self.cB_favorites, self.cB_AVnotes]:
             item.setEnabled(False)
             item.setChecked(False)
-
-
-
-
-    def list_MTP_Device(self):
-
-        print("list_MTP_Device(self) call")
-        # Clear stuff on UI
-        self.clear_UI_items()
-
-        self.qbGoMTP.setEnabled(False)
-        if self.os == 'Linux':
-
-            self.kill_pid()
-            try:
-                devices = get_raw_devices()
-            except:
-                QMessageBox.warning(self, self.tr('No device found!'),
-                                    self.tr("Check that your device is properly connected and unlocked."))
-                return
-
-            try:
-                for device in devices:
-                    self.kill_pid()
-                    device_open = device.open()
-                    device_model_name = str(device_open.get_model_name())
-                    self.cBdeviceList.addItem(f'{device_model_name} - {str(device_open)[9:-2]}')
-                    device_open.close()
-            except:
-                print('Can\'t connect to device')
-                QMessageBox.warning(self, self.tr('Can\'t connect to device'),
-                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
-                                            "and replugging it."))
-                return
-            if self.cBdeviceList.count() > 0:
-                self.qbGoMTP.setEnabled(True)
-
-
-        elif self.os == 'Windows':
-            print('Windows')
-            self.kill_pid()
-            try:
-                devices = get_portable_devices()
-            except:
-                QMessageBox.warning(self, self.tr('No device found!'),
-                                    self.tr("Check that your device is properly connected and unlocked."))
-                return
-            try:
-                for device in devices:
-                    self.cBdeviceList.addItem(f"{device.get_description()[0]} - {device.get_description()[1]}")
-            except:
-                print('Can\'t connect to device')
-                QMessageBox.warning(self, self.tr('Can\'t connect to device'),
-                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
-                                            "and replugging it."))
-                return
-            if self.cBdeviceList.count() > 0:
-                self.qbGoMTP.setEnabled(True)
-
-        elif self.os == 'Darwin':
-            pass
-        else:
-            pass
 
     def kill_pid(self):
         """
