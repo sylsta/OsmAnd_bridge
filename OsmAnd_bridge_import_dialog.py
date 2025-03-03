@@ -41,7 +41,7 @@ from qgis.core import QgsMessageLog, Qgis
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
 if platform.system() == 'Linux':
-    from mtp_packages.mtpy import get_raw_devices, common_retrieve_to_folder
+    from .mtp_packages.mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
 
 
 elif platform.system() == 'Windows':
@@ -296,7 +296,20 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
                         if not path_found:
                             QGuiApplication.restoreOverrideCursor()
-                            # TODO a message box to say no path found
+                            msg = QMessageBox()
+                            msg.setWindowTitle(self.tr("No files found"))
+                            msg.setText(self.tr(f"OSMAnd files could not be found on {device_model_name}. Try copying the "
+                                                       "files to your hard disk and importing them into QGIS from the "
+                                                       "local directory."))
+                            try:
+                                # Qt6
+                                msg.setIcon(QMessageBox.Icon.Warning)
+                                msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+                            except:
+                                # Qt5
+                                msg.setIcon(QMessageBox.Information)
+                                msg.setStandardButtons(QMessageBox.Ok)
+                            msg.exec()
                             print("No path found")
                             return
 
