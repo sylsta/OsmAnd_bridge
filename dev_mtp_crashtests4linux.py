@@ -36,7 +36,7 @@ except:
     exit(-1)
 
 print('Looking for Osmand files')
-potential_paths = ['/Android/data/net.osmand/files', '/Android/obb/net.osmand/files',
+potential_paths = ['/','/Android/data/net.osmand/files', '/Android/obb/net.osmand/files',
                    '/Android/data/net.osmand.plus/files','/Android/obb/net.osmand.plus/files']
 path_found = False
 for path in potential_paths:
