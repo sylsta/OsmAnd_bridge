@@ -244,7 +244,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # create temp folder for the downloaded data to be stored
         tmp_dir_name = tempfile.TemporaryDirectory().name
         print(f'Copying data to tmp folder: {tmp_dir_name}')
-        items_list = ['\\avnotes\\', '\\tracks\\rec\\', '\\favorites\\', '/itinerary.gpx']
+        items_list = ['/avnotes/', '/tracks/rec/', '/favorites/', '/itinerary.gpx']
         os.makedirs(tmp_dir_name + items_list[0])
         os.makedirs(tmp_dir_name + items_list[1])
         os.makedirs(tmp_dir_name + items_list[2])
