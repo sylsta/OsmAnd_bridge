@@ -7,7 +7,7 @@ help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  pep8        check Python code with pep8"
 	@echo "  pylint      check Python code with pylint"
-	@cho  "  flake       check Python code with flake8"
+	@echo  "  flake       check Python code with flake8"
 	@echo "  zip         build zip package"
 
 
