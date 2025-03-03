@@ -48,10 +48,10 @@ elif platform.system() == 'Windows':
     from .mtp_packages.win_mtp.access import get_portable_devices, walk, get_content_from_device_path
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
-try: # Qt5
+try:  # Qt5
     FORM_CLASS, _ = uic.loadUiType(os.path.join(
         os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'), resource_suffix='')
-except : # Qt6
+except:  # Qt6
     FORM_CLASS, _ = uic.loadUiType(os.path.join(
         os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'))
 
@@ -101,7 +101,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.tW_tracks.setHorizontalHeaderLabels(columns)
         self.tW_tracks.setSortingEnabled(True)
         self.tW_tracks.setRowCount(0)
-        try : # pyQt5
+        try:  # pyQt5
             self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         except:  # PyQt6
             self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
@@ -112,21 +112,19 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.QgsFW_dest_path.setStorageMode(QgsFileWidget.StorageMode.GetDirectory)
 
-
-
         self.QgsFW_dest_path.fileChanged.connect(self.destination_changed)
         for cBB in [self.cB_favorites, self.cB_itinerary, self.cB_AVnotes]:
             cBB.setEnabled(False)
             cBB.setChecked(False)
             cBB.stateChanged.connect(self.enable_ok_button)
 
-        try: # Qt5
+        try:  # Qt5
             self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
         except:  # Qt6
             self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setEnabled(False)
 
         # clear tracks selection button
-        try: # Qt5
+        try:  # Qt5
             icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCloseButton)
         except:  # Qt6
             icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogCloseButton)
@@ -135,7 +133,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.clearPB.clicked.connect(self.clear_tracks_selection)
 
         # Select all tracks button
-        try: # Qt5
+        try:  # Qt5
             icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogYesButton)
         except:  # Qt6
             icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogYesButton)
@@ -154,18 +152,18 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.qbGoMTP.hide()
         self.qbGoMTP.clicked.connect(self.search_copy_osmand_file_from_device)
         self.qbGoMTP.setEnabled(False)
-        try: # Qt5
+        try:  # Qt5
             icon = self.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
         except:  # Qt6
             icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_BrowserReload)
         self.qbRefresh.setIcon(icon)
-        try: # Qt5
+        try:  # Qt5
             icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogOkButton)
         except:  # Qt6
             icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogOkButton)
         self.qbGoMTP.setIcon(icon)
 
-        # self.qbRefresh.setIcon(icon)
+
         self.PARAM_FILE = f"{os.path.dirname(__file__)}/settings.json"
 
     def list_MTP_Device(self):
@@ -262,10 +260,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             try:
                 devices = get_raw_devices()
             except:
-               QMessageBox.warning(self, self.tr('No device found!'),
-                                        self.tr("Check that your device is properly connected and unlocked."))
-               QGuiApplication.restoreOverrideCursor()
-               return
+                QMessageBox.warning(self, self.tr('No device found!'),
+                                    self.tr("Check that your device is properly connected and unlocked."))
+                QGuiApplication.restoreOverrideCursor()
+                return
 
             try:
                 for device in devices:
@@ -276,19 +274,19 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     if self.cBdeviceList.currentText() == (f'{device_model_name} - {str(device_open)[9:-2]}'):
                         print(f'Looking for osmand files on {device_model_name} - {str(device_open)[9:-2]}')
 
-                        potential_paths = ['/Android/data/net.osmand/files', '/Android/data/net.osmand.plus/files',
-                                           '/Android/media/net.osmand/files', '/Android/media/net.osmand.plus/files',
-                                           '/Android/obb/net.osmand/files', '/Android/obb/net.osmand.plus/files']
+                        potential_paths = ['/Android/media/net.osmand/files', '/Android/media/net.osmand.plus/files',
+                                           '/Android/obb/net.osmand/files', '/Android/obb/net.osmand.plus/files',
+                                           '/Android/data/net.osmand/files', '/Android/data/net.osmand.plus/files']
                         path_found = False
                         begin = time.strftime("%H:%M:%S")
                         print(f"starting : {begin}")
                         begin = time.time()
-                        first=True
+                        first = True
                         for path in potential_paths:
                             print(f'Searching in {path}')
                             if first:
                                 print(f"starting : {time.strftime('%H:%M:%S')}")
-                                first=False
+                                first = False
                                 next = time.time()
                                 duration = next - begin
                                 print("first_iteration")
@@ -301,17 +299,17 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                 print(f"Duration: {duration:.2f} secondes")
                                 break
                             next = time.time()
-                            duration = next-begin
+                            duration = next - begin
                             print(f"Duration: {duration:.2f} secondes")
-
 
                         if not path_found:
                             QGuiApplication.restoreOverrideCursor()
                             msg = QMessageBox()
                             msg.setWindowTitle(self.tr("No files found"))
-                            msg.setText(self.tr(f"OSMAnd files could not be found on {device_model_name}. Try copying the "
-                                                       "files to your hard disk and importing them into QGIS from the "
-                                                       "local directory."))
+                            msg.setText(
+                                self.tr(f"OSMAnd files could not be found on {device_model_name}. Try copying the "
+                                        "files to your hard disk and importing them into QGIS from the "
+                                        "local directory."))
                             try:
                                 # Qt6
                                 msg.setIcon(QMessageBox.Icon.Warning)
@@ -359,12 +357,12 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             try:
                 devices = get_portable_devices()
             except:
-               QMessageBox.warning(self, self.tr('No device found!'),
-                                        self.tr("Check that your device is properly connected and unlocked."))
-               QGuiApplication.restoreOverrideCursor()
-               return
+                QMessageBox.warning(self, self.tr('No device found!'),
+                                    self.tr("Check that your device is properly connected and unlocked."))
+                QGuiApplication.restoreOverrideCursor()
+                return
 
-        # try:
+            # try:
             for device in devices:
                 self.kill_pid()
                 device_model_name, device_desc = device.get_description()
@@ -375,7 +373,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     for root, dirs, files in walk(device, device_model_name):
                         for directory in dirs:
                             if "net.osmand" in directory.full_filename:
-                                 net_osmand_dir = directory.full_filename
+                                net_osmand_dir = directory.full_filename
                     if net_osmand_dir is not None:
                         print(net_osmand_dir)
                         # we have to build the root osmand path
@@ -403,7 +401,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     cont = get_content_from_device_path(selected_device, path + item)
                     print(f"cont: {cont} path: {path + item}")
 
-                    if cont == get_content_from_device_path(selected_device, path+item):
+                    if cont == get_content_from_device_path(selected_device, path + item):
                         for child in cont.get_children():
                             (
                                 cont_name,
@@ -415,13 +413,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                 _,
                             ) = child.get_properties()
                             print(f"{os.path.join(device, cont_name)} Size: {size} Created: {date_created} ", end="")
-
-
-
-
-
-
-
 
         # except:
         #     QGuiApplication.restoreOverrideCursor()
@@ -590,7 +581,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
     def get_gpx_file_information(self, pattern: str) -> None:
         """
         List files according to pattern and send info the function that feed dialog table
-        :param pattern: a file pattern whit directory (eg. '/home/sylvain/test/*.gpx)
+        :param pattern: a file pattern whit directory (e.g. '/home/sylvain/test/*.gpx)
         :type pattern: string
         :return: None
         :rtype: None
@@ -621,13 +612,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def human_readable_filesize(self, bytes: int, units=[' bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB']) -> str:
         """
-        Return a human readable string representation of bytes based on a recursive call of itself
+        Return a human-readable string representation of bytes based on a recursive call of itself
         Taken from https://stackoverflow.com/questions/1094841/get-human-readable-version-of-file-size/43750422
         :param bytes: size of a file in bytes
         :type bytes: int
-        :param units: human readable file size units
+        :param units: human-readable file size units
         :type units: list of string
-        :return: return a human readable string representation of bytes
+        :return: return a human-readable string representation of bytes
         :rtype: str
         """
 
@@ -651,7 +642,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         except:
             pass
 
-        try: # Qt5
+        try:  # Qt5
             self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(flag)
         except:  # Qt6
             self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setEnabled(flag)
