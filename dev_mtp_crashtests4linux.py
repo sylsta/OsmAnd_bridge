@@ -1,6 +1,6 @@
 import sys
 
-import mtp4linux_mtpy.mtpy as mtpy
+from mtp_packages import mtpy as mtpy
 import os
 import tempfile
 try:
@@ -56,7 +56,7 @@ for item in items_list:
         # copy item to tmp dir
         item_content = device_open.get_descendant_by_path(path+item)
         if item_content is not None:
-            mtpy.common_retrieve_to_folder(item_content, tmp_dir_name+item)
+            mtpy.common_retrieve_to_folder(item_content, tmp_dir_name + item)
             print(f'Copying {item}')
         else:
             print(f'No {item}')

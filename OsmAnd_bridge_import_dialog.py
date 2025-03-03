@@ -30,18 +30,18 @@ import time
 
 from qgis.PyQt.QtGui import QGuiApplication
 from qgis.PyQt.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
-    QRadioButton, QComboBox, QMessageBox, QFileDialog
+    QRadioButton, QComboBox, QMessageBox
 from qgis.PyQt import uic, QtWidgets
 import glob
 from qgis.PyQt.QtCore import Qt
-from qgis.utils import OverrideCursor
+
 from qgis.gui import QgsFileWidget
 from qgis.core import QgsMessageLog, Qgis
 
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
 if platform.system() == 'Linux':
-    from .mtp4linux_mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
+    from mtp_packages.mtpy import get_raw_devices, common_retrieve_to_folder
 
 
 elif platform.system() == 'Windows':
@@ -87,11 +87,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         :type parent: None
         """
         super(OsmAndBridgeImportDialog, self).__init__(parent)
-        # Set up the user interface from Designer through FORM_CLASS.
-        # After self.setupUi() you can access any designer object by doing
-        # self.<objectname>, and you can use autoconnect slots - see
-        # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
-        # #widgets-and-dialogs-with-auto-connect
+
         self.setupUi(self)
 
         self.plugin_name = 'OsmAnd bridge'
