@@ -8,7 +8,7 @@
                              -------------------
         begin                : 2022-04-10
         git sha              : $Format:%H$
-        copyright            : (C) 2022 by Sylvain Théry - UMR 5281 ART-Dev
+        copyright            : (C) 2022-2025 Sylvain Théry - UMR 5281 ART-Dev
         email                : sylvain.thery@cnrs.fr
  ***************************************************************************/
 
