@@ -74,6 +74,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
     label_4: QLabel
     label_6: QLabel
     clearPB: QPushButton
+    selectAllTracksPB: QPushButton
     rBdevice: QRadioButton
     rBdir: QRadioButton
     cBdeviceList: QComboBox
@@ -124,13 +125,23 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         except:  # Qt6
             self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setEnabled(False)
 
-        self.clearPB.clicked.connect(self.clear_selection)
+        # clear tracks selection button
         try: # Qt5
             icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCloseButton)
         except:  # Qt6
             icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogCloseButton)
         self.clearPB.setIcon(icon)
         self.clearPB.setEnabled(False)
+        self.clearPB.clicked.connect(self.clear_tracks_selection)
+
+        # Select all tracks button
+        try: # Qt5
+            icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogYesButton)
+        except:  # Qt6
+            icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogYesButton)
+        self.selectAllTracksPB.setIcon(icon)
+        self.selectAllTracksPB.setEnabled(False)
+        self.selectAllTracksPB.clicked.connect(self.select_all_tracks)
 
         # radio buttons to switch between device and directory
         self.rBdir.toggled.connect(self.on_radio_button_toggled)
@@ -473,8 +484,18 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         except:
             pass
 
-    def clear_selection(self):
+    def clear_tracks_selection(self) -> None:
+        """
+        Unselect all tracks
+        :return:
+        """
+
         self.tW_tracks.clearSelection()
+        self.enable_ok_button()
+
+    def select_all_tracks(self):
+        # Sélectionner toutes les lignes
+        self.tW_tracks.selectAll()
         self.enable_ok_button()
 
     def destination_changed(self):
@@ -490,7 +511,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def osmand_root_path_changed(self) -> None:
         """
-        Called when source text area content change
+        Called when source text area content changes
         :return: None
         :rtype: None
         """
@@ -498,6 +519,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.tW_tracks.clearContents()
         self.tW_tracks.setRowCount(0)
         self.clearPB.setEnabled(False)
+        self.selectAllTracksPB.setEnabled(False)
+
         if not os.path.isdir(self.QgsFW_osmand_root_path.filePath()):
             QgsMessageLog.logMessage(self.tr('*Not a valid directory.'), self.plugin_name, level=Qgis.Critical)
             # self.init_widget()
@@ -515,6 +538,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         self.tW_tracks.setEnabled(True)
                         self.tW_tracks.resizeColumnsToContents()
                         self.clearPB.setEnabled(True)
+                        self.selectAllTracksPB.setEnabled(True)
+                        self.select_all_tracks()
 
             except:
                 QgsMessageLog.logMessage(self.tr('no gpx file to import.'), self.plugin_name, level=Qgis.Critical)

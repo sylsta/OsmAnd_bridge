@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>558</width>
-    <height>649</height>
+    <height>632</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
    <property name="geometry">
     <rect>
      <x>150</x>
-     <y>610</y>
+     <y>590</y>
      <width>351</width>
      <height>32</height>
     </rect>
@@ -78,9 +78,6 @@
    <property name="storageMode">
     <enum>QgsFileWidget::GetDirectory</enum>
    </property>
-<!--   <property name="options">-->
-<!--    <set>QFileDialog::ShowDirsOnly</set>-->
-<!--   </property>-->
   </widget>
   <widget class="QgsFileWidget" name="QgsFW_dest_path">
    <property name="enabled">
@@ -89,7 +86,7 @@
    <property name="geometry">
     <rect>
      <x>13</x>
-     <y>560</y>
+     <y>540</y>
      <width>531</width>
      <height>34</height>
     </rect>
@@ -100,9 +97,6 @@
    <property name="storageMode">
     <enum>QgsFileWidget::GetDirectory</enum>
    </property>
-<!--   <property name="options">-->
-<!--    <set>QFileDialog::ShowDirsOnly</set>-->
-<!--   </property>-->
   </widget>
   <widget class="QCheckBox" name="cB_favorites">
    <property name="enabled">
@@ -111,7 +105,7 @@
    <property name="geometry">
     <rect>
      <x>43</x>
-     <y>480</y>
+     <y>460</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -133,7 +127,7 @@
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>480</y>
+     <y>460</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -152,7 +146,7 @@
    <property name="geometry">
     <rect>
      <x>420</x>
-     <y>480</y>
+     <y>460</y>
      <width>88</width>
      <height>22</height>
     </rect>
@@ -197,7 +191,7 @@
    <property name="geometry">
     <rect>
      <x>13</x>
-     <y>450</y>
+     <y>430</y>
      <width>411</width>
      <height>20</height>
     </rect>
@@ -210,7 +204,7 @@
    <property name="geometry">
     <rect>
      <x>13</x>
-     <y>530</y>
+     <y>510</y>
      <width>411</width>
      <height>20</height>
     </rect>
@@ -332,13 +326,29 @@
    <property name="geometry">
     <rect>
      <x>510</x>
-     <y>400</y>
+     <y>390</y>
      <width>31</width>
      <height>34</height>
     </rect>
    </property>
    <property name="toolTip">
     <string>Clear selection</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="selectAllTracksPB">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>390</y>
+     <width>31</width>
+     <height>34</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Select All</string>
    </property>
    <property name="text">
     <string/>
