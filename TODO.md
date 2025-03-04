@@ -1,0 +1,3 @@
+- Faire un readme dans extra_packages
+- Réussir à accrocher le périphérique MTP sous windows
+- ajouter une messgbox au cas ou l'install de comtypes ne passe pas. 
