@@ -1,3 +1,2 @@
 # For windows mtp protocol
 comtypes; sys_platform == "win32"
-psutil
