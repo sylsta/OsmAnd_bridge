@@ -396,7 +396,21 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         print(f'OSMAND PATH {path}')
                     else:
                         QGuiApplication.restoreOverrideCursor()
-                        # TODO a message box to say no path found
+                        msg = QMessageBox()
+                        msg.setWindowTitle(self.tr("No files found"))
+                        msg.setText(
+                            self.tr(f"OSMAnd files could not be found on {device_model_name}. Try copying the "
+                                    "files to your hard disk and importing them into QGIS from the "
+                                    "local directory."))
+                        try:
+                            # Qt6
+                            msg.setIcon(QMessageBox.Icon.Warning)
+                            msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+                        except:
+                            # Qt5
+                            msg.setIcon(QMessageBox.Information)
+                            msg.setStandardButtons(QMessageBox.Ok)
+                        msg.exec()
                         print("No path found")
                         return
 
