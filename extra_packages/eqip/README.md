@@ -1,7 +1,7 @@
-***The code in this repository is taken from Eqip QGIS
-plugin. 
-See https://plugins.qgis.org/plugins/eqip/#plugin-details and
-https://github.com/MapsPeople/eqip***
+## <span style="color: #26B260">The code in this repository is taken from Eqip QGIS plugin</span>
+
+***See https://plugins.qgis.org/plugins/eqip/#plugin-details and
+https://github.com/automaps/eqip for details***.
 
 
 ![icon](icon.png)

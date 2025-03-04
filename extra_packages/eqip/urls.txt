@@ -1,2 +1,2 @@
 https://plugins.qgis.org/plugins/eqip/#plugin-details
-https://github.com/MapsPeople/eqip
+https://github.com/automaps/eqip
