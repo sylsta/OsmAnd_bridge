@@ -1,7 +1,7 @@
 import tempfile
 import time
 import os
-from mtp4windows_win_mtp.access import *
+from extra_packages.win_mtp.access import *
 
 # Fonction pour télécharger de manière récursive
 def download_recursive(cont, src_path, dest_path):
@@ -32,6 +32,7 @@ for device in devices:
 
     # Construction du point de montage
     mount_point = f"{device_name}\\Espace de stockage interne partagé\\"
+    mount_point = "Espace de stockage interne partagé"
     print(f"Point de montage : {mount_point}")
 
     # Récupération du contenu de l'appareil
@@ -39,15 +40,18 @@ for device in devices:
 
     # Chemins potentiels à explorer
     potential_paths = [
-        'Android\\data\\net.osmand\\files',
-        'Android\\data\\net.osmand.plus\\files',
-        'Android\\obb\\net.osmand\\files',
-        'Android\\obb\\net.osmand.plus\\files'
+        '\\Android\\data\\net.osmand\\files',
+        '\\Android\\data\\net.osmand.plus\\files',
+        '\\Android\\obb\\net.osmand\\files',
+        '\\Android\\obb\\net.osmand.plus\\files'
+        '\\Android\\media\\net.osmand\\files',
+        '\\Android\\media\\net.osmand.plus\\files'
     ]
 
     path_found = False
     for path in potential_paths:
         full_path = mount_point + path
+        print(full_path)
         if cont.get_path(full_path) is not None:
             path_found = True
             break
