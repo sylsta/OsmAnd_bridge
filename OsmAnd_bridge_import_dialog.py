@@ -41,11 +41,20 @@ from qgis.core import QgsMessageLog, Qgis
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
 if platform.system() == 'Linux':
-    from .mtp_packages.mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
+    from .extra_packages.mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
 
 
 elif platform.system() == 'Windows':
-    from .mtp_packages.win_mtp.access import get_portable_devices, walk, get_content_from_device_path
+    try:
+        import comtypes
+    except:
+        # trying to install comtypes
+        print("extra packages needed. Try to install them")
+        from .extra_packages.eqip.configuration.piper import install_requirements_from_file
+        install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
+
+
+
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 try:  # Qt5
