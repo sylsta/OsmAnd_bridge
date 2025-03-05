@@ -1,3 +1,4 @@
 - Faire un readme dans extra_packages
 - Réussir à accrocher le périphérique MTP sous windows
-- ajouter une messgbox au cas ou l'install de comtypes ne passe pas. 
+- ajouter une messgbox au cas ou l'install de comtypes ne passe pas.
+- remplacver le QgsFileDialog du fait qu'il ne permet pas de créer un répertoire. 
