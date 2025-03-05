@@ -51,7 +51,7 @@ elif platform.system() == 'Windows':
     except:
         # trying to install comtypes
         print("extra packages needed. Try to install them")
-        from .extra_packages.eqip.configuration.piper import install_requirements_from_file,
+        from .extra_packages.eqip.configuration.piper import install_requirements_from_file
         install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
 
 
