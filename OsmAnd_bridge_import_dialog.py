@@ -41,7 +41,7 @@ from qgis.core import QgsMessageLog, Qgis
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
 if platform.system() == 'Linux':
-    from .extra_packages.mtpy.mtpy import get_raw_devices, common_retrieve_to_folder,
+    from .extra_packages.mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
 
 
 elif platform.system() == 'Windows':
@@ -51,7 +51,7 @@ elif platform.system() == 'Windows':
     except:
         # trying to install comtypes
         print("extra packages needed. Try to install them")
-        from .extra_packages.eqip.configuration.piper import install_requirements_from_file,
+        from .extra_packages.eqip.configuration.piper import install_requirements_from_file
         install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
 
 
@@ -384,6 +384,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         for directory in dirs:
                             if "net.osmand" in directory.full_filename:
                                 net_osmand_dir = directory.full_filename
+                                print(net_osmand_dir)
+                                return
                     if net_osmand_dir is not None:
                         print(net_osmand_dir)
                         # we have to build the root osmand path
@@ -409,7 +411,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                             msg.setStandardButtons(QMessageBox.StandardButton.Ok)
                         except:
                             # Qt5
-                            msg.setIcon(QMessageBox.Information)
+                            msg.setIcon(QMessageBox.Warning)
                             msg.setStandardButtons(QMessageBox.Ok)
                         msg.exec()
                         print("No path found")
