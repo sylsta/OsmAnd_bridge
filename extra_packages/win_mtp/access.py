@@ -599,7 +599,7 @@ class PortableDeviceContent:  # pylint: disable=too-many-instance-attributes
             buf = (ctypes.c_ubyte * blocksize)()
             # make sure all RemoteRead parameters are in
             while True:
-                buf, length = filestream.RemoteRead(buf, ctypes.c_ulong(blocksize))
+                buf, length = filestream.RemoteRead(buf)
                 if length == 0:
                     break
                 outputstream.write(bytearray(buf[:length]))
