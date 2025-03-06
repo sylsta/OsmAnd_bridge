@@ -4,10 +4,10 @@ dev = get_portable_devices()
 cont = dev[0].get_content()
 name=".\\itinerary.gpx"
 content = cont.get_path("Espace de stockage interne partagé\\Android\\data\\net.osmand.plus\\files\\itinerary.gpx")
-outp = open(name, "wb")
-content.download_stream(outp)
-outp.close()
-
+# outp = open(name, "wb")
+# content.download_stream(outp)
+# outp.close()
+content.download_file(".\\itinerary.gpx")
 
 
 # Traceback (most recent call last):
