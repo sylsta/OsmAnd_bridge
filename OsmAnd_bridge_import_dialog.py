@@ -40,7 +40,7 @@ from qgis.core import QgsMessageLog, Qgis
 
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
-if platform.system() == 'Linux':
+if platform.system() == 'Linux' or platform.system() == 'Darwin':
     from .extra_packages.mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
 
 
