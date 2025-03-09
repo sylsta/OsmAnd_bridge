@@ -40,7 +40,7 @@ from qgis.core import QgsMessageLog, Qgis
 
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
-if platform.system() == 'Linux' or platform.system() == 'Darwin':
+if platform.system() == 'Linux':
     from .extra_packages.mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
 
 
@@ -232,7 +232,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 self.qbGoMTP.setEnabled(True)
 
         elif self.os == 'Darwin':
-            pass
+            print("Not available 4 macOS")
+            QMessageBox.warning(self, self.tr("Not available 4 macOS"),
+                                self.tr("Not available 4 macOS"))
         else:
             pass
 
