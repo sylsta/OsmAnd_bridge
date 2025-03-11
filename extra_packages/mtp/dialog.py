@@ -1,14 +1,10 @@
 """
-A module with wpd relevant dialogs for tkinter
+A module with MTP relevant dialogs for tkinter
 
 Author:  Heribert Füchtenhans
 
-Version: 1.0.1
+Version: 2025.3.6
 
-OS:      Windows
-
-Requirements:
-OS: Windows 10
 Python: 
     tkinter
     mtp_access
@@ -18,20 +14,24 @@ The module contains the following classes:
 - 'AskDirectory' - Class to select a directory on an MTP device
 
 Examples:
-    >>> from win_mtp import mtp_dialog
+    >>> from mtp import dialog
     >>> root = tkinter.Tk()
     >>> root.title("mtp_dialogs")
-    >>> adir = mtp_dialog.AskDirectory(root, "Test ask_directory", ("Alls well", "Don't do it"))
+    >>> adir = dialog.AskDirectory(root, "Test ask_directory", ("Alls well", "Don't do it"))
 """
 
-
 import contextlib
+from dataclasses import dataclass
+import platform
 import tkinter
 import tkinter.simpledialog
 from tkinter import ttk
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
-from . import access
+if platform.system() == "windows":
+    from . import win_access as access
+else:
+    from . import linux_access as access
 
 SMARTPHONE_ICON = """\
 R0lGODdhDgAUAOeCAA0UJSgnJyoqKTExMRA4eABFoj08PT09PAZNsT5KZ05NTExPWyVYuwxg1AFj
@@ -57,9 +57,17 @@ OCEcIDN0FImiRm7CP2vMkPHyBQ2ctAP71HHTBs4e2AIDAgA7
 # ------------------------------------------------------------------------------------------------
 
 
-class AskDirectory(
-    tkinter.simpledialog.Dialog
-):  # pylint: disable=too-many-instance-attributes
+@dataclass
+class TreeEntry:
+    """Class for keepeing the entries in the tree"""
+
+    dev: access.PortableDevice
+    content: access.PortableDeviceContent | None
+    child_treeids: list[str]
+    content_loaded: bool
+
+
+class AskDirectory(tkinter.simpledialog.Dialog):  # pylint: disable=too-many-instance-attributes
     """Select a wpd device and directory.
 
     Public methods:
@@ -69,7 +77,7 @@ class AskDirectory(
         wpd_device: The PortableDevice that was selected
 
     Exceptions:
-        comtypes.COMError: exceptions if something went wrong
+        IOError: exceptions if something went wrong
     """
 
     def __init__(
@@ -92,10 +100,12 @@ class AskDirectory(
         self._smartphone_icon = tkinter.PhotoImage(data=SMARTPHONE_ICON)
         self._devicelist: dict[str, access.PortableDevice] = {}
         self._buttons = buttons
+        self._tree_entries: Dict[str, TreeEntry] = {}
         # external variables
         self.answer = ""
         self.wpd_device: Optional[access.PortableDevice] = None
         tkinter.simpledialog.Dialog.__init__(self, parent, title=title)
+        self.update_idletasks()
 
     def buttonbox(self) -> None:
         """Create own buttons"""
@@ -103,99 +113,95 @@ class AskDirectory(
         box.pack(side=tkinter.TOP, fill=tkinter.BOTH)
         but = ttk.Button(box, text=self._buttons[1], command=self.cancel)
         but.pack(side=tkinter.RIGHT, padx=5, pady=5)
-        but = ttk.Button(
-            box, text=self._buttons[0], command=self._on_ok, default=tkinter.ACTIVE
-        )
+        but = ttk.Button(box, text=self._buttons[0], command=self._on_ok, default=tkinter.ACTIVE)
         but.pack(side=tkinter.RIGHT, padx=5, pady=5)
         but.focus_set()
         but.bind("<Return>", self.ok)
 
-    def body(self, _: Any) -> None:
+    def body(self, master: Any) -> None:
         """Create body"""
         box = ttk.Frame(self)
         box.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=True, padx=5, pady=5)
         self._tree = ttk.Treeview(box, height=20, show="tree")
         self._tree.column("#0", width=500)
-        self._tree.bind("<<TreeviewSelect>>", self._on_treeselect)
+        self._tree.bind("<<TreeviewOpen>>", self._on_treeselect)
         # adding data, get devices
         for dev in access.get_portable_devices():
             if device_desc := dev.get_description():
                 name = device_desc[0]
-                self._devicelist[name] = dev
-                self._tree.insert(
+                devpath = dev.get_device_path()
+                self._devicelist[devpath] = dev
+                treeid = self._tree.insert(
                     "",
                     tkinter.END,
                     text=name,
-                    iid=name,
                     open=False,
                     image=self._smartphone_icon,
-                    tags=[name],
                 )
-                self._start_process_directory(dev, name, name)
+                self._tree_entries[treeid] = TreeEntry(dev, None, [], False)
+                self.config(cursor="watch")
+                self.update_idletasks()
+                self._process_directory(treeid)
+                self.config(cursor="")
         # place the Treeview widget on the root window
         self._tree.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=True)
 
-    def _start_process_directory(
-        self, dev: access.PortableDevice, name: str, devicename: str
-    ) -> None:
-        """Start reading directories"""
-        self.config(cursor="wait")
-        self._parent.after(500, self._process_directory, dev, name, devicename)
-
-    def _process_directory(
-        self, dev: access.PortableDevice, name: str, devicename: str, depth: int = 3
-    ) -> None:
+    def _process_directory(self, insert_after_id: str) -> None:
         """Insert directory listing until depth is 0"""
-        if depth == 0:
+        treeentry = self._tree_entries[insert_after_id]
+        if treeentry.content is not None:
+            cont = list(treeentry.content.get_children())
+        else:
+            cont = list(treeentry.dev.get_content())
+        if len(cont) == 0:  # no children
             return
-        selection = name
-        cont = access.get_content_from_device_path(
-            self._devicelist[devicename], selection
-        )
-        if not cont:  # no children
-            return
-        for child in cont.get_children():
+        for child in cont:
             contenttype = child.content_type
             if contenttype not in (
                 access.WPD_CONTENT_TYPE_STORAGE,
                 access.WPD_CONTENT_TYPE_DIRECTORY,
             ):
                 continue
-            cont_name = child.name
-            fullpath = f"{selection}/{cont_name}" if cont_name else selection
             with contextlib.suppress(tkinter.TclError):
-                self._tree.insert(
-                    selection,
+                treeid = self._tree.insert(
+                    insert_after_id,
                     tkinter.END,
-                    text=cont_name,
-                    iid=fullpath,
+                    text=child.name,
                     open=False,
-                    tags=[devicename],
                 )
-            self._process_directory(dev, fullpath, devicename, depth - 1)
-        if depth == 3:
-            # When depth is 3, we are in the top level of calls
-            self.config(cursor="")
+                self._tree_entries[treeid] = TreeEntry(treeentry.dev, child, [], False)
+                treeentry.child_treeids.append(treeid)
+        self._tree_entries[insert_after_id].content_loaded = True
 
     def _on_treeselect(self, _: Any) -> None:
         """Will be called on very selection"""
-        selection = self._tree.focus()
-        devicename = self._tree.item(selection, "tags")[0]
-        self._start_process_directory(
-            self._devicelist[devicename], selection, devicename
-        )
-        self._tree.item(selection, open=True)
+        treeid = self._tree.focus()
+        status = self._tree.item(treeid, "open")
+        if not status:
+            self.config(cursor="watch")
+            self.update_idletasks()
+            for c_id in self._tree_entries[treeid].child_treeids:
+                if not self._tree_entries[c_id].content_loaded:
+                    self._process_directory(c_id)
+            self.config(cursor="")
+            self._tree.item(treeid, open=True)
+        else:
+            self._tree.item(treeid, open=False)
 
     def _on_ok(self) -> None:
         """OK Button"""
         self.withdraw()
         self.update_idletasks()
-        self.answer = self._tree.focus()
-        if self.answer == "":
+        treeid = self._tree.focus()
+        if treeid == "":
             self.cancel()
         else:
-            devicename = self._tree.item(self.answer, "tags")[0]
-            self.wpd_device = self._devicelist[devicename]
+            cont = self._tree_entries[treeid].content
+            if cont is None:
+                self.cancel()
+                return
+            self.answer = cont.full_filename
+            self.wpd_device = self._tree_entries[treeid].dev
             try:
                 self.apply()
             finally:

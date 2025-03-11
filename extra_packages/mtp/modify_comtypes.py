@@ -8,10 +8,9 @@ comtypes findes the modified files and loads them.
 
 Author:  Heribert Füchtenhans
 
-Version: 1.0.0
+Version: 2024.12.10
 
 """
-
 
 import os
 
@@ -19,7 +18,7 @@ import os
 def modify_generated_files(gen_dir: str) -> None:
     """Modifies the from comtypes generated files because some call are incorrect"""
     filename = os.path.join(gen_dir, "_1F001332_1A57_4934_BE31_AFFC99F4EE0A_0_1_0.py")
-    with open(filename, "rt", encoding="utf-8") as inp:
+    with open(filename, encoding="utf-8") as inp:
         content = inp.read()
     content_changed = False
     for entry in (
@@ -34,18 +33,6 @@ def modify_generated_files(gen_dir: str) -> None:
             "'CreateObjectWithPropertiesAndData'",
             "(['out'], POINTER(POINTER(IStream)), 'ppData')",
             "(['in', 'out'], POINTER(POINTER(IStream)), 'ppData')",
-        ),
-        (
-            "ISequentialStream._methods_",
-            "'RemoteRead'",
-            "(['out'], POINTER(c_ubyte), 'pv')",
-            "(['in', 'out'], POINTER(c_ubyte), 'pv')",
-        ),
-        (
-            "ISequentialStream._methods_",
-            "'RemoteRead'",
-            "(['out'], POINTER(c_ulong), 'pcbRead')",
-            "(['in', 'out'], POINTER(c_ulong), 'pcbRead')",
         ),
         (
             "IPortableDeviceResources._methods_",
@@ -75,10 +62,7 @@ def modify_generated_files(gen_dir: str) -> None:
     # Save all back when changed
     if content_changed:
         print("changed")
-        with open(filename, "wt", encoding="utf-8") as outp:
+        with open(filename, "w", encoding="utf-8") as outp:
             outp.write(content)
-        print(
-            "Sorry, but comtypes isn't able to reload the just modified files.\n"
-            "So please restart the program."
-        )
+        print("Sorry, but comtypes isn't able to reload the just modified files.\n" "So please restart the program.")
         quit()  # pylint: disable=consider-using-sys-exit
