@@ -357,8 +357,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                             except:
                                 print(f'Issue copying {item}')
                                 pass
-                        print(tmp_dir_name)
-                        self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
+
 
                     device_open.close()
             except:
@@ -369,7 +368,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 QGuiApplication.restoreOverrideCursor()
                 return
         elif self.os == 'Windows':
-            print('Window2')
             try:
                 devices = get_portable_devices()
             except:
@@ -377,26 +375,29 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                     self.tr("Check that your device is properly connected and unlocked."))
                 QGuiApplication.restoreOverrideCursor()
                 return
-            print(len(devices))
-            print("coucou")
             if len(devices) == 0:
                 QMessageBox.warning(self, self.tr('No device found!'),
                                     self.tr("Check that your device is properly connected and unlocked."))
                 QGuiApplication.restoreOverrideCursor()
             # try:
             for device in devices:
-                self.kill_pid()
                 device_model_name, device_desc = device.get_description()
                 selected_device = device
                 if self.cBdeviceList.currentText() == (f'{device_model_name} - {device_desc}'):
                     print(f'Looking for osmand files on {device_model_name} - {device_desc}')
                     net_osmand_dir = None
                     for root, dirs, files in walk(device, device_model_name):
+                        print('test')
+                        quit = False
                         for directory in dirs:
                             if "net.osmand" in directory.full_filename:
                                 net_osmand_dir = directory.full_filename
                                 print(net_osmand_dir)
-                                return
+                                quit = True
+                                break
+                        if quit:
+                            break
+
                     if net_osmand_dir is not None:
                         print(net_osmand_dir)
                         # we have to build the root osmand path
@@ -406,6 +407,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                             path += element + "\\"
                             if 'net.osmand' in element:
                                 path += 'files'
+                                path = path[len(device_model_name)+1:]
                                 break
                         print(f'OSMAND PATH {path}')
                     else:
@@ -427,29 +429,26 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         msg.exec()
                         print("No path found")
                         return
-
+            cont = selected_device.get_content()
             for item in items_list:
-                print(item)
                 if item == '/itinerary.gpx':
-                    pass
-                # elif item == '/tracks/rec/':
-                #     pass
+                    print(tmp_dir_name)
+                    content = cont[0].get_path(f'{path}\\itinerary.gpx')
+                    content.download_file(f"{tmp_dir_name}\\itinerary.gpx")
                 else:
-                    cont = get_content_from_device_path(selected_device, path + item)
-                    print(f"cont: {cont} path: {path + item}")
+                    item = item.replace('/', os.sep)
+                    print(item)
+                    for root, dirs, files in walk(device, f"{device_model_name}\\{path}{item[:-1]}"):
+                        for file in files:
+                            print(file)
+                            print(file.full_filename)
+                            file.download_file(f"{tmp_dir_name}{item}{file.name}")
 
-                    if cont == get_content_from_device_path(selected_device, path + item):
-                        for child in cont.get_children():
-                            (
-                                cont_name,
-                                contenttype,
-                                size,
-                                date_created,
-                                capacity,
-                                free,
-                                _,
-                            ) = child.get_properties()
-                            print(f"{os.path.join(device, cont_name)} Size: {size} Created: {date_created} ", end="")
+
+
+
+
+
 
         # except:
         #     QGuiApplication.restoreOverrideCursor()
@@ -459,6 +458,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         #                                 "and replugging it."))
 
         #     return
+        self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
         QGuiApplication.restoreOverrideCursor()
 
     def on_radio_button_toggled(self):
@@ -472,7 +472,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.qbGoMTP.hide()
             self.label.setText(self.tr('<html><head/><body><p><span style=" font-weight:600;">Select the OSMand'
                                        ' \'file\' directory on you computer:</span></p></body></html>'))
-            print('rBdir')
+
         elif self.rBdevice.isChecked():
             self.QgsFW_osmand_root_path.hide()
             self.QgsFW_osmand_root_path.setFilePath('')
@@ -483,8 +483,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 "<html><head/><body><p><span style=\" font-weight:600;\">"
                 "Select your device and press the left button to search for OSMAnd files:"
                 "</span></p></body></html>"))
-            print('rBdevice')
-
             self.list_MTP_Device()
 
     def clear_UI_items(self):
