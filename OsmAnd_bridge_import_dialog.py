@@ -45,7 +45,7 @@ if platform.system() == 'Linux':
 
 
 elif platform.system() == 'Windows':
-    from .extra_packages.win_mtp.access import get_portable_devices, walk, get_content_from_device_path
+    from .extra_packages.mtp.win_access import get_portable_devices, walk
     try:
         import comtypes
     except:
@@ -230,6 +230,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 return
             if self.cBdeviceList.count() > 0:
                 self.qbGoMTP.setEnabled(True)
+            else:
+                QMessageBox.warning(self, self.tr('No device found!'),
+                                    self.tr("Check that your device is properly connected and unlocked."))
+                QGuiApplication.restoreOverrideCursor()
 
         elif self.os == 'Darwin':
             print("Not available 4 macOS")
@@ -256,7 +260,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         except AttributeError:
             # PyQt5
             QGuiApplication.setOverrideCursor(Qt.WaitCursor)
-        print('search_copy_osmand_file_from_device(self) call')  # DEBUG
+
 
         # create temp folder for the downloaded data to be stored
         tmp_dir_name = tempfile.TemporaryDirectory().name
@@ -365,7 +369,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 QGuiApplication.restoreOverrideCursor()
                 return
         elif self.os == 'Windows':
-            print('Windows')
+            print('Window2')
             try:
                 devices = get_portable_devices()
             except:
@@ -373,7 +377,12 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                     self.tr("Check that your device is properly connected and unlocked."))
                 QGuiApplication.restoreOverrideCursor()
                 return
-
+            print(len(devices))
+            print("coucou")
+            if len(devices) == 0:
+                QMessageBox.warning(self, self.tr('No device found!'),
+                                    self.tr("Check that your device is properly connected and unlocked."))
+                QGuiApplication.restoreOverrideCursor()
             # try:
             for device in devices:
                 self.kill_pid()
@@ -470,8 +479,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.cBdeviceList.show()
             self.qbRefresh.show()
             self.qbGoMTP.show()
-            self.label.setText(self.tr('<html><head/><body><p><span style=" font-weight:600;">Select your device:'
-                                       '</span></p></body></html>'))
+            self.label.setText(self.tr(
+                "<html><head/><body><p><span style=\" font-weight:600;\">"
+                "Select your device and press the left button to search for OSMAnd files:"
+                "</span></p></body></html>"))
             print('rBdevice')
 
             self.list_MTP_Device()

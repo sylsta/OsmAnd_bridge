@@ -300,7 +300,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>Select device</string>
+    <string>Search for OSMAnd files</string>
    </property>
    <property name="text">
     <string/>
