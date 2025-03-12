@@ -50,9 +50,15 @@ elif platform.system() == 'Windows':
         import comtypes
     except:
         # trying to install comtypes
-        print("extra packages needed. Try to install them")
+        print("comtype package needed. Try to install them")
         from .extra_packages.eqip.configuration.piper import install_requirements_from_file
         install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
+        try:
+            import comtypes
+        except:
+            QMessageBox.warning(None, "Unable to install COMTYPES",
+                                "Manually install this python package to download OSMAnd data directly from your phone")
+
 
 
 
@@ -178,7 +184,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def list_MTP_Device(self):
 
-        print("list_MTP_Device(self) call")
         # Clear stuff on UI
         self.clear_UI_items()
 
@@ -211,7 +216,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
 
         elif self.os == 'Windows':
-            print('Windows')
+
             self.kill_pid()
             try:
                 devices = get_portable_devices()
@@ -270,8 +275,12 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         os.makedirs(tmp_dir_name + items_list[1])
         os.makedirs(tmp_dir_name + items_list[2])
 
+        potential_paths = ['/Android/data/net.osmand/files', '/Android/data/net.osmand.plus/files',
+                           '/Android/media/net.osmand/files', '/Android/media/net.osmand.plus/files',
+                           '/Android/obb/net.osmand/files', '/Android/obb/net.osmand.plus/files',
+                           ]
+
         if self.os == 'Linux':
-            print('Linux')
             self.kill_pid()
             try:
                 devices = get_raw_devices()
@@ -290,29 +299,25 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     if self.cBdeviceList.currentText() == (f'{device_model_name} - {str(device_open)[9:-2]}'):
                         print(f'Looking for osmand files on {device_model_name} - {str(device_open)[9:-2]}')
 
-                        potential_paths = ['/Android/media/net.osmand/files', '/Android/media/net.osmand.plus/files',
-                                           '/Android/obb/net.osmand/files', '/Android/obb/net.osmand.plus/files',
-                                           '/Android/data/net.osmand/files', '/Android/data/net.osmand.plus/files']
+
                         path_found = False
                         begin = time.strftime("%H:%M:%S")
-                        print(f"starting : {begin}")
+                        # print(f"starting : {begin}")
                         begin = time.time()
                         first = True
                         for path in potential_paths:
-                            print(f'Searching in {path}')
+                            # print(f'Searching in {path}')
                             if first:
-                                print(f"starting : {time.strftime('%H:%M:%S')}")
+                                # print(f"starting : {time.strftime('%H:%M:%S')}")
                                 first = False
                                 next = time.time()
                                 duration = next - begin
-                                print("first_iteration")
-                                print(f"Duration: {duration:.2f} secondes")
+                                # print(f"Duration: {duration:.2f} secondes")
                             if device_open.get_descendant_by_path(path) is not None:
                                 path_found = True
                                 next = time.time()
                                 duration = next - begin
-                                print("path found")
-                                print(f"Duration: {duration:.2f} secondes")
+                                # print(f"Duration: {duration:.2f} secondes")
                                 break
                             next = time.time()
                             duration = next - begin
@@ -335,7 +340,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                 msg.setIcon(QMessageBox.Information)
                                 msg.setStandardButtons(QMessageBox.Ok)
                             msg.exec()
-                            print("No path found")
                             return
 
                         # copy data to tmp folder
@@ -351,11 +355,11 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                         item_content.retrieve_to_file(tmp_dir_name)
                                     else:
                                         common_retrieve_to_folder(item_content, tmp_dir_name + item)
-                                    print(f'Copying {item}')
-                                else:
-                                    print(f'No {item}')
+                                #     print(f'Copying {item}')
+                                # else:
+                                #     print(f'No {item}')
                             except:
-                                print(f'Issue copying {item}')
+                                # print(f'Issue copying {item}')
                                 pass
 
 
@@ -380,36 +384,87 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                     self.tr("Check that your device is properly connected and unlocked."))
                 QGuiApplication.restoreOverrideCursor()
             # try:
+            # for device in devices:
+            #     device_model_name, device_desc = device.get_description()
+            #     selected_device = device
+            #     if self.cBdeviceList.currentText() == (f'{device_model_name} - {device_desc}'):
+            #         print(f'Looking for osmand files on {device_model_name} - {device_desc}')
+            #         net_osmand_dir = None
+            #         for root, dirs, files in walk(device, device_model_name):
+            #             print('test')
+            #             quit = False
+            #             for directory in dirs:
+            #                 if "net.osmand" in directory.full_filename:
+            #                     net_osmand_dir = directory.full_filename
+            #                     print(net_osmand_dir)
+            #                     quit = True
+            #                     break
+            #             if quit:
+            #                 break
+            #
+            #         if net_osmand_dir is not None:
+            #             print(net_osmand_dir)
+            #             # we have to build the root osmand path
+            #             net_osm_path_element = net_osmand_dir.split('\\')
+            #             path = ''
+            #             for element in net_osm_path_element:
+            #                 path += element + "\\"
+            #                 if 'net.osmand' in element:
+            #                     path += 'files'
+            #                     path = path[len(device_model_name)+1:]
+            #                     break
+            #             print(f'OSMAND PATH {path}')
+            #         else:
+            #             QGuiApplication.restoreOverrideCursor()
+            #             msg = QMessageBox()
+            #             msg.setWindowTitle(self.tr("No files found"))
+            #             msg.setText(
+            #                 self.tr(f"OSMAnd files could not be found on {device_model_name}. Try copying the "
+            #                         "files to your hard disk and importing them into QGIS from the "
+            #                         "local directory."))
+            #             try:
+            #                 # Qt6
+            #                 msg.setIcon(QMessageBox.Icon.Warning)
+            #                 msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+            #             except:
+            #                 # Qt5
+            #                 msg.setIcon(QMessageBox.Warning)
+            #                 msg.setStandardButtons(QMessageBox.Ok)
+            #             msg.exec()
+            #             print("No path found")
+            #             return
+
             for device in devices:
                 device_model_name, device_desc = device.get_description()
                 selected_device = device
+                cont = device.get_content()
                 if self.cBdeviceList.currentText() == (f'{device_model_name} - {device_desc}'):
                     print(f'Looking for osmand files on {device_model_name} - {device_desc}')
                     net_osmand_dir = None
                     for root, dirs, files in walk(device, device_model_name):
-                        print('test')
-                        quit = False
-                        for directory in dirs:
-                            if "net.osmand" in directory.full_filename:
-                                net_osmand_dir = directory.full_filename
-                                print(net_osmand_dir)
-                                quit = True
-                                break
-                        if quit:
+                        if (len(dirs)) > 0:
+                            net_osmand_dir = dirs[0].name
+                            print("***")
+                            print(net_osmand_dir)
+                            print("***")
                             break
 
                     if net_osmand_dir is not None:
-                        print(net_osmand_dir)
-                        # we have to build the root osmand path
-                        net_osm_path_element = net_osmand_dir.split('\\')
-                        path = ''
-                        for element in net_osm_path_element:
-                            path += element + "\\"
-                            if 'net.osmand' in element:
-                                path += 'files'
-                                path = path[len(device_model_name)+1:]
+
+                        for path in potential_paths:
+                            path = path.replace('/', os.sep)
+                            print('***********************')
+                            path = net_osmand_dir + path
+                            print(path)
+                            content = cont[0].get_path(net_osmand_dir + path)
+                            print(type(content))
+                            if cont[0].get_path(net_osmand_dir + path) is not None:
+                                path = net_osmand_dir + path
+                                print(f"path 1: {path}")
+                                path = path.replace('/', os.sep)
+                                print(f"path 2: {path}")
                                 break
-                        print(f'OSMAND PATH {path}')
+
                     else:
                         QGuiApplication.restoreOverrideCursor()
                         msg = QMessageBox()
@@ -429,10 +484,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         msg.exec()
                         print("No path found")
                         return
+
+
             cont = selected_device.get_content()
             for item in items_list:
                 if item == '/itinerary.gpx':
-                    print(tmp_dir_name)
+                    print(f"tmp_dir_name {tmp_dir_name}")
+                    print(f"path {path}")
                     content = cont[0].get_path(f'{path}\\itinerary.gpx')
                     content.download_file(f"{tmp_dir_name}\\itinerary.gpx")
                 else:
@@ -450,14 +508,14 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
 
 
-        # except:
-        #     QGuiApplication.restoreOverrideCursor()
-        #     print("Can't connect to device")
-        #     QMessageBox.warning(self, self.tr("Can't connect to device"),
-        #                         self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
-        #                                 "and replugging it."))
+            # except:
+            #     QGuiApplication.restoreOverrideCursor()
+            #     print("Can't connect to device")
+            #     QMessageBox.warning(self, self.tr("Can't connect to device"),
+            #                         self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
+            #                                 "and replugging it."))
+            #     return
 
-        #     return
         self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
         QGuiApplication.restoreOverrideCursor()
 

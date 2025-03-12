@@ -1,7 +1,7 @@
 import tempfile
 import time
 
-from extra_packages.win_mtp.access import *
+from extra_packages.mtp.win_access import *
 devices = get_portable_devices()
 
 
@@ -30,7 +30,7 @@ potential_paths = ['\\Android\\data\\net.osmand\\files', '\\Android\\data\\net.o
 
 path_found = False
 for path in potential_paths:
-    if cont.get_path(root_path+path) is not None:
+    if cont[0].get_path(root_path+path) is not None:
         path_found = True
         print(root_path+path)
         break
