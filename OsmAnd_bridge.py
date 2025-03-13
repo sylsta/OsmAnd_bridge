@@ -64,13 +64,14 @@ class OsmAndBridge:
         # debug mode (also used for some print statements)
         self.debug = True
         if self.debug:
+            print("Trying to runinto debug mode")
             try:
                 import pydevd_pycharm
                 try:
-                    pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
+                    pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend = False)
                     print("Debugging into pycharm")
                 except:
-                    print("No remote debug configuration")
+                    print("No python remote debug server")
             except ImportError:
                 print("pydedv_pycharm package not found")
 
