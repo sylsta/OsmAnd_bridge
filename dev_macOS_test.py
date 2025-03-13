@@ -18,3 +18,12 @@ for volume in aft_volumes:
 
 if not found:
     print("Aucun volume monté ne contient un sous-répertoire avec 'net.osmand' sous .AFTVolumes.")
+
+
+import os
+
+volumes_path = "/Volumes"
+for volume in os.listdir(volumes_path):
+    aft_path = os.path.join(volumes_path, volume, ".AFTVolumes")
+    if os.path.exists(aft_path):
+        print(f"Trouvé : {aft_path}")
