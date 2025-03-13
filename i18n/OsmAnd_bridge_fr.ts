@@ -328,8 +328,8 @@ In rare cases, it can cause Qgis to crash.</source>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="301"/>
-        <source>OSMAnd files could not be found on {device_model_name}. Try copying the files to your hard disk and importing them into QGIS from the local directory.</source>
-        <translation>Les fichiers d&apos;OSMAnd n&apos;ont pas pu être trouvés sur {device}. Essayez de copier les fichiers sur votre disque dur et importez-les dans QGIS depuis le répertoire local.</translation>
+        <source>OsmAnd files could not be found on {device_model_name}. Try copying the files to your hard disk and importing them into QGIS from the local directory.</source>
+        <translation>Les fichiers d&apos;OsmAnd n&apos;ont pas pu être trouvés sur {device}. Essayez de copier les fichiers sur votre disque dur et importez-les dans QGIS depuis le répertoire local.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="434"/>

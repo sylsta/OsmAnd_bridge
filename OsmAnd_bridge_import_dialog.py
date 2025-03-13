@@ -57,7 +57,7 @@ elif platform.system() == 'Windows':
             import comtypes
         except:
             QMessageBox.warning(None, "Unable to install COMTYPES",
-                                "Manually install this python package to download OSMAnd data directly from your phone")
+                                "Manually install this python package to download OsmAnd data directly from your phone")
 
 
 
@@ -328,7 +328,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                             msg = QMessageBox()
                             msg.setWindowTitle(self.tr("No files found"))
                             msg.setText(
-                                self.tr(f"OSMAnd files could not be found on {device_model_name}. Try copying the "
+                                self.tr(f"OsmAnd files could not be found on {device_model_name}. Try copying the "
                                         "files to your hard disk and importing them into QGIS from the "
                                         "local directory."))
                             try:
@@ -412,7 +412,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                             msg = QMessageBox()
                             msg.setWindowTitle(self.tr("No files found"))
                             msg.setText(
-                                self.tr(f"OSMAnd files could not be found on {device_model_name}. Try copying the "
+                                self.tr(f"OsmAnd files could not be found on {device_model_name}. Try copying the "
                                         "files to your hard disk and importing them into QGIS from the "
                                         "local directory."))
                             try:
@@ -474,7 +474,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.qbGoMTP.show()
             self.label.setText(self.tr(
                 "<html><head/><body><p><span style=\" font-weight:600;\">"
-                "Select your device and press the left button to search for OSMAnd files:"
+                "Select your device and press the left button to search for OsmAnd files:"
                 "</span></p></body></html>"))
             self.list_MTP_Device()
 

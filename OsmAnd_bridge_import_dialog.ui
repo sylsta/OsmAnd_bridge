@@ -348,7 +348,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>Search for OSMAnd files</string>
+    <string>Search for OsmAnd files</string>
    </property>
    <property name="text">
     <string/>
