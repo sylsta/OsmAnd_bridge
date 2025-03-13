@@ -31,11 +31,23 @@ potential_paths = ['\\Android\\data\\net.osmand\\files', '\\Android\\data\\net.o
 path_found = False
 for path in potential_paths:
     if cont[0].get_path(root_path+path) is not None:
+        print(root_path+path)
         path_found = True
         print(root_path+path)
         break
-
-
+for path in potential_paths:
+    found =False
+    # print("**")
+    # print(device_name + '\\' + root_path + path)
+    # print(str(device))
+    for root, dirs, files in walk(device, device_desc + '\\' + root_path + path):
+        if (len(dirs)) > 0:
+            # found = True
+            print("****")
+            print(path)
+            break
+    if found:
+        break
 if not path_found:
     # TODO a message box to say no path found
     print('not_found')
