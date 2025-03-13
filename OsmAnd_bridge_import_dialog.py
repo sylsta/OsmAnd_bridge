@@ -122,10 +122,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         except:  # PyQt6
             self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
         self.tW_tracks.selectionModel().selectionChanged.connect(self.enable_ok_button)
+
+        # input and output path
         self.QgsFW_osmand_root_path.setStorageMode(QgsFileWidget.StorageMode.GetDirectory)
-
         self.QgsFW_osmand_root_path.fileChanged.connect(self.osmand_root_path_changed)
-
         self.QgsFW_dest_path.setStorageMode(QgsFileWidget.StorageMode.GetDirectory)
 
         self.QgsFW_dest_path.fileChanged.connect(self.destination_changed)
