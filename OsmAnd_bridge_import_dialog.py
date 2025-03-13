@@ -438,65 +438,87 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 device_model_name, device_desc = device.get_description()
                 selected_device = device
                 cont = device.get_content()
+                found = False
                 if self.cBdeviceList.currentText() == (f'{device_model_name} - {device_desc}'):
                     print(f'Looking for osmand files on {device_model_name} - {device_desc}')
-                    net_osmand_dir = None
+                    root_path = None
                     for root, dirs, files in walk(device, device_model_name):
                         if (len(dirs)) > 0:
-                            net_osmand_dir = dirs[0].name
+                            root_path = dirs[0].name
                             print("***")
-                            print(net_osmand_dir)
+                            print(root_path)
                             print("***")
                             break
 
-                    if net_osmand_dir is not None:
+                    if root_path is not None:
+                        # potential_paths = ['\\Android\\data\\net.osmand\\files',
+                        #                    '\\Android\\data\\net.osmand.plus\\files',
+                        #                    '\\Android\\obb\\net.osmand\\files',
+                        #                    '\\Android\\obb\\net.osmand.plus\\files']
 
                         for path in potential_paths:
-                            path = path.replace('/', os.sep)
-                            print('***********************')
-                            path = net_osmand_dir + path
-                            print(path)
-                            content = cont[0].get_path(net_osmand_dir + path)
-                            print(type(content))
-                            if cont[0].get_path(net_osmand_dir + path) is not None:
-                                path = net_osmand_dir + path
-                                print(f"path 1: {path}")
-                                path = path.replace('/', os.sep)
-                                print(f"path 2: {path}")
+                            # print("****")
+                            # print(device_desc +'\\'+root_path + path)
+                            # print(str(device))
+                            for root, dirs, files in walk(device, device_desc+'\\'+root_path+path):
+                                if (len(dirs)) > 0:
+                                    found = True
+                                    print("****")
+                                    print(path)
+                                    break
+                            if found:
                                 break
 
-                    else:
-                        QGuiApplication.restoreOverrideCursor()
-                        msg = QMessageBox()
-                        msg.setWindowTitle(self.tr("No files found"))
-                        msg.setText(
-                            self.tr(f"OSMAnd files could not be found on {device_model_name}. Try copying the "
-                                    "files to your hard disk and importing them into QGIS from the "
-                                    "local directory."))
-                        try:
-                            # Qt6
-                            msg.setIcon(QMessageBox.Icon.Warning)
-                            msg.setStandardButtons(QMessageBox.StandardButton.Ok)
-                        except:
-                            # Qt5
-                            msg.setIcon(QMessageBox.Warning)
-                            msg.setStandardButtons(QMessageBox.Ok)
-                        msg.exec()
-                        print("No path found")
-                        return
+
+
+                            # # path = path.replace('/', os.sep)
+                            # print('***********************')
+                            # path = root_path + path
+                            # print(path)
+                            # print(str(cont[0]))
+                            # content = cont[0].get_path(root_path + path)
+                            # print(type(content))
+                            # if cont[0].get_path(root_path + path) is not None:
+                            #     path = root_path + path
+                            #     print(f"path 1: {path}")
+                            #     path = path.replace('/', os.sep)
+                            #     print(f"path 2: {path}")
+                            #     found = True
+                            #     break
+
+
+                    # if not found:
+                    #     QGuiApplication.restoreOverrideCursor()
+                    #     msg = QMessageBox()
+                    #     msg.setWindowTitle(self.tr("No files found"))
+                    #     msg.setText(
+                    #         self.tr(f"OSMAnd files could not be found on {device_model_name}. Try copying the "
+                    #                 "files to your hard disk and importing them into QGIS from the "
+                    #                 "local directory."))
+                    #     try:
+                    #         # Qt6
+                    #         msg.setIcon(QMessageBox.Icon.Warning)
+                    #         msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+                    #     except:
+                    #         # Qt5
+                    #         msg.setIcon(QMessageBox.Warning)
+                    #         msg.setStandardButtons(QMessageBox.Ok)
+                    #     msg.exec()
+                    #     print("No path found")
+                    #     return
 
 
             cont = selected_device.get_content()
             for item in items_list:
                 if item == '/itinerary.gpx':
                     print(f"tmp_dir_name {tmp_dir_name}")
-                    print(f"path {path}")
-                    content = cont[0].get_path(f'{path}\\itinerary.gpx')
+                    print(f"path {root_path}{path}/itinerary.gpx".replace('/', os.sep))
+                    content = cont[0].get_path(f'{root_path}\\{path}\\itinerary.gpx')
                     content.download_file(f"{tmp_dir_name}\\itinerary.gpx")
                 else:
                     item = item.replace('/', os.sep)
                     print(item)
-                    for root, dirs, files in walk(device, f"{device_model_name}\\{path}{item[:-1]}"):
+                    for root, dirs, files in walk(device, f"{device_model_name}\\{path}{item[:-1]}".replace('/', os.sep)):
                         for file in files:
                             print(file)
                             print(file.full_filename)
