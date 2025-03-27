@@ -41,5 +41,5 @@ category=Plugins
 icon=OsmAnd_logo.png
 experimental=False
 server=False
-tags=OsmAnd,gps,gnss, AV notes, OSM
+tags=OsmAnd, gps, gnss, AV notes, OSM, OpenStreetMap, Android, phone, ground survey, relevés de terrain
 
