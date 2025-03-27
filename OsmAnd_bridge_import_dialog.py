@@ -50,7 +50,7 @@ elif platform.system() == 'Windows':
         import comtypes
     except:
         # trying to install comtypes
-        print("comtype package needed. Try to install them")
+        print("comtype package needed. Trying to install it")
         from .extra_packages.eqip.configuration.piper import install_requirements_from_file
         install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
         try:
@@ -492,13 +492,12 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def kill_pid(self):
         """
+        Find and kill process by its PID.
         see https://bugs.kde.org/show_bug.cgi?id=412257
-        Since kiod5 doesn't release usb device when it is not in use, we kill kiod* processes
-        :return:
+        Since kiod 5 doesn't release usb device when it is not in use, we kill kiod* processes
+        :return: nothing
         """
         try:
-            # see https://bugs.kde.org/show_bug.cgi?id=412257
-            # find and kill process by its PID
             pid = os.popen("pgrep -f 'kiod'").read()
             os.system("kill -9 " + pid)
             os.system('killall kiod5')
