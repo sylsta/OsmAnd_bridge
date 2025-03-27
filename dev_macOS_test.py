@@ -1,7 +1,7 @@
 import glob
 
 # Recherche des volumes contenant .AFTVolumes
-aft_volumes = glob.glob("/Volumes/*/.AFTVolumes")
+aft_volumes = glob.glob("/Users/*/.AFTVolumes")
 
 found = False
 
