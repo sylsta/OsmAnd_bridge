@@ -45,9 +45,10 @@ if platform.system() == 'Linux':
 
 
 elif platform.system() == 'Windows':
-    from .extra_packages.mtp.win_access import get_portable_devices, walk
+
     try:
         import comtypes
+        from .extra_packages.mtp.win_access import get_portable_devices, walk
     except:
         # trying to install comtypes
         print("comtype package needed. Trying to install it")
