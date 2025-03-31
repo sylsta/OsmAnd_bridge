@@ -165,7 +165,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.QgsFW_osmand_root_path.hide()
         self.label.hide()
         self.qbRefresh.hide()
-        self.qbRefresh.clicked.connect(self.list_MTP_Device)
+        self.qbRefresh.clicked.connect(self.list_MTP_Devices)
         self.qbGoMTP.hide()
         self.qbGoMTP.clicked.connect(self.search_copy_osmand_file_from_device)
         self.qbGoMTP.setEnabled(False)
@@ -183,7 +183,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.PARAM_FILE = f"{os.path.dirname(__file__)}/settings.json"
 
-    def list_MTP_Device(self):
+    def list_MTP_Devices(self):
 
         # Clear stuff on UI
         self.clear_UI_items()
@@ -477,7 +477,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 "<html><head/><body><p><span style=\" font-weight:600;\">"
                 "Select your device and press the left button to search for OsmAnd files:"
                 "</span></p></body></html>"))
-            self.list_MTP_Device()
+            self.list_MTP_Devices()
 
     def clear_UI_items(self):
         """
