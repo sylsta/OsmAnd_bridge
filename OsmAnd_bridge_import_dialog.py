@@ -184,6 +184,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.PARAM_FILE = f"{os.path.dirname(__file__)}/settings.json"
 
     def list_MTP_Devices(self):
+        """
+        List TMP devices connected to system to feed interface listbox
+        :return:
+        """
 
         # Clear stuff on UI
         self.clear_UI_items()
