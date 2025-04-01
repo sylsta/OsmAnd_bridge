@@ -25,6 +25,7 @@
 import os
 import datetime as dt
 import platform
+import subprocess
 import tempfile
 import time
 
@@ -34,9 +35,9 @@ from qgis.PyQt.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget
 from qgis.PyQt import uic, QtWidgets
 import glob
 from qgis.PyQt.QtCore import Qt
-
+from qgis.utils import iface
 from qgis.gui import QgsFileWidget
-from qgis.core import QgsMessageLog, Qgis
+from qgis.core import QgsMessageLog, Qgis, QgsApplication, QgsProject
 
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
@@ -50,15 +51,19 @@ elif platform.system() == 'Windows':
         import comtypes
         from .extra_packages.mtp.win_access import get_portable_devices, walk
     except:
+        pass
         # trying to install comtypes
-        print("comtype package needed. Trying to install it")
-        from .extra_packages.eqip.configuration.piper import install_requirements_from_file
-        install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
-        try:
-            import comtypes
-        except:
-            QMessageBox.warning(None, "Unable to install COMTYPES",
-                                "Manually install this python package to download OsmAnd data directly from your phone")
+#         print("comtype package needed. Trying to install it")
+#         QMessageBox.warning(None, self.tr("Python package COMTYPES not found",
+#                             "Manually install this python package to download OsmAnd data directly from your phone")
+#         from .extra_packages.eqip.configuration.piper import install_requirements_from_file
+#         install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
+#         try:
+#             import comtypes
+#         except:
+#             QMessageBox.question(None, "Unable to install COMTYPES",
+#                         self.tr("Manually install this python package to download OsmAnd data directly from your phone",
+#                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
 
 
@@ -182,6 +187,62 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
 
         self.PARAM_FILE = f"{os.path.dirname(__file__)}/settings.json"
+
+        if platform.system() == 'Windows':
+            print("test")
+            try:
+                print("Trying to import comtypes")
+                import comtypes.client
+                self.comtypes_ok = True
+                print('Successfully imported comtypes')
+            except:
+                print("Failed to import Comtypes")
+                # TODO check a param to see if there has been a previous attempt to install Comtypes.
+                try:
+                    # trying to install comtypes
+
+                    try:
+                        # Qt5
+                        USES_PYQT6 = False
+                        answer = QMessageBox.question(None, self.tr("Python package COMTYPES not found"),
+                                                 self.tr(
+                                                     "Do you want to try to install Comtypes automatically?"),
+                                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+                    except:
+                        # Qt6
+                        USES_PYQT6 = True
+                        answer = QMessageBox.question(None, self.tr("Python package COMTYPES not found"),
+                                                 self.tr(
+                                                     "Do you want to try to install Comtypes automatically?"),
+                                                      QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                                      QMessageBox.StandardButton.Yes)
+                    if answer == (QMessageBox.StandardButton.Yes if USES_PYQT6 else QMessageBox.Yes):
+
+                        from .extra_packages.eqip.configuration.piper import install_requirements_from_file
+                        install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
+                    title = self.tr("Comtypes package successfully installed")
+                    message = self.tr(
+                        "QGIS has to be restarted. Do you want to do it now (and be asked to save your project if needed?")
+                    try:
+                    # Qt5
+                        answer = QMessageBox.question(None, title, message,
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                    except:
+                        # Qt6
+                        answer = QMessageBox.question(None, title, message,
+                                                      QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                                      QMessageBox.StandardButton.Yes)
+
+                    if answer == (QMessageBox.StandardButton.Yes if USES_PYQT6 else QMessageBox.Yes):
+                        if QgsProject.instance().isDirty():
+                            iface.actionSaveProject().trigger()
+                        iface.actionExit().trigger()
+                        subprocess.Popen(QgsApplication.applicationFilePath())
+
+                except:
+                    QMessageBox.warning(None, self.tr("Python package COMTYPES installation failed"),
+                                                 self.tr(
+                                                     "Manually install this python package to download OsmAnd data directly from your device"))
 
     def list_MTP_Devices(self):
         """
