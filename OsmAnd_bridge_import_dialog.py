@@ -255,7 +255,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.qbGoMTP.setEnabled(False)
         if self.os == 'Linux':
-
+            print('linux')
             self.kill_pid()
             try:
                 devices = get_raw_devices()
@@ -560,13 +560,15 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         """
         Find and kill process by its PID.
         see https://bugs.kde.org/show_bug.cgi?id=412257
-        Since kiod 5 doesn't release usb device when it is not in use, we kill kiod* processes
+        Since kiod 5 doesn't release usb device when it is not in use, we kill kio* processes.
+        Seems to be the same under gnome so that's why we kill all gfvs processes.
         :return: nothing
         """
         try:
-            pid = os.popen("pgrep -f 'kiod'").read()
-            os.system("kill -9 " + pid)
-            os.system('killall kiod5')
+            for deskktop in ['kio', 'gvfs']:
+                pid = os.popen(f"pgrep -f '{deskktop}'").read()
+                os.system("kill -9 " + pid)
+
         except:
             pass
 
