@@ -313,12 +313,12 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             # QMessageBox.warning(self, self.tr("Not available 4 macOS"),
             #                     self.tr("Not available 4 macOS"))
             if self.is_macdroid_installed():
-                print("✅ MacDroid est installé.")
+                print("✅ MacDroid is installed.")
 
                 if self.is_macdroid_running():
-                    print("🚀 MacDroid est déjà lancé.")
+                    print("🚀 MacDroid is running.")
                 else:
-                    print("🔄 MacDroid n’est pas lancé. Lancement en cours...")
+                    print("🔄 Trying to launch MacDroid...")
                     self.launch_macdroid()
 
                 home = os.path.expanduser("~")
@@ -337,15 +337,11 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                         self.tr("Check that your device is properly connected and unlocked."))
                     QGuiApplication.restoreOverrideCursor()
 
-
-
-
-
             else:
                 self.rBdir.setChecked(True)
                 self.rBdevice.setEnabled(False)
                 self.on_radio_button_toggled()
-                setting_name = "hide_macrdoid_message"
+                setting_name = "hide_macdroid_message"
                 title = self.tr("Warning")
                 message = self.tr("This plugin needs Macdroid (even Free version) to access MTP Device. Please consider installing it."
                                   "See <a href='https://www.macdroid.app/fr/downloads/'>https://www.macdroid.app/fr/downloads</a>")
@@ -356,9 +352,17 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
 
     def is_macdroid_installed(self):
+        """
+        Check for macDroid app
+        :return: boolean
+        """
         return os.path.exists(self.APP_PATH)
 
     def is_macdroid_running(self):
+        """
+        Check if MacDroid is running
+        :return: boolean
+        """
         try:
             result = subprocess.run(
                 ["pgrep", "-fx", f"/Applications/{self.APP_NAME}.app/Contents/MacOS/{self.APP_NAME}"],
@@ -367,23 +371,27 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             )
             return result.returncode == 0
         except Exception as e:
-            print("Erreur lors de la vérification du processus :", e)
+            print("Issue when trying to see if macDroid is launched", e)
             return False
 
     def launch_macdroid(self):
+        """
+        Launch MacDroid
+        :return:
+        """
         try:
             subprocess.run(["open", "-a", self.APP_NAME], check=True)
-            print("MacDroid a été lancé.")
+            print("MacDroid has been launched.")
         except subprocess.CalledProcessError:
-            print("Impossible de lancer MacDroid.")
+            print("Failed to launch MacDroid.")
 
 
     def search_copy_osmand_file_from_device(self):
         setting_name = "hide_duration_message"
         title = self.tr("Warning")
         mtpy_msg = ''
-        if self.os != 'Windows':
-            mtpy_msg = self.tr(", especially under GNU/Linux and macOS:(")
+        if self.os == 'Linux':
+            mtpy_msg = self.tr(", especially under GNU/Linux :(")
 
         message = self.tr(f"Be patient! \nThis operation can take several minutes{mtpy_msg}.\nIn rare cases, "
                           f"it can cause Qgis to crash.")
