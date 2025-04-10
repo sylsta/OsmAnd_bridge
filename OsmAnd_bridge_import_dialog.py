@@ -320,6 +320,27 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 else:
                     print("🔄 MacDroid n’est pas lancé. Lancement en cours...")
                     self.launch_macdroid()
+
+                home = os.path.expanduser("~")
+                path = os.path.join(home, ".AFTVolumes")
+
+                try:
+                    for subdir in os.listdir(path):
+                        if os.path.isdir(os.path.join(path, subdir)):
+                            self.cBdeviceList.addItem(subdir)
+                except:
+                    pass
+                if self.cBdeviceList.count() > 0:
+                    self.qbGoMTP.setEnabled(True)
+                else:
+                    QMessageBox.warning(self, self.tr('No device found!'),
+                                        self.tr("Check that your device is properly connected and unlocked."))
+                    QGuiApplication.restoreOverrideCursor()
+
+
+
+
+
             else:
                 self.rBdir.setChecked(True)
                 self.rBdevice.setEnabled(False)
