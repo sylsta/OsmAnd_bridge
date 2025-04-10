@@ -609,25 +609,25 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     tmp_dir_name = tmp_dir_name + '/files/'
                     break
 
-        if not found:
-            QGuiApplication.restoreOverrideCursor()
-            msg = QMessageBox()
-            msg.setWindowTitle(self.tr("No files found"))
-            msg.setText(
-                self.tr(f"OsmAnd files could not be found on {device_model_name}. Try copying the "
-                        "files to your hard disk and importing them into QGIS from the "
-                        "local directory."))
-            try:
-                # Qt6
-                msg.setIcon(QMessageBox.Icon.Warning)
-                msg.setStandardButtons(QMessageBox.StandardButton.Ok)
-            except:
-                # Qt5
-                msg.setIcon(QMessageBox.Warning)
-                msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec()
-            print("No path found")
-            return
+            if not found:
+                QGuiApplication.restoreOverrideCursor()
+                msg = QMessageBox()
+                msg.setWindowTitle(self.tr("No files found"))
+                msg.setText(
+                    self.tr(f"OsmAnd files could not be found on {device_model_name}. Try copying the "
+                            "files to your hard disk and importing them into QGIS from the "
+                            "local directory."))
+                try:
+                    # Qt6
+                    msg.setIcon(QMessageBox.Icon.Warning)
+                    msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+                except:
+                    # Qt5
+                    msg.setIcon(QMessageBox.Warning)
+                    msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec()
+                print("No path found")
+                return
 
         print("Set source path dir")
         self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
