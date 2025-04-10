@@ -243,7 +243,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     QMessageBox.warning(None, self.tr("Python package COMTYPES installation failed"),
                                                  self.tr(
                                                      "Manually install this python package to download OsmAnd data directly from your device"))
-
+        # Macintosh stuff
+        self.APP_NAME = "MacDroid"
+        self.APP_PATH = f"/Applications/{APP_NAME}.app"
     def list_MTP_Devices(self):
         """
         List TMP devices connected to system to feed interface listbox
@@ -331,16 +333,14 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         else:
             pass
 
-    APP_NAME = "MacDroid"
-    APP_PATH = f"/Applications/{APP_NAME}.app"
 
     def is_macdroid_installed(self):
-        return os.path.exists(APP_PATH)
+        return os.path.exists(self.APP_PATH)
 
     def is_macdroid_running(self):
         try:
             result = subprocess.run(
-                ["pgrep", "-fx", f"/Applications/{APP_NAME}.app/Contents/MacOS/{APP_NAME}"],
+                ["pgrep", "-fx", f"/Applications/{self.APP_NAME}.app/Contents/MacOS/{self.APP_NAME}"],
                 capture_output=True,
                 text=True
             )
@@ -351,7 +351,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def launch_macdroid(self):
         try:
-            subprocess.run(["open", "-a", APP_NAME], check=True)
+            subprocess.run(["open", "-a", self.APP_NAME], check=True)
             print("MacDroid a été lancé.")
         except subprocess.CalledProcessError:
             print("Impossible de lancer MacDroid.")
