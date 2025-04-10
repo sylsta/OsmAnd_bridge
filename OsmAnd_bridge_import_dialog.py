@@ -245,7 +245,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                                      "Manually install this python package to download OsmAnd data directly from your device"))
         # Macintosh stuff
         self.APP_NAME = "MacDroid"
-        self.APP_PATH = f"/Applications/{APP_NAME}.app"
+        self.APP_PATH = f"/Applications/{self.APP_NAME}.app"
     def list_MTP_Devices(self):
         """
         List TMP devices connected to system to feed interface listbox
