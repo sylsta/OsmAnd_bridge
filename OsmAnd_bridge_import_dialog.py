@@ -406,17 +406,18 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
 
         # create temp folder for the downloaded data to be stored
-        tmp_dir_name = tempfile.TemporaryDirectory().name
-        print(f'Copying data to tmp folder: {tmp_dir_name}')
-        items_list = ['/avnotes/', '/tracks/rec/', '/favorites/', '/itinerary.gpx']
-        os.makedirs(tmp_dir_name + items_list[0])
-        os.makedirs(tmp_dir_name + items_list[1])
-        os.makedirs(tmp_dir_name + items_list[2])
+        if self.os != "Darwin":
+            tmp_dir_name = tempfile.TemporaryDirectory().name
+            print(f'Copying data to tmp folder: {tmp_dir_name}')
+            items_list = ['/avnotes/', '/tracks/rec/', '/favorites/', '/itinerary.gpx']
+            os.makedirs(tmp_dir_name + items_list[0])
+            os.makedirs(tmp_dir_name + items_list[1])
+            os.makedirs(tmp_dir_name + items_list[2])
 
-        potential_paths = ['/Android/data/net.osmand/files', '/Android/data/net.osmand.plus/files',
-                           '/Android/media/net.osmand/files', '/Android/media/net.osmand.plus/files',
-                           '/Android/obb/net.osmand/files', '/Android/obb/net.osmand.plus/files',
-                           ]
+            potential_paths = ['/Android/data/net.osmand/files', '/Android/data/net.osmand.plus/files',
+                               '/Android/media/net.osmand/files', '/Android/media/net.osmand.plus/files',
+                               '/Android/obb/net.osmand/files', '/Android/obb/net.osmand.plus/files',
+                               ]
 
         if self.os == 'Linux':
             self.kill_pid()
