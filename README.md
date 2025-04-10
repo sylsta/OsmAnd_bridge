@@ -31,7 +31,7 @@ Device connection under macOS needs macDroid to be be installed (even its free v
 
 Plugin's icon is taken from OsmAnd and licensed under Creative Commons Non-commercial No Derivative Works.
 
-This plugin has been test with QGIS 3.4x, under:
+This plugin has been tested with QGIS 3.4x, under:
 - GNU/Linux Debian 12 & 13 with KDE, Gnome and XFCE;
 - Windows 11;
 - macOS Catalina. 
