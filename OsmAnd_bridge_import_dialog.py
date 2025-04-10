@@ -313,13 +313,15 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             if self.is_macdroid_installed():
                 print("MacDroid est installé (trouvé via Spotlight).")
             else:
+                self.rBdir.setChecked(True)
+                self.rBdevice.setEnabled(False)
+                self.on_radio_button_toggled()
                 setting_name = "hide_macrdoid_message"
                 title = self.tr("Warning")
                 message = self.tr("This plugin needs Macdroid (even Free version) to access MTP Device. Please consider installing it."
-                                  "See <href='https://www.macdroid.app/fr/downloads/'>https://www.macdroid.app/fr/downloads</a>")
+                                  "See <a href='https://www.macdroid.app/fr/downloads/'>https://www.macdroid.app/fr/downloads</a>")
                 msgbox_setting(self, message, setting_name, title)
-                self.rBdir.setChecked(True)
-                self.on_radio_button_toggled()
+
         else:
             pass
 
