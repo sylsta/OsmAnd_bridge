@@ -606,8 +606,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         found = True
                         break
                 if found:
+                    tmp_dir_name = tmp_dir_name + '/files/'
                     break
-                    tmp_dir_name = tmp_dir_name+'/files/'
+
         if not found:
             QGuiApplication.restoreOverrideCursor()
             msg = QMessageBox()
