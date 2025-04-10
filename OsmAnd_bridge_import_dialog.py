@@ -321,8 +321,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     print("🔄 Trying to launch MacDroid...")
                     self.launch_macdroid()
 
-                home = os.path.expanduser("~")
-                path = os.path.join(home, ".AFTVolumes")
+                path = os.path.join(os.path.expanduser("~"), ".AFTVolumes")
 
                 try:
                     for subdir in os.listdir(path):
@@ -589,6 +588,14 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                     self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
                                             "and replugging it."))
                 return
+
+        elif self.os == 'Darwin':
+            root_path = os.path.join(os.path.expanduser("~"), ".AFTVolumes", self.cBdeviceList.currentText())
+            for root, subdir, _ in os.walk(root_path):
+                for dirname in subdir:
+                    if dirname.startswith("net.osmand"):
+                        tmp_dir_name = os.path.join(root, dirname)
+
 
         self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
         QGuiApplication.restoreOverrideCursor()
