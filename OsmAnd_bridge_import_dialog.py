@@ -593,6 +593,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         elif self.os == 'Darwin':
             print("Looking for osmand files on Darwin")
             root_path = os.path.join(os.path.expanduser("~"), ".AFTVolumes", self.cBdeviceList.currentText())
+            found= False
             for root, subdir, _ in os.walk(root_path):
                 for dirname in subdir:
                     print(dirname)
@@ -600,6 +601,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         tmp_dir_name = os.path.join(root, dirname)
                         print(tmp_dir_name)
                         print("found")
+                        found = True
+                        break
+                if found:
+                    break
 
         self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
         QGuiApplication.restoreOverrideCursor()
