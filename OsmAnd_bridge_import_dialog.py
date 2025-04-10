@@ -595,9 +595,11 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             root_path = os.path.join(os.path.expanduser("~"), ".AFTVolumes", self.cBdeviceList.currentText())
             for root, subdir, _ in os.walk(root_path):
                 for dirname in subdir:
+                    print(dirname)
                     if dirname.startswith("net.osmand"):
                         tmp_dir_name = os.path.join(root, dirname)
-
+                        print(tmp_dir_name)
+                        print("found")
 
         self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
         QGuiApplication.restoreOverrideCursor()
