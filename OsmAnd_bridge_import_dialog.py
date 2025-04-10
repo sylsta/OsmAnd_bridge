@@ -726,6 +726,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         else:
             # tracks table
             try:
+                print("looking for tracks")
                 if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/'):
                     QgsMessageLog.logMessage(self.tr('no valid OsmAnd tracks path.'), self.plugin_name,
                                              level=Qgis.Critical)
@@ -745,6 +746,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
             # checkbox favorites
             try:
+                print("looking for favourites")
                 with open(f'{self.QgsFW_osmand_root_path.filePath()}/favorites/favorites.gpx'):
                     QgsMessageLog.logMessage(self.tr('found favorites.gpx.'), self.plugin_name, level=Qgis.Info)
                     self.cB_favorites.setEnabled(True)
@@ -757,6 +759,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
             # checkbox itinerary
             try:
+                print("looking for itineraries")
                 with open(f'{self.QgsFW_osmand_root_path.filePath()}/itinerary.gpx'):
                     QgsMessageLog.logMessage(self.tr('found ./itinerary.gpx.'), self.plugin_name, level=Qgis.Info)
                     self.cB_itinerary.setEnabled(True)
@@ -769,6 +772,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
             # checkbox AVnotes
             try:
+                print("looking for AVnotes")
                 if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/'):
                     QgsMessageLog.logMessage(self.tr('no valid OsmAnd avnotes path.'), self.plugin_name,
                                              level=Qgis.Critical)
