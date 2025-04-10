@@ -594,7 +594,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
         elif self.os == 'Darwin':
             print("Looking for osmand files on Darwin")
-            root_path = os.path.join(os.path.expanduser("~"), ".AFTVolumes", self.cBdeviceList.currentText())
+            root_path = os.path.join(os.path.expanduser("~"), ".AFTVolumes", self.cBdeviceList.currentText(),"/")
             found= False
             for root, subdir, _ in os.walk(root_path):
                 for dirname in subdir:
