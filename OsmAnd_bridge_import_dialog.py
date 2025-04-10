@@ -307,12 +307,28 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 QGuiApplication.restoreOverrideCursor()
 
         elif self.os == 'Darwin':
-            print("Not available 4 macOS")
-            QMessageBox.warning(self, self.tr("Not available 4 macOS"),
-                                self.tr("Not available 4 macOS"))
+            # print("Not available 4 macOS")
+            # QMessageBox.warning(self, self.tr("Not available 4 macOS"),
+            #                     self.tr("Not available 4 macOS"))
+            if self.is_macdroid_installed():
+                print("MacDroid est installé (trouvé via Spotlight).")
+            else:
+                print("MacDroid n'est pas installé (ou introuvable via Spotlight).")
         else:
             pass
-
+        else:
+            pass
+    def is_macdroid_installed(self):
+        try:
+            result = subprocess.run(
+                ["mdfind", "kMDItemKind == 'Application' && kMDItemDisplayName == 'MacDroid'"],
+                capture_output=True,
+                text=True
+            )
+            return bool(result.stdout.strip())
+        except Exception as e:
+            print("Erreur lors de la recherche :", e)
+            return False
     def search_copy_osmand_file_from_device(self):
         setting_name = "hide_duration_message"
         title = self.tr("Warning")
