@@ -315,9 +315,11 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             else:
                 setting_name = "hide_macrdoid_message"
                 title = self.tr("Warning")
-                message = self.tr("This plugin needs Macdroid Free to access MTP Device. Please consider installing it."
-                                  "See <href='https://www.macdroid.app/fr/downloads/'https://www.macdroid.app/fr/downloads/")
+                message = self.tr("This plugin needs Macdroid (even Free version) to access MTP Device. Please consider installing it."
+                                  "See <href='https://www.macdroid.app/fr/downloads/'>https://www.macdroid.app/fr/downloads</a>")
                 msgbox_setting(self, message, setting_name, title)
+                self.rBdir.setChecked(True)
+                self.on_radio_button_toggled(self)
         else:
             pass
 
