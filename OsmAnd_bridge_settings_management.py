@@ -26,7 +26,7 @@ def save_settings(PARAM_FILE, settings):
         json.dump(settings, file)
 
 def msgbox_setting(self, message, setting_name, title):
-    print("settings = self.load_settings() call")
+
 
     settings = load_settings(self.PARAM_FILE)
     if not settings.get(setting_name, False):  # Affiche si "hide_message" est False ou n'existe pas
@@ -34,7 +34,7 @@ def msgbox_setting(self, message, setting_name, title):
         message_box = QMessageBox()
 
         message_box.setWindowTitle(title)
-
+        message_box.setTextFormat(Qt.RichText)
         message_box.setText(message)
         try: # #Qt5
             message_box.setStandardButtons(QMessageBox.Ok)
