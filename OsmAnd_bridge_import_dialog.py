@@ -246,6 +246,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # Macintosh stuff
         self.APP_NAME = "MacDroid"
         self.APP_PATH = f"/Applications/{self.APP_NAME}.app"
+
+
     def list_MTP_Devices(self):
         """
         List TMP devices connected to system to feed interface listbox
@@ -406,10 +408,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
 
         # create temp folder for the downloaded data to be stored
+        items_list = ['/avnotes/', '/tracks/rec/', '/favorites/', '/itinerary.gpx']
         if self.os != "Darwin":
             tmp_dir_name = tempfile.TemporaryDirectory().name
             print(f'Copying data to tmp folder: {tmp_dir_name}')
-            items_list = ['/avnotes/', '/tracks/rec/', '/favorites/', '/itinerary.gpx']
             os.makedirs(tmp_dir_name + items_list[0])
             os.makedirs(tmp_dir_name + items_list[1])
             os.makedirs(tmp_dir_name + items_list[2])
@@ -605,7 +607,27 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         break
                 if found:
                     break
+        if not found:
+            QGuiApplication.restoreOverrideCursor()
+            msg = QMessageBox()
+            msg.setWindowTitle(self.tr("No files found"))
+            msg.setText(
+                self.tr(f"OsmAnd files could not be found on {device_model_name}. Try copying the "
+                        "files to your hard disk and importing them into QGIS from the "
+                        "local directory."))
+            try:
+                # Qt6
+                msg.setIcon(QMessageBox.Icon.Warning)
+                msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+            except:
+                # Qt5
+                msg.setIcon(QMessageBox.Warning)
+                msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec()
+            print("No path found")
+            return
 
+        print("Set source path dir")
         self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
         QGuiApplication.restoreOverrideCursor()
 
