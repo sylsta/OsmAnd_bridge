@@ -319,7 +319,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                   "See <href='https://www.macdroid.app/fr/downloads/'>https://www.macdroid.app/fr/downloads</a>")
                 msgbox_setting(self, message, setting_name, title)
                 self.rBdir.setChecked(True)
-                self.on_radio_button_toggled(self)
+                self.on_radio_button_toggled()
         else:
             pass
 
