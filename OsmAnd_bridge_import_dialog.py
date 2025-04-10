@@ -311,7 +311,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             # QMessageBox.warning(self, self.tr("Not available 4 macOS"),
             #                     self.tr("Not available 4 macOS"))
             if self.is_macdroid_installed():
-                print("MacDroid est installé (trouvé via Spotlight).")
+                print("✅ MacDroid est installé.")
+
+                if self.is_macdroid_running():
+                    print("🚀 MacDroid est déjà lancé.")
+                else:
+                    print("🔄 MacDroid n’est pas lancé. Lancement en cours...")
+                    self.launch_macdroid()
             else:
                 self.rBdir.setChecked(True)
                 self.rBdevice.setEnabled(False)
@@ -325,17 +331,32 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         else:
             pass
 
+    APP_NAME = "MacDroid"
+    APP_PATH = f"/Applications/{APP_NAME}.app"
+
     def is_macdroid_installed(self):
+        return os.path.exists(APP_PATH)
+
+    def is_macdroid_running(self):
         try:
             result = subprocess.run(
-                ["mdfind", "kMDItemKind == 'Application' && kMDItemDisplayName == 'MacDroid'"],
+                ["pgrep", "-fx", f"/Applications/{APP_NAME}.app/Contents/MacOS/{APP_NAME}"],
                 capture_output=True,
                 text=True
             )
-            return bool(result.stdout.strip())
+            return result.returncode == 0
         except Exception as e:
-            print("Erreur lors de la recherche :", e)
+            print("Erreur lors de la vérification du processus :", e)
             return False
+
+    def launch_macdroid(self):
+        try:
+            subprocess.run(["open", "-a", APP_NAME], check=True)
+            print("MacDroid a été lancé.")
+        except subprocess.CalledProcessError:
+            print("Impossible de lancer MacDroid.")
+
+
     def search_copy_osmand_file_from_device(self):
         setting_name = "hide_duration_message"
         title = self.tr("Warning")
