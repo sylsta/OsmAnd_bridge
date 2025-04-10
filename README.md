@@ -1,6 +1,7 @@
 [![QGIS Version](https://img.shields.io/badge/QGIS-3.x-green)](https://qgis.org) 
 [![QGIS.org](https://img.shields.io/badge/QGIS.org-published-green)](https://plugins.qgis.org/plugins/OsmAnd_bridge/#plugin-versions) 
 [![OSmAnd](https://img.shields.io/badge/OsmAnd-compatible-orange)](https://osmand.net/)
+![license](https://img.shields.io/badge/License-GPL_v3.0-blue) ![release](https://img.shields.io/badge/release-v2.0-red.svg)
 
 # OsmAnd bridge
 
