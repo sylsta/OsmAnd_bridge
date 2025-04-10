@@ -316,8 +316,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 print("MacDroid n'est pas installé (ou introuvable via Spotlight).")
         else:
             pass
-        else:
-            pass
+
     def is_macdroid_installed(self):
         try:
             result = subprocess.run(
