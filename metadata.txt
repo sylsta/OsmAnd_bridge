@@ -8,9 +8,11 @@ name=OsmAnd bridge
 qgisMinimumVersion=3.0
 
 description=Import tracks, favorites, itinerary and AV notes from OsmAnd on an Android device* to QGIS 3.x. Data are organized by type (point/lines) and audiovisual notes (sounds, pictures and movies) are downloaded and spatialised. Geographical data are stored in a gpkg file while AV notes are stored in their original file format.
+
 A direct connexion can be establish with the device, or data can be taken from a copy of OsmAnd directory on an hard drive. Supposed to work natively on Linux and Windows. MacOS users needs to use macDroid (even its free version) or similar. Feel free to fork the code and/or to send feedback, especially if something goes wrong with this plugin.
 
 description[fr]=Importer= des pistes, des favoris, des itinéraires et des notes audiovisuelles depuis OsmAnd sur un appareil Android* vers QGIS 3.x. Les données sont organisées par type (points/lignes) et les notes audiovisuelles (sons, images et films) sont téléchargées et spatialisées. Les données géographiques sont stockées dans un fichier gpkg tandis que les notes audiovisuelles sont stockées dans leur format de fichier original.
+
 Une connexion directe peut être établie avec l'appareil, ou les données peuvent être extraites d'une copie du répertoire OsmAnd sur un disque dur. Supposé fonctionner en mode natif sous Linux et Windows. Les utilisateurs de MacOS doivent utiliser macDroid (même sa version gratuite) ou similaire. N'hésitez pas à forker le code et/ou à envoyer vos commentaires, surtout si quelque chose ne va pas avec ce plugin.
 
 Traduit avec DeepL.com (version gratuite)
