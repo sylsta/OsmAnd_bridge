@@ -224,8 +224,8 @@ class OsmAndBridge:
     def run(self):
         """Run method that performs all the real work"""
 
-        setting_name = self.tr("hide_unstable_warning_message")
-        title = "Warning"
+        setting_name = "hide_unstable_warning_message"
+        title = self.tr("Warning")
         message = self.tr("This plugin uses libraries known to be unstable to access devices (MTP protocol). " \
                   "\nIn rare cases, it can cause Qgis to crash.")
         msgbox_setting(self, message, setting_name, title)
