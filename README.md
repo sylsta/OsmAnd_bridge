@@ -5,8 +5,9 @@
 
 # OsmAnd bridge
 
-| ![OsmAnd_logo.png](OsmAnd_logo.png) | Import tracks, favorites, itinerary and AV notes from [OsmAnd ](https://osmand.net/)on an android device to QGIS 3.x. Data are organized by type (point/lines) and audiovisual notes (sounds, pictures and movie) are downloaded and spatialized. Geographical data are stored in a gpkg file while AV notes are stored in their original file format.<br/><br>A direct connexion can be establish with the device, or data can be taken from a copy of OsmAnd directory on an hard drive. Supposed to work natively on Linux and Windows. MacOS users needs to use macDroid (even its free version) or similar. Feel free to fork the code and/or to send feedback, especially if something goes wrong with this plugin. |
-|:------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![OsmAnd_logo.png](OsmAnd_logo.png) | Import tracks, favorites, itinerary and AV notes from [OsmAnd ](https://osmand.net/)on an **Android device*** to QGIS 3.x. Data are organized by type (point/lines) and audiovisual notes (sounds, pictures and movie) are downloaded and spatialized. Geographical data are stored in a gpkg file while AV notes are stored in their original file format.<br/><br>A direct connexion can be establish with the device, or data can be taken from a copy of OsmAnd directory on an hard drive. Supposed to work natively on Linux and Windows. MacOS users needs to use macDroid (even its free version) or similar. Feel free to fork the code and/or to send feedback, especially if something goes wrong with this plugin. |
+|:------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+*Feel free to buy me an Iphone, if you want this plugin to support this device :)
 
 ### Credits and acknowledgment
 This QGIS extension contains code extracts from the eqip plugin for loading the Comtypes package on Windows.  
@@ -22,7 +23,19 @@ MTP connections under Windows are made using the "mtp" package. (Thank you Herib
 
 - https://github.com/Heribert17/mtp
 
+Device connection under macOS needs macDroid to be be installed (even its free version).
+
+- https://www.macdroid.app/ 
+ 
 
 Plugin's icon is taken from OsmAnd and licensed under Creative Commons Non-commercial No Derivative Works.
+
+This plugin has been test with QGIS 3.4x, under:
+- GNU/Linux Debian 12 & 13 with KDE, Gnome and XFCE;
+- Windows 11;
+- macOS Catalina. 
+
+Plesae report any bug or functionality you would like to be implemented. 
+
 
 
