@@ -52,18 +52,7 @@ elif platform.system() == 'Windows':
         from .extra_packages.mtp.win_access import get_portable_devices, walk
     except:
         pass
-        # trying to install comtypes
-#         print("comtype package needed. Trying to install it")
-#         QMessageBox.warning(None, self.tr("Python package COMTYPES not found",
-#                             "Manually install this python package to download OsmAnd data directly from your phone")
-#         from .extra_packages.eqip.configuration.piper import install_requirements_from_file
-#         install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
-#         try:
-#             import comtypes
-#         except:
-#             QMessageBox.question(None, "Unable to install COMTYPES",
-#                         self.tr("Manually install this python package to download OsmAnd data directly from your phone",
-#                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
 
 
 
@@ -653,7 +642,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.qbGoMTP.show()
             self.label.setText(self.tr(
                 "<html><head/><body><p><span style=\" font-weight:600;\">"
-                "Select your device and press the left button to search for OsmAnd files:"
+                "Select your device and press the right button to search for OsmAnd files.<br>"
+                "You can use the left button to refresh devices list."
                 "</span></p></body></html>"))
             self.list_MTP_Devices()
 
