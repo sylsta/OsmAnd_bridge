@@ -50,7 +50,10 @@ def msgbox_setting(self, message, setting_name, title):
         message_box = QMessageBox()
 
         message_box.setWindowTitle(title)
-        message_box.setTextFormat(Qt.RichText)
+        try:  # Qt5
+            message_box.setTextFormat(Qt.RichText)
+        except: # Qt6
+            message_box.setTextFormat(Qt.TextFormat.RichText)
         message_box.setText(message)
         try: # #Qt5
             message_box.setStandardButtons(QMessageBox.Ok)
