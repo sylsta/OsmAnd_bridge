@@ -168,7 +168,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the 'file' directory on you computer:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
@@ -195,7 +195,7 @@
     <rect>
      <x>13</x>
      <y>480</y>
-     <width>411</width>
+     <width>581</width>
      <height>20</height>
     </rect>
    </property>
@@ -208,7 +208,7 @@
     <rect>
      <x>13</x>
      <y>560</y>
-     <width>411</width>
+     <width>591</width>
      <height>20</height>
     </rect>
    </property>
@@ -238,9 +238,9 @@
   <widget class="QRadioButton" name="rBdevice">
    <property name="geometry">
     <rect>
-     <x>247</x>
+     <x>201</x>
      <y>50</y>
-     <width>105</width>
+     <width>181</width>
      <height>22</height>
     </rect>
    </property>
@@ -256,7 +256,7 @@
     <rect>
      <x>417</x>
      <y>50</y>
-     <width>151</width>
+     <width>191</width>
      <height>22</height>
     </rect>
    </property>

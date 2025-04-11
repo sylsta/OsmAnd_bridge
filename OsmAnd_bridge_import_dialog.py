@@ -230,30 +230,29 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                             subprocess.Popen(QgsApplication.applicationFilePath())
 
                     except:
-                        QMessageBox.warning(None, self.tr("Python package COMTYPES installation failed"),
-                                            self.tr(
-                                                "Manually install this python package to download OsmAnd data "
-                                                "directly from your device"))
-                        QgsMessageLog.logMessage(
-                            "Python package COMTYPES installation failed: anually install it to download OsmAnd "
-                            "data directly from your device",
-                            self.plugin_name, level=Qgis.Critical)
+
+                        title = self.tr("Python package COMTYPES installation failed")
+                        message = self.tr("Manually install this python package to download OsmAnd data " \
+                                     "directly from your device.")
+                        QMessageBox.warning(None, title, message)
+                        QgsMessageLog.logMessage(f"{title}. {message}", self.plugin_name, level=Qgis.Critical)
                         self.rBdir.setChecked(True)
                         self.rBdevice.setEnabled(False)
         # Macintosh stuff
         self.APP_NAME = "MacDroid"
         self.APP_PATH = f"/Applications/{self.APP_NAME}.app"
 
+        self.title_cant_connect = self.tr("Can't connect to device")
+        self.message_cant_connect = self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
+                                       "and replugging it.")
+        self.title_no_device_found = self.tr('No device found!')
+        self.message_no_device_found = self.tr("Check that your device is properly connected and unlocked.")
+
     def list_MTP_Devices(self):
         """
         List TMP devices connected to system to feed interface listbox
         :return:
         """
-        title_cant_connect = self.tr("Can't connect to device")
-        message_cant_connect = self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
-                                       "and replugging it.")
-        title_no_device_found = self.tr('No device found!')
-        message_no_device_found = self.tr("Check that your device is properly connected and unlocked.")
 
         # Clear stuff on UI
         self.clear_UI_items()
@@ -267,7 +266,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 devices = get_raw_devices()
             except:
                 # No device found
-                QMessageBox.warning(self, title_no_device_found, message_no_device_found)
+                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
                 return
 
             # iterates through list of devices to get there name and model and feed comboboxlist
@@ -280,15 +279,15 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     device_open.close()
                 except:
                     # Can't connect to  device
-                    QgsMessageLog.logMessage(f"{title_cant_connect} {message_cant_connect}", self.plugin_name,
+                    QgsMessageLog.logMessage(f"{self.title_cant_connect} {self.message_cant_connect}", self.plugin_name,
                                              level=Qgis.Critical)
-                    QMessageBox.warning(self, title_cant_connect, message_cant_connect)
+                    QMessageBox.warning(self, self.title_cant_connect, self.message_cant_connect)
 
             if self.cBdeviceList.count() > 0:
                 # enable browsing button if one or more device found
                 self.qbGoMTP.setEnabled(True)
             else:
-                QMessageBox.warning(self, title_no_device_found, message_no_device_found)
+                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
 
         elif platform.system() == 'Windows':
             try:
@@ -296,8 +295,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 devices = get_portable_devices()
             except:
                 # No device found
-                QMessageBox.warning(self, title_no_device_found,
-                                    message_no_device_found)
+                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
                 return
 
             for device in devices:
@@ -306,15 +304,15 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     self.cBdeviceList.addItem(f"{device.get_description()[0]} - {device.get_description()[1]}")
                 except:
                     # Can't connect to  device
-                    QgsMessageLog.logMessage(f"{title_cant_connect} {message_cant_connect}", self.plugin_name,
-                                             level=Qgis.Critical)
-                    QMessageBox.critical(self, title_cant_connect, message_cant_connect)
+                    QgsMessageLog.logMessage(f"{self.title_cant_connect} {self.message_cant_connect}",
+                                             self.plugin_name, level=Qgis.Critical)
+                    QMessageBox.critical(self, self.title_cant_connect, self.message_cant_connect)
 
             if self.cBdeviceList.count() > 0:
                 # enable browsing button if one or more device found
                 self.qbGoMTP.setEnabled(True)
             else:
-                QMessageBox.warning(self, title_no_device_found, message_no_device_found)
+                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
 
 
         elif platform.system() == 'Darwin':
@@ -336,13 +334,12 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     # enable browsing button if one or more device found
                     self.qbGoMTP.setEnabled(True)
                 else:
-                    QMessageBox.warning(self, title_no_device_found, message_no_device_found)
+                    QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
 
             else:
                 self.rBdir.setChecked(True)
                 self.rBdevice.setEnabled(False)
                 self.on_radio_button_toggled()
-                setting_name = "hide_macdroid_message"
                 title = self.tr("Warning")
                 message = self.tr(
                     "This plugin needs MacDroid (even Free version) to access MTP Device. Please consider installing it."
@@ -428,8 +425,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             try:
                 devices = get_raw_devices()
             except:
-                QMessageBox.warning(self, self.tr('No device found!'),
-                                    self.tr("Check that your device is properly connected and unlocked."))
+                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
                 QGuiApplication.restoreOverrideCursor()
                 return
 
@@ -489,22 +485,18 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
                     device_open.close()
             except:
-                QMessageBox.warning(self, self.tr("Can't connect to device"),
-                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
-                                            "and replugging it."))
+                QMessageBox.warning(self, self.title_cant_connect, self.message_cant_connect)
                 QGuiApplication.restoreOverrideCursor()
                 return
         elif platform.system() == 'Windows':
             try:
                 devices = get_portable_devices()
             except:
-                QMessageBox.warning(self, self.tr('No device found!'),
-                                    self.tr("Check that your device is properly connected and unlocked."))
+                QMessageBox.warning(self, self.title_cant_connect, self.message_cant_connect)
                 QGuiApplication.restoreOverrideCursor()
                 return
             if len(devices) == 0:
-                QMessageBox.warning(self, self.tr('No device found!'),
-                                    self.tr("Check that your device is properly connected and unlocked."))
+                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
                 QGuiApplication.restoreOverrideCursor()
 
             try:
@@ -564,9 +556,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
             except:
                 QGuiApplication.restoreOverrideCursor()
-                QMessageBox.warning(self, self.tr("Can't connect to device"),
-                                    self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
-                                            "and replugging it."))
+                QMessageBox.warning(self, self.title_cant_connect, self.message_cant_connect)
                 return
 
         elif platform.system() == 'Darwin':
@@ -681,7 +671,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         """
 
         if not os.path.exists(os.path.dirname(self.QgsFW_dest_path.filePath())):
-            QgsMessageLog.logMessage(self.tr('not valid output file path.'), self.plugin_name, level=Qgis.Critical)
+            QgsMessageLog.logMessage(self.tr('Not a valid output file path.'), self.plugin_name, level=Qgis.Critical)
         self.enable_ok_button()
 
     def osmand_root_path_changed(self) -> None:
@@ -696,13 +686,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.selectAllTracksPB.setEnabled(False)
 
         if not os.path.isdir(self.QgsFW_osmand_root_path.filePath()):
-            QgsMessageLog.logMessage(self.tr('*Not a valid directory.'), self.plugin_name, level=Qgis.Critical)
+            QgsMessageLog.logMessage(self.tr('Not a valid directory.'), self.plugin_name, level=Qgis.Critical)
             # self.init_widget()
         else:
             # tracks table
             try:
                 if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/'):
-                    QgsMessageLog.logMessage(self.tr('no valid OsmAnd tracks path.'), self.plugin_name,
+                    QgsMessageLog.logMessage(self.tr('No valid OsmAnd tracks path.'), self.plugin_name,
                                              level=Qgis.Critical)
 
                 else:
@@ -723,7 +713,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             # checkbox favorites
             try:
                 with open(f'{self.QgsFW_osmand_root_path.filePath()}/favorites/favorites.gpx'):
-                    QgsMessageLog.logMessage(self.tr('found favorites.gpx.'), self.plugin_name, level=Qgis.Info)
+                    QgsMessageLog.logMessage(self.tr('Found favorites.gpx.'), self.plugin_name, level=Qgis.Info)
                     self.cB_favorites.setEnabled(True)
                     self.cB_favorites.setChecked(True)
 
@@ -735,7 +725,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             # checkbox itinerary
             try:
                 with open(f'{self.QgsFW_osmand_root_path.filePath()}/itinerary.gpx'):
-                    QgsMessageLog.logMessage(self.tr('found ./itinerary.gpx.'), self.plugin_name, level=Qgis.Info)
+                    QgsMessageLog.logMessage(self.tr('Found ./itinerary.gpx.'), self.plugin_name, level=Qgis.Info)
                     self.cB_itinerary.setEnabled(True)
                     self.cB_itinerary.setChecked(True)
 
@@ -747,7 +737,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             # checkbox AVnotes
             try:
                 if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/'):
-                    QgsMessageLog.logMessage(self.tr('no valid OsmAnd avnotes path.'), self.plugin_name,
+                    QgsMessageLog.logMessage(self.tr('No valid OsmAnd avnotes path.'), self.plugin_name,
                                              level=Qgis.Critical)
                     self.cB_AVnotes.setEnabled(False)
                     self.cB_AVnotes.setChecked(False)
@@ -757,7 +747,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                             len(glob.glob(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/*.mp4')) > 0:
                         self.cB_AVnotes.setEnabled(True)
                         self.cB_AVnotes.setChecked(True)
-                        QgsMessageLog.logMessage(self.tr('Found  OsmAnd AV note(s) to import.'), self.plugin_name,
+                        QgsMessageLog.logMessage(self.tr('Found OsmAnd AV note(s) to import.'), self.plugin_name,
                                                  level=Qgis.Info)
 
             except:

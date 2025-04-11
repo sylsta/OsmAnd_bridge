@@ -392,7 +392,7 @@ class OsmAndBridge:
 
             # Show success message when finished
             self.iface.messageBar().clearWidgets()
-            message = "♪♪ This is the End, my only friend, the End ♫ "
+            message = "♪♫ This is the End, my only friend, the End ♫♪ "
             QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Success)
             self.iface.messageBar().pushMessage(message, level=Qgis.Success, duration=0)
 
