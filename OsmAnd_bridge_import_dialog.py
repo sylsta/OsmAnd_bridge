@@ -41,16 +41,15 @@ from qgis.core import QgsMessageLog, Qgis, QgsApplication, QgsProject
 
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
+#Import MTP librairies depending on OS
 if platform.system() == 'Linux':
     from .extra_packages.mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
-
-
 elif platform.system() == 'Windows':
-
     try:
         import comtypes
         from .extra_packages.mtp.win_access import get_portable_devices, walk
     except:
+        # Crashes if comtypes is not installed. We will deal with this below
         pass
 
 
@@ -58,7 +57,7 @@ elif platform.system() == 'Windows':
 
 
 
-# This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
+# Loads .ui
 try:  # Qt5
     FORM_CLASS, _ = uic.loadUiType(os.path.join(
         os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'), resource_suffix='')
@@ -174,9 +173,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogOkButton)
         self.qbGoMTP.setIcon(icon)
 
-
+        # Params file for messageboxes
         self.PARAM_FILE = f"{os.path.dirname(__file__)}/settings.json"
 
+        # If windows, comtypes python package needs to be installed
         if platform.system() == 'Windows':
             print("test")
             try:
@@ -211,7 +211,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
                     title = self.tr("Comtypes package successfully installed")
                     message = self.tr(
-                        "QGIS has to be restarted. Do you want to do it now (and be asked to save your project if needed?")
+                        "QGIS has to be restarted. Do you want to do it now "
+                        "(and be asked to save your project if needed)?")
                     try:
                     # Qt5
                         answer = QMessageBox.question(None, title, message,
@@ -247,8 +248,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.clear_UI_items()
 
         self.qbGoMTP.setEnabled(False)
+
         if self.os == 'Linux':
-            print('linux')
+            # koi or gvfs might block access to devices
             self.kill_pid()
             try:
                 devices = get_raw_devices()
