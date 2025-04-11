@@ -45,9 +45,6 @@ from .OsmAnd_bridge_import_process import import_gpx_track_file, import_avnotes,
 from .OsmAnd_bridge_geopackage_management import create_empty_gpkg_layer
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
-# Pycharm debug server
-# To use it, you need to use a 'python remote debug' configuration into pycharm *pro*
-# Then 'pip install pydevd-pycharm~=221.5591.52' # at the time of writing (20022-05-27)
 
 class OsmAndBridge:
     """QGIS Plugin Implementation."""
@@ -61,35 +58,44 @@ class OsmAndBridge:
         :type iface: QgsInterface
         """
 
-        # debug mode (also used for some print statements)
-        self.debug = True
+
+        # initialize plugin directory
+        self.plugin_dir = os.path.dirname(__file__)
+
+        # Save reference to the plugin name
+        self.plugin_name = 'OsmAnd bridge'
+
+        # print version number in console and log panel
+        config = ConfigParser()
+        config.read(f'{self.plugin_dir}/metadata.txt')
+        print(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded")
+        QgsMessageLog.logMessage(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded", self.plugin_name, level=Qgis.Info)
+
+
+        # Pycharm debug server
+        # To use it, you need to use a 'python remote debug' configuration into pycharm *pro*
+        # Then 'pip install pydevd-pycharm~=221.5591.52'  at the time of writing (20022-05-27)
+
+        self.debug = False
         if self.debug:
-            print("Trying to runinto debug mode")
+            QgsMessageLog.logMessage("Trying to run into debug mode", self.plugin_name, level=Qgis.Info)
             try:
                 import pydevd_pycharm
                 try:
                     pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend = False)
-                    print("Debugging into pycharm")
+                    QgsMessageLog.logMessage("Debugging into pyCharm", self.plugin_name, level=Qgis.Info)
                 except:
-                    print("No python remote debug server")
+                    QgsMessageLog.logMessage("No python remote debug server", self.plugin_name, level=Qgis.Warning)
             except ImportError:
-                print("pydedv_pycharm package not found")
+                QgsMessageLog.logMessage("pydedv_pycharm package not found", self.plugin_name, level=Qgis.Critical)
 
 
 
-        # initialize plugin directory
-        self.plugin_dir = os.path.dirname(__file__)
-        # print version number
-        config = ConfigParser()
-        config.read(f'{self.plugin_dir}/metadata.txt')
-        print(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded")
 
         # Save reference to the QGIS interface
         self.iface = iface
         # Save reference to the QGIS project instance
         self.project = QgsProject.instance()
-        # Save reference to the plugin name
-        self.plugin_name = 'OsmAnd bridge'
 
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
@@ -220,9 +226,12 @@ class OsmAndBridge:
         # remove the toolbar
         del self.toolbar
 
-    # Fonction pour sauvegarder les paramètres dans le fichier
+
     def run(self):
-        """Run method that performs all the real work"""
+        """
+        Launch import dialog and import OsmAnd data if found.
+        :return:
+        """
 
         setting_name = "hide_unstable_warning_message"
         title = self.tr("Warning")
@@ -357,7 +366,7 @@ class OsmAndBridge:
             self.iface.messageBar().clearWidgets()
 
             ## Now deasling with map background
-            # cheking internet connection
+            # checking internet connection
             try :
                 socket.create_connection(("tile.openstreetmap.org", 443))
                 tms = 'type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png&zmax=19&zmin=0'
@@ -383,7 +392,7 @@ class OsmAndBridge:
 
             # Show success message when finished
             self.iface.messageBar().clearWidgets()
-            message = self.tr("♪♪ This is the End, my only friend, the End ♪♪")
+            message = "♪♪ This is the End, my only friend, the End ♫ "
             QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Success)
             self.iface.messageBar().pushMessage(message, level=Qgis.Success, duration=0)
 

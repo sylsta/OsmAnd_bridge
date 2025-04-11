@@ -5,8 +5,8 @@ from qgis.PyQt.QtCore import Qt
 
 def load_settings(PARAM_FILE):
     """
-
-    :return:
+    load settings from json file
+    :return: settingg
     """
     try:
         with open(PARAM_FILE, "r") as file:
@@ -18,15 +18,31 @@ def load_settings(PARAM_FILE):
 
 def save_settings(PARAM_FILE, settings):
     """
-
-    :param settings:
-    :return:
+    Save settings to json file
+    :param settings: settings
+    :return: none
     """
     with open(PARAM_FILE, "w") as file:
         json.dump(settings, file)
 
-def msgbox_setting(self, message, setting_name, title):
+def add_setting(self, name, value):
+    """
+    :param self:
+    :param name: 
+    :param value: 
+    :return: 
+    """
+    pass
 
+def msgbox_setting(self, message, setting_name, title):
+    """
+    function used to store if warning messageboxes as to be hide or not
+    :param self: ifacesettings = load_settings(self.PARAM_FILE)
+    :param message: str
+    :param setting_name:str
+    :param title: str
+    :return: None
+    """
 
     settings = load_settings(self.PARAM_FILE)
     if not settings.get(setting_name, False):  # Affiche si "hide_message" est False ou n'existe pas
