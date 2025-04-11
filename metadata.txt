@@ -10,9 +10,9 @@ description=Import tracks, favorites, itinerary and AV notes from OsmAnd on an A
 description[fr]=Importe des pistes, des favoris, des itinéraires et des notes audiovisuelles depuis OsmAnd sur un appareil Android vers QGIS 3.x. Les données sont organisées par type (points/lignes) et les notes audiovisuelles (sons, images et films) sont téléchargées et spatialisées. Les données géographiques sont stockées dans un fichier gpkg tandis que les notes audiovisuelles sont stockées dans leur format de fichier original.
     Une connexion directe peut être établie avec l'appareil, ou les données peuvent être extraites d'une copie du répertoire OsmAnd sur un disque dur. Supposé fonctionner en mode natif sous Linux et Windows. Les utilisateurs de MacOS doivent utiliser macDroid (même sa version gratuite) ou similaire. N'hésitez pas à forker le code et/ou à envoyer vos commentaires, surtout si quelque chose ne va pas avec ce plugin.
 
-about=Import tracks, favorites, itinerary and AV notes from OsmAnd
+about=Import tracks, favorites, itinerary and AV notes from OsmAnd on an Android device
 
-about[fr]=Import de traces, favoris, marques et notes audios, vidéos et photos depuis un téléphone disposant d'OsmAnd
+about[fr]=Import de traces, favoris, marques et notes audios, vidéos et photos depuis un appareil Android disposant d'OsmAnd
 
 version=1.5
 
