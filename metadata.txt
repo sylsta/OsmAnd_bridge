@@ -14,7 +14,7 @@ about=Import tracks, favorites, itinerary and AV notes from OsmAnd on an Android
 
 about[fr]=Import de traces, favoris, marques et notes audios, vidéos et photos depuis un appareil Android disposant d'OsmAnd
 
-version=1.5
+version=2.0
 
 author=Sylvain Théry - UMR 5281 ART-Dev
 
