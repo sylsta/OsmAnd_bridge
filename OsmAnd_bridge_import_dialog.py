@@ -172,6 +172,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # If windows, comtypes python package needs to be installed
         if platform.system() == 'Windows':
             try:
+                #this import is done there just to test if comtypes is present
                 QgsMessageLog.logMessage("Trying to import comtypes", self.plugin_name, level=Qgis.Info)
                 import comtypes.client
                 QgsMessageLog.logMessage('Successfully imported comtypes', self.plugin_name,
@@ -184,6 +185,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 # Check for a previous attempt to install Comtypes
                 settings = load_settings(self.PARAM_FILE)
                 setting_name = 'comptypes_install_tried'
+
+                title = self.tr("Python package COMTYPES installation failed")
+                message = self.tr("Manually install this python package to download OsmAnd data " \
+                                  "directly from your device.")
                 if not settings.get(setting_name, False):
                     try:
                         # trying to install comtypes
@@ -230,14 +235,16 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                             subprocess.Popen(QgsApplication.applicationFilePath())
 
                     except:
-
-                        title = self.tr("Python package COMTYPES installation failed")
-                        message = self.tr("Manually install this python package to download OsmAnd data " \
-                                     "directly from your device.")
                         QMessageBox.warning(None, title, message)
                         QgsMessageLog.logMessage(f"{title}. {message}", self.plugin_name, level=Qgis.Critical)
                         self.rBdir.setChecked(True)
                         self.rBdevice.setEnabled(False)
+                else:
+                    QMessageBox.warning(None, title, message)
+                    QgsMessageLog.logMessage(f"{title}. {message}", self.plugin_name, level=Qgis.Critical)
+                    self.rBdir.setChecked(True)
+                    self.rBdevice.setEnabled(False)
+
         # Macintosh stuff
         self.APP_NAME = "MacDroid"
         self.APP_PATH = f"/Applications/{self.APP_NAME}.app"
