@@ -65,7 +65,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
     """
     Class to manage import settings from OsmAnd directory or MTP device
     """
-    # annotations for completion
+    # annotations for completion in code editor
     buttonBox: QDialogButtonBox
     tW_tracks: QTableWidget
     QgsFW_osmand_root_path: QgsFileWidget
@@ -172,11 +172,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # If windows, comtypes python package needs to be installed
         if platform.system() == 'Windows':
             try:
-                #this import is done there just to test if comtypes is present
-                QgsMessageLog.logMessage("Trying to import comtypes", self.plugin_name, level=Qgis.Info)
+                # This import is done there just to test if comtypes is present
                 import comtypes.client
-                QgsMessageLog.logMessage('Successfully imported comtypes', self.plugin_name,
-                                         level=Qgis.Info)
 
             except:
                 QgsMessageLog.logMessage("Failed to import Comtypes", self.plugin_name,
@@ -186,13 +183,14 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 settings = load_settings(self.PARAM_FILE)
                 setting_name = 'comptypes_install_tried'
 
+                # Srings to messageboxes that could be used 3x later
                 title = self.tr("Python package COMTYPES installation failed")
                 message = self.tr("Manually install this python package to download OsmAnd data " \
                                   "directly from your device.")
+
                 if not settings.get(setting_name, False):
                     try:
                         # trying to install comtypes
-
                         try:
                             # Qt5
                             USES_PYQT6 = False
@@ -212,34 +210,51 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                             # set that an install is tried
                             settings[setting_name] = True
                             save_settings(self.PARAM_FILE, settings)
+
+                            #tries to install requirements
                             from .extra_packages.eqip.configuration.piper import install_requirements_from_file
                             install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
-                        title = self.tr("Comtypes package successfully installed")
-                        message = self.tr(
-                            "QGIS has to be restarted. Do you want to do it now "
-                            "(and be asked to save your project if needed)?")
-                        try:
-                            # Qt5
-                            answer = QMessageBox.question(None, title, message,
-                                                          QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-                        except:
-                            # Qt6
-                            answer = QMessageBox.question(None, title, message,
-                                                          QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                                                          QMessageBox.StandardButton.Yes)
+                            # Once again we have to try to import comtypes since install_requirements_from_file()
+                            # do not return a result state
+                            QgsMessageLog.logMessage("Trying to import comtypes", self.plugin_name, level=Qgis.Info)
+                            import comtypes.client
+                            QgsMessageLog.logMessage('Successfully imported comtypes', self.plugin_name,
+                                                     level=Qgis.Info)
 
-                        if answer == (QMessageBox.StandardButton.Yes if USES_PYQT6 else QMessageBox.Yes):
-                            if QgsProject.instance().isDirty():
-                                iface.actionSaveProject().trigger()
-                            iface.actionExit().trigger()
-                            subprocess.Popen(QgsApplication.applicationFilePath())
+                            title = self.tr("Comtypes package successfully installed")
+                            message = self.tr(
+                                "QGIS has to be restarted. Do you want to do it now "
+                                "(and be asked to save your project if needed)?")
+                            try:
+                                # Qt5
+                                answer = QMessageBox.question(None, title, message,
+                                                              QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                            except:
+                                # Qt6
+                                answer = QMessageBox.question(None, title, message,
+                                          QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                          QMessageBox.StandardButton.Yes)
+
+                            if answer == (QMessageBox.StandardButton.Yes if USES_PYQT6 else QMessageBox.Yes):
+                                if QgsProject.instance().isDirty():
+                                    iface.actionSaveProject().trigger()
+                                iface.actionExit().trigger()
+                                subprocess.Popen(QgsApplication.applicationFilePath())
+                        else:
+                            self.rBdir.setChecked(True)
+                            self.rBdevice.setEnabled(False)
+
 
                     except:
+                        # TODO faire un message do not show again
+                        QgsMessageLog.logMessage('Failed to install comtypes', self.plugin_name,
+                                                 level=Qgis.Critical)
                         QMessageBox.warning(None, title, message)
                         QgsMessageLog.logMessage(f"{title}. {message}", self.plugin_name, level=Qgis.Critical)
                         self.rBdir.setChecked(True)
                         self.rBdevice.setEnabled(False)
                 else:
+                    # TODO faire un message do not show again
                     QMessageBox.warning(None, title, message)
                     QgsMessageLog.logMessage(f"{title}. {message}", self.plugin_name, level=Qgis.Critical)
                     self.rBdir.setChecked(True)
