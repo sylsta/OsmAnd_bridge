@@ -171,57 +171,73 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
         # If windows, comtypes python package needs to be installed
         if platform.system() == 'Windows':
+            # by default MTP connection is disabled
+            self.rBdir.setChecked(True)
+            self.rBdevice.setEnabled(False)
+
             try:
                 # This import is done there just to test if comtypes is present
                 import comtypes.client
+                self.rBdevice.setEnabled(True)
+                self.rBdevice.setChecked(True)
 
             except:
                 QgsMessageLog.logMessage("Failed to import Comtypes", self.plugin_name,
                                          level=Qgis.Warning)
 
                 # Check for a previous attempt to install Comtypes
+
+
+                # Srings to messageboxes that could be used 4x later
+                title_comtypes_failed = self.tr("Previous installation attempt failed...")
+                message_comtypes_failed = self.tr("Manually install comtypes package to download OsmAnd data " \
+                                  "directly from your device.")
+                # Strings to messageboxes that could be used 2x later
+                title_comtypes = self.tr("Python package COMTYPES not found")
+                message_comtypes = self.tr("This plugins needs a package that is not in the " \
+                                           "standard library. \nDo you want to try to install " \
+                                           "COMTYPES automatically?")
+
+                self.title_cant_connect = self.tr("Can't connect to device...")
+                self.message_cant_connect = self.tr(
+                    "Check that it is properly connected and unlocked.\n Try unplugging "
+                    "and replugging it.")
+                self.title_no_device_found = self.tr('No device found!')
+                self.message_no_device_found = self.tr("Check that your device is properly connected and unlocked.\n"
+                                                       "You can press left button to refresh device or to restart QGIS")
+
                 settings = load_settings(self.PARAM_FILE)
                 setting_name = 'comptypes_install_tried'
-
-                # Srings to messageboxes that could be used 3x later
-                title = self.tr("Python package COMTYPES installation failed")
-                message = self.tr("Manually install this python package to download OsmAnd data " \
-                                  "directly from your device.")
-
                 if not settings.get(setting_name, False):
                     try:
                         # trying to install comtypes
-                        try:
-                            # Qt5
-                            USES_PYQT6 = False
-                            answer = QMessageBox.question(None, self.tr("Python package COMTYPES not found"),
-                                                          self.tr(
-                                                              "Do you want to try to install Comtypes automatically?"),
-                                                          QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
-                        except:
-                            # Qt6
-                            USES_PYQT6 = True
-                            answer = QMessageBox.question(None, self.tr("Python package COMTYPES not found"),
-                                                          self.tr(
-                                                              "Do you want to try to install Comtypes automatically?"),
-                                                          QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                                                          QMessageBox.StandardButton.Yes)
-                        if answer == (QMessageBox.StandardButton.Yes if USES_PYQT6 else QMessageBox.Yes):
-                            # set that an install is tried
-                            settings[setting_name] = True
-                            save_settings(self.PARAM_FILE, settings)
+                        answer = msgbox_setting(self, setting_name, title_comtypes, message_comtypes, yes_no=True )
+                        # try:
+                        #     # Qt5
+                        #     USES_PYQT6 = False
+                        #     answer = QMessageBox.question(None, title_comtypes,
+                        #                                   message_comtypes,
+                        #                                   QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+                        # except:
+                        #     # Qt6
+                        #     USES_PYQT6 = True
+                        #     answer = QMessageBox.question(None, title_comtypes,
+                        #                                   message_comtypes,
+                        #                                   QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                        #                                   QMessageBox.StandardButton.Yes)
+                        # if answer == (QMessageBox.StandardButton.Yes if USES_PYQT6 else QMessageBox.Yes):
+                        print("coucou")
+                        print(answer)
+                        if answer:
+                            # set that an installation has been  tried
+                            # settings[setting_name] = True
+                            # save_settings(self.PARAM_FILE, settings)
 
                             #tries to install requirements
                             from .extra_packages.eqip.configuration.piper import install_requirements_from_file
                             install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
-                            # Once again we have to try to import comtypes since install_requirements_from_file()
-                            # do not return a result state
-                            QgsMessageLog.logMessage("Trying to import comtypes", self.plugin_name, level=Qgis.Info)
-                            import comtypes.client
-                            QgsMessageLog.logMessage('Successfully imported comtypes', self.plugin_name,
-                                                     level=Qgis.Info)
 
-                            title = self.tr("Comtypes package successfully installed")
+                            title = self.tr("An attempt to install comptypes was made")
                             message = self.tr(
                                 "QGIS has to be restarted. Do you want to do it now "
                                 "(and be asked to save your project if needed)?")
@@ -240,36 +256,22 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                     iface.actionSaveProject().trigger()
                                 iface.actionExit().trigger()
                                 subprocess.Popen(QgsApplication.applicationFilePath())
-                        else:
-                            self.rBdir.setChecked(True)
-                            self.rBdevice.setEnabled(False)
 
 
                     except:
-                        # TODO faire un message do not show again
-                        QgsMessageLog.logMessage('Failed to install comtypes', self.plugin_name,
-                                                 level=Qgis.Critical)
-                        QMessageBox.warning(None, title, message)
-                        QgsMessageLog.logMessage(f"{title}. {message}", self.plugin_name, level=Qgis.Critical)
-                        self.rBdir.setChecked(True)
-                        self.rBdevice.setEnabled(False)
+                        QMessageBox.critical(None, title_comtypes_failed, message_comtypes_failed)
+                        QgsMessageLog.logMessage(f"{title_comtypes_failed}. {message_comtypes_failed}",
+                                                 self.plugin_name, level=Qgis.Critical)
+
                 else:
-                    # TODO faire un message do not show again
-                    QMessageBox.warning(None, title, message)
-                    QgsMessageLog.logMessage(f"{title}. {message}", self.plugin_name, level=Qgis.Critical)
-                    self.rBdir.setChecked(True)
-                    self.rBdevice.setEnabled(False)
+                    QMessageBox.critical(None, title_comtypes_failed, message_comtypes_failed)
+                    QgsMessageLog.logMessage(f"{title_comtypes_failed}. {message_comtypes_failed}", self.plugin_name, level=Qgis.Critical)
 
         # Macintosh stuff
         self.APP_NAME = "MacDroid"
         self.APP_PATH = f"/Applications/{self.APP_NAME}.app"
 
-        self.title_cant_connect = self.tr("Can't connect to device")
-        self.message_cant_connect = self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
-                                       "and replugging it.S")
-        self.title_no_device_found = self.tr('No device found!')
-        self.message_no_device_found = self.tr("Check that your device is properly connected and unlocked.\n"
-                                       "You can press left buton to refresh device and/or to restart QGI")
+
 
     def list_MTP_Devices(self):
         """
@@ -420,7 +422,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
         message = self.tr(f"Be patient! \nThis operation can take several minutes{mtpy_msg}.\nIn rare cases, "
                           f"it can cause Qgis to crash.")
-        msgbox_setting(self, message, setting_name, title)
+        msgbox_setting(self, setting_name, title, message)
 
         # https://gis.stackexchange.com/questions/42542/changing-cursor-shape-in-pyqgis
         try:
