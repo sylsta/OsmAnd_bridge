@@ -34,19 +34,20 @@ def add_setting(self, name, value):
     """
     pass
 
-def msgbox_setting(self, message, setting_name, title):
+def msgbox_setting(self, setting_name: str, title: str, message: str, yes_no: bool = False) -> bool:
     """
     function used to store if warning messageboxes as to be hide or not
-    :param self: ifacesettings = load_settings(self.PARAM_FILE)
+    :param self: iface
     :param message: str
     :param setting_name:str
     :param title: str
-    :return: None
+    :param yes_no: bool (shows yes no buttons or only ok button)
+    :return: boolean
     """
 
     settings = load_settings(self.PARAM_FILE)
     if not settings.get(setting_name, False):  # Affiche si "hide_message" est False ou n'existe pas
-        # Création de la boîte de message
+        # Creates messagebox
         message_box = QMessageBox()
 
         message_box.setWindowTitle(title)
@@ -56,32 +57,36 @@ def msgbox_setting(self, message, setting_name, title):
             message_box.setTextFormat(Qt.TextFormat.RichText)
         message_box.setText(message)
         try: # #Qt5
-            message_box.setStandardButtons(QMessageBox.Ok)
+            if yes_no:
+                message_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            else:
+                message_box.setStandardButtons(QMessageBox.Ok)
         except AttributeError:
             # Qt6
-            message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+            if yes_no:
+                message_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            else:
+                message_box.setStandardButtons(QMessageBox.StandardButton.Ok)
         checkbox = QCheckBox(self.tr("Don't show this message again"))
         layout = message_box.layout()
         layout.addWidget(checkbox, layout.rowCount(), 0, 1, layout.columnCount())
 
         # Affichage de la boîte de message
         result = message_box.exec()
-
+        answer = False
         # Sauvegarder l'état de la case à cocher si l'utilisateur clique sur OK
-        try:
-            # Qt5
-            if result == QMessageBox.Ok and checkbox.isChecked():
-                settings[setting_name] = True
-            else:
-                settings[setting_name] = False
-        except AttributeError:
-            # Qt6
-            if result ==  QMessageBox.StandardButton.Ok and checkbox.isChecked():
-                settings[setting_name] = True
-            else:
-                settings[setting_name] = False
+        try: # Qt5
+            if (result == QMessageBox.Ok or result == QMessageBox.Yes):
+                answer = True
+        except AttributeError: # Qt6
+            if (result ==  QMessageBox.StandardButton.Ok or result == QMessageBox.StandardButton.Yes):
+                answer = True
 
-            # Enregistrer les paramètres
+        settings[setting_name] = checkbox.isChecked()
+
+        # save settings
         save_settings(self.PARAM_FILE, settings)
+
+        return answer
 
 
