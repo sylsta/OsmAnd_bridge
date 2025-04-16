@@ -212,9 +212,25 @@ class OsmAndBridge:
             text=self.tr(u"Import tracks, favorites, itinerary and AV notes"),
             callback=self.run,
             parent=self.iface.mainWindow())
+        self.add_action(
+            "",
+            text=self.tr(u"Reset saved settings"),
+            callback=self.remove_config_file,
+            parent=self.iface.mainWindow(),
+            add_to_toolbar=False)
 
         # will be set False in run()
         self.first_start = True
+
+    def remove_config_file(self):
+        """
+        remove config file
+        """
+        try:
+            os.remove(self.PARAM_FILE)
+        except OSError:
+            pass
+
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -237,7 +253,7 @@ class OsmAndBridge:
         title = self.tr("Warning")
         message = self.tr("This plugin uses libraries known to be unstable to access devices (MTP protocol). " \
                   "\nIn rare cases, it can cause Qgis to crash.")
-        msgbox_setting(self, message, setting_name, title)
+        msgbox_setting(self, setting_name, title, message)
 
         # # Create the dialog with elements (after translation) and keep reference
         # # Only create GUI ONCE in callback, so that it will only load when the plugin is started
