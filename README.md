@@ -12,30 +12,32 @@
 *Feel free to buy me an Iphone, if you want this plugin to support this device :)
 
 ### Credits and acknowledgment
-This QGIS extension contains code extracts from the eqip plugin for loading the Comtypes package on Windows.  
-- https://plugins.qgis.org/plugins/eqip/#plugin-details
-- https://github.com/automaps/eqip
 
-MTP connections under Linux are made using the mtpy package (no more maintained - if you know a recent python module for MTP, please contact me).  
-
-- https://web.archive.org/web/20221206114334/https://github.com/ldo/mtpy/
+  * Plugin's icon is taken from OsmAnd and licensed under Creative Commons Non-commercial No Derivative Works.  
 
 
-MTP connections under Windows are made using the "mtp" package. (Thank you Heribert for your kindness and responsiveness in helping me to get to grips with your package ;-)  
+  * MTP connections under Linux are made using the mtpy package (no more maintained - if you know a recent python module for MTP, please contact me).  
+https://web.archive.org/web/20221206114334/https://github.com/ldo/mtpy/  
 
-- https://github.com/Heribert17/mtp
 
-Device connection under macOS needs macDroid to be be installed (even its free version).
+  * MTP connections under Windows are made using the "mtp" package. (Thank you Heribert for your kindness and responsiveness in helping me to get to grips with your package ;-)  
+https://github.com/Heribert17/mtp
 
-- https://www.macdroid.app/ 
+
+  * Under windows this plugin depends on the [COMTYPES](https://pypi.org/project/comtypes/) python package.
+Since it's not in the python standard library, it has to be installed. This may be done automatically with this plugin using piece of code taken from the [eqip ](https://plugins.qgis.org/plugins/eqip/#plugin-details) plugin for QGIS.
+https://github.com/automaps/eqip
+
+
+  * Device connection under macOS needs macDroid to be be installed (even its free version).  
+https://www.macdroid.app/ 
  
 
-Plugin's icon is taken from OsmAnd and licensed under Creative Commons Non-commercial No Derivative Works.
 
 This plugin has been tested with QGIS 3.4x, under:
 - GNU/Linux Debian 12 & 13 with KDE, Gnome and XFCE;
-- Windows 11;
-- macOS Catalina. 
+- Windows 11 in a VM;
+- macOS Catalina a VM. 
 
 Plesae report any bug or functionality you would like to be implemented. 
 
