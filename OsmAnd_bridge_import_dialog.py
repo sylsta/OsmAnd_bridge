@@ -272,7 +272,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
                 return
 
-            # iterates through list of devices to get there name and model and feed comboboxlist
+            # iterates through list of devices to get their names and models and feed comboboxlist
             for device in devices:
                 try:
                     self.kill_pid()  # if devices are busy because of the desktop framework
