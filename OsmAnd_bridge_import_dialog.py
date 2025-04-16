@@ -266,10 +266,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.title_cant_connect = self.tr("Can't connect to device")
         self.message_cant_connect = self.tr("Check that it is properly connected and unlocked.\n Try unplugging "
-                                       "and replugging it.\n"
-                                       "You can press left buton to refresh device and/or to restart QGIS")
+                                       "and replugging it.S")
         self.title_no_device_found = self.tr('No device found!')
-        self.message_no_device_found = self.tr("Check that your device is properly connected and unlocked.")
+        self.message_no_device_found = self.tr("Check that your device is properly connected and unlocked.\n"
+                                       "You can press left buton to refresh device and/or to restart QGI")
 
     def list_MTP_Devices(self):
         """
