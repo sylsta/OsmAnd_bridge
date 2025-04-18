@@ -26,14 +26,14 @@ import socket
 from configparser import ConfigParser
 from datetime import datetime
 
-from qgis.PyQt.QtWidgets import QMessageBox, QCheckBox
+# from qgis.PyQt.QtWidgets import QMessageBox, QCheckBox
 from qgis import processing
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt
 
 from qgis.PyQt.QtGui import QIcon, QGuiApplication
 from qgis.PyQt.QtWidgets import QAction, QProgressBar, QApplication
 from qgis.core import QgsWkbTypes, QgsField, QgsMessageLog, Qgis, QgsProject, QgsFields, QgsRasterLayer, \
-    QgsRectangle, QgsCoordinateReferenceSystem, QgsSettings
+    QgsRectangle, QgsCoordinateReferenceSystem, QgsSettings, QgsApplication
 
 
 # Initialize Qt resources from file resources.py
@@ -213,7 +213,7 @@ class OsmAndBridge:
             callback=self.run,
             parent=self.iface.mainWindow())
         self.add_action(
-            "",
+            QgsApplication.getThemeIcon("console/iconSettingsConsole.svg"),
             text=self.tr(u"Reset saved settings"),
             callback=self.remove_config_file,
             parent=self.iface.mainWindow(),
