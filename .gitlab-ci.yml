@@ -1,0 +1,23 @@
+stages:
+  - sync
+
+sync_to_github:
+  stage: sync
+  image: alpine:latest
+  only:
+    - main  # adapte selon ta branche par défaut
+  before_script:
+    - apk add --no-cache git openssh
+    - mkdir -p ~/.ssh
+    - echo "$GITHUB_SSH_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - git config --global user.email "ci@gitlab.com"
+    - git config --global user.name "GitLab CI"
+  script:
+    - git clone --mirror git@gitlab.huma-num.fr:sthery/OsmAnd_bridge.git
+    - cd ton_projet.git
+    - git remote set-url --push origin git@github.com:sylsta/OsmAnd_bridge.git
+    - git push --mirror
+  after_script:
+    - shred -u ~/.ssh/id_rsa
