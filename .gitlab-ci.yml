@@ -1,24 +1,26 @@
 stages:
-  - sync
+  - mirror
 
-sync_to_github:
-  stage: sync
+mirror_to_github:
+  stage: mirror
   image: alpine:latest
-  only:
-    - main
-  before_script:
+  script:
     - apk add --no-cache git openssh
     - mkdir -p ~/.ssh
     - echo "$GITHUB_SSH_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan github.com >> ~/.ssh/known_hosts
-    - ssh-keyscan gitlab.huma-num.fr >> ~/.ssh/known_hosts
+
+    # Config Git
     - git config --global user.email "ci@gitlab.huma-num.fr"
     - git config --global user.name "GitLab CI"
-  script:
-    - git clone --mirror git@gitlab.huma-num.fr:sthery/OsmAnd_bridge.git
+
+    # Clone le dépôt GitLab en HTTPS (pas besoin de clé privée)
+    - git clone --mirror https://gitlab.huma-num.fr/sthery/OsmAnd_bridge.git
     - cd OsmAnd_bridge.git
+
+    # Push vers GitHub en SSH
     - git remote set-url --push origin git@github.com:sylsta/OsmAnd_bridge.git
     - git push --mirror
-  after_script:
-    - shred -u ~/.ssh/id_rsa
+  only:
+    - main
