@@ -41,7 +41,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'OsmAnd bridge'
-copyright = u'2022, Sylvain Théry - UMR 5281 ART-Dev'
+copyright = u'2022-2025, Sylvain Théry - CNRS - UMR 5281 ART-Dev'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -179,7 +179,7 @@ htmlhelp_basename = 'TemplateClassdoc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'OsmAnd_bridge.tex', u'OsmAnd bridge Documentation',
-   u'Sylvain Théry - UMR 5281 ART-Dev', 'manual'),
+   u'Sylvain Théry - CNRS - UMR 5281 ART-Dev', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
