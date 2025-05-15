@@ -31,7 +31,7 @@ import qgis
 from qgis.core import QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsField, QgsFeature, QgsGeometry, \
     QgsPointXY, QgsSvgMarkerSymbolLayer, QgsAction
 from qgis.PyQt.QtCore import QVariant
-from .extra_packages.
+# from .extra_packages.openstreetmap_ng.app.lib.shortlink import shortlink_decode
 
 import pathlib
 
