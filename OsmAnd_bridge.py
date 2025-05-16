@@ -28,7 +28,7 @@ from datetime import datetime
 
 from qgis.PyQt.QtWidgets import QMessageBox, QCheckBox
 from qgis import processing
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, QUrl, Qt
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, QUrl, Qt, QLocale
 
 from qgis.PyQt.QtGui import QIcon, QGuiApplication, QDesktopServices
 from qgis.PyQt.QtWidgets import QAction, QProgressBar, QApplication
@@ -66,7 +66,9 @@ class OsmAndBridge:
 
         # Save reference to the plugin name and help website
         self.plugin_name = 'OsmAnd bridge'
-        self.url_website = "https://osmand-bridge.readthedocs.io/en/latest/"
+        self.help_url_website = "https://osmand-bridge.readthedocs.io/"
+        self.help_version = 'latest'
+        self.help_languages = ('en', 'es', 'it', 'ja', 'pt', 'fi', 'fr')
 
         # print version number in console and log panel
         config = ConfigParser()
@@ -236,10 +238,16 @@ class OsmAndBridge:
 
         self.first_start = True
 
+
     def show_help_website(self):
         """Show the help screen."""
-        QDesktopServices.openUrl(QUrl(self.url_website))
-        print("coucou")
+        locale = QgsSettings().value("locale/userLocale", QLocale().name())
+        locale = locale[0:2]
+        if locale not in self.help_languages:
+            locale = 'en'
+        QUrl(f"{self.help_url_website}/{locale}/{self.help_version}/")
+        QDesktopServices.openUrl(QUrl(self.help_url_website))
+
 
     def remove_config_file(self):
         """
@@ -258,6 +266,8 @@ class OsmAndBridge:
                 self.tr(u'&OsmAnd bridge'),
                 action)
             self.iface.removeToolBarIcon(action)
+            # For help->extension-osmand_bridge help menu
+            self.iface.pluginHelpMenu().removeAction(action)
         # remove the toolbar
         del self.toolbar
 
