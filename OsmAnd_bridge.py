@@ -28,9 +28,9 @@ from datetime import datetime
 
 from qgis.PyQt.QtWidgets import QMessageBox, QCheckBox
 from qgis import processing
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, QUrl, Qt
 
-from qgis.PyQt.QtGui import QIcon, QGuiApplication
+from qgis.PyQt.QtGui import QIcon, QGuiApplication, QDesktopServices
 from qgis.PyQt.QtWidgets import QAction, QProgressBar, QApplication
 from qgis._core import QgsApplication
 from qgis.core import QgsWkbTypes, QgsField, QgsMessageLog, Qgis, QgsProject, QgsFields, QgsRasterLayer, \
@@ -46,6 +46,7 @@ from .OsmAnd_bridge_import_process import import_gpx_track_file, import_avnotes,
 from .OsmAnd_bridge_geopackage_management import create_empty_gpkg_layer
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
+from qgis.utils import showPluginHelp
 
 class OsmAndBridge:
     """QGIS Plugin Implementation."""
@@ -63,8 +64,9 @@ class OsmAndBridge:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
 
-        # Save reference to the plugin name
+        # Save reference to the plugin name and help website
         self.plugin_name = 'OsmAnd bridge'
+        self.url_website = "https://osmand-bridge.readthedocs.io/en/latest/"
 
         # print version number in console and log panel
         config = ConfigParser()
@@ -219,9 +221,25 @@ class OsmAndBridge:
             callback=self.remove_config_file,
             parent=self.iface.mainWindow(),
             add_to_toolbar=False)
-
+        self.add_action(
+            QgsApplication.getThemeIcon("mActionHelpContents.svg"),
+            text=self.tr(u"Help"),
+            callback=self.show_help_website,
+            parent=self.iface.mainWindow(),
+            add_to_toolbar=False)
         # will be set False in run()
+
+        help_plugin_osmand_bridge_menu = QAction(QIcon(icon_path), self.plugin_name, self.iface.mainWindow())
+        self.iface.pluginHelpMenu().addAction(help_plugin_osmand_bridge_menu)
+        help_plugin_osmand_bridge_menu.triggered.connect(self.show_help_website)
+        self.actions.append(help_plugin_osmand_bridge_menu)
+
         self.first_start = True
+
+    def show_help_website(self):
+        """Show the help screen."""
+        QDesktopServices.openUrl(QUrl(self.url_website))
+        print("coucou")
 
     def remove_config_file(self):
         """
