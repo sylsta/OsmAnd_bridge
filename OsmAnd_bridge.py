@@ -26,14 +26,15 @@ import socket
 from configparser import ConfigParser
 from datetime import datetime
 
-# from qgis.PyQt.QtWidgets import QMessageBox, QCheckBox
+from qgis.PyQt.QtWidgets import QMessageBox, QCheckBox
 from qgis import processing
-# from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, Qt
 
 from qgis.PyQt.QtGui import QIcon, QGuiApplication
 from qgis.PyQt.QtWidgets import QAction, QProgressBar, QApplication
+from qgis._core import QgsApplication
 from qgis.core import QgsWkbTypes, QgsField, QgsMessageLog, Qgis, QgsProject, QgsFields, QgsRasterLayer, \
-    QgsRectangle, QgsCoordinateReferenceSystem, QgsSettings, QgsApplication
+    QgsRectangle, QgsCoordinateReferenceSystem, QgsSettings
 
 
 # Initialize Qt resources from file resources.py
