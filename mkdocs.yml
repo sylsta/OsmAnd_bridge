@@ -15,8 +15,8 @@ plugins:
   - i18n:
       default_language: fr
       languages:
-        fr: Français
-        en: English
+        fr
+        en
       default_language_only: false
 
 markdown_extensions:
