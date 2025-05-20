@@ -10,22 +10,14 @@
 ##      - /docs/%locale%  # translated files
 ##      - /docs/blog/**/* # blog posts
 #    translation: /docs/%two_letters_code%/**/%original_file_name%
-project_id: 792142
+project_id: 123456
 api_token_env: "CROWDIN_PERSONAL_TOKEN"
 base_path: "."
 preserve_hierarchy: true
 
 files:
   - source: "/i18n/*.ts"
-    translation: "/i18n/%original_file_name%"
-    languages_mapping:
-      locale_with_underscore:
-        fr: fr
-        de: de
+    translation: "/i18n_translations/%locale%/%original_file_name%"
 
   - source: "/help/**/*.md"
-    translation: "/help/**/%original_file_name%"
-    languages_mapping:
-      locale_with_underscore:
-        fr: fr
-        de: de
+    translation: "/help_translations/%locale%/**/%original_file_name%"

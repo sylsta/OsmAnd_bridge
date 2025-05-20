@@ -1,52 +1,49 @@
 stages:
-  - mirror
+  - github_sync
   - crowdin
 
-mirror_to_github:
-  stage: mirror
+variables:
+  GIT_SUBMODULE_STRATEGY: none
+
+sync_with_github:
+  stage: github_sync
   image: alpine:latest
-  script:
+  only:
+    - main
+  before_script:
     - apk add --no-cache git openssh
     - mkdir -p ~/.ssh
     - echo "$GITHUB_SSH_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-    # Config Git
     - git config --global user.email "ci@gitlab.huma-num.fr"
     - git config --global user.name "GitLab CI"
-
-    # Clone le dépôt GitLab en HTTPS (pas besoin de clé privée)
+  script:
     - git clone --mirror https://gitlab.huma-num.fr/sthery/OsmAnd_bridge.git
     - cd OsmAnd_bridge.git
-
-    # Push vers GitHub en SSH
     - git remote set-url --push origin git@github.com:sylsta/OsmAnd_bridge.git
     - git push --mirror
-  only:
-    - main
 
 crowdin_upload:
   stage: crowdin
   image: node:20
+  only:
+    - main
   script:
     - npm install -g @crowdin/cli
     - echo "Synchronisation des fichiers sources avec Crowdin"
     - crowdin upload sources --config crowdin.yml
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
-      changes:
-        - i18n/*.ts
-        - help/**/*.md
 
 crowdin_download:
   stage: crowdin
   image: node:20
+  only:
+    - schedules
   script:
     - npm install -g @crowdin/cli
     - echo "Téléchargement des traductions depuis Crowdin"
     - crowdin download --config crowdin.yml
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-
+    - echo "Copie des fichiers traduits dans les chemins d'origine"
+    - cp -r i18n_translations/fr/*.ts i18n/
+    - find help_translations/fr -name '*.md' -exec cp --parents \{\} help/ \;
 
