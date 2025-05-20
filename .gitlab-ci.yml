@@ -1,6 +1,6 @@
 stages:
   - mirror
-
+  - crowdin
 mirror_to_github:
   stage: mirror
   image: alpine:latest
@@ -24,3 +24,28 @@ mirror_to_github:
     - git push --mirror
   only:
     - main
+
+crowdin_upload:
+  stage: crowdin
+  image: node:20
+  only:
+    - master
+  script:
+    - npm install -g @crowdin/cli
+    - echo "Synchronisation des fichiers sources avec Crowdin"
+    - crowdin upload sources --config crowdin.yml
+  rules:
+    - changes:
+        - i18n/*.ts
+
+crowdin_download:
+  stage: crowdin
+  image: node:20
+  only:
+    - schedules  # Exécuté uniquement sur planification
+  script:
+    - npm install -g @crowdin/cli
+    - echo "Téléchargement des traductions depuis Crowdin"
+    - crowdin download --config crowdin.yml
+
+
