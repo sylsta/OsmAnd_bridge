@@ -34,7 +34,7 @@ crowdin_upload:
     - echo "Synchronisation des fichiers sources avec Crowdin"
     - crowdin upload sources --config crowdin.yml
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
       changes:
         - i18n/*.ts
         - help/**/*.md
