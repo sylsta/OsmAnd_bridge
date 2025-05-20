@@ -1,16 +1,31 @@
-site_name: Basic MkDocs Example Project
+# mkdocs.yml
+site_name: Ma Documentation Multilingue
 theme:
-  name: readthedocs
-  highlightjs: true
+  name: material
+  language: fr  # Langue par défaut
+  palette:
+    scheme: default
+  features:
+    - content.code.copy
+
 plugins:
   - search
-  - mkdocstrings:
-      handlers:
-        # See: https://mkdocstrings.github.io/python/usage/
-        python:
-          options:
-            docstring_style: sphinx
+  - i18n:
+      default_language: fr
+      languages:
+        fr: Français
+        en: English
+      default_language_only: false
+
 markdown_extensions:
-  - markdown_include.include:
-      base_path: .
   - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+nav:
+  - Accueil:
+      - fr: index.fr.md
+      - en: index.en.md
+  - Premiers pas:
+      - fr: getting_started.fr.md
+      - en: getting_started.en.md
