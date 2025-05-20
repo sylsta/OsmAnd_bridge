@@ -1,7 +1,7 @@
 # mkdocs.yml
 site_name: Ma Documentation Multilingue
 theme:
-  name: material
+  name: readthedocs
   language: fr  # Langue par défaut
   palette:
     scheme: default
@@ -13,9 +13,14 @@ docs_dir: help  # Spécifie explicitement le répertoire des fichiers de documen
 plugins:
   - search
   - i18n:
-      default_language: fr
-      languages: fr, en
-      default_language_only: false
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: fr
+          name: Français
+          build: true
 
 markdown_extensions:
   - admonition
