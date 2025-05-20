@@ -8,6 +8,8 @@ theme:
   features:
     - content.code.copy
 
+docs_dir: help  # Spécifie explicitement le répertoire des fichiers de documentation
+
 plugins:
   - search
   - i18n:
