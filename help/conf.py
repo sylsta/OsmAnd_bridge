@@ -39,15 +39,23 @@ release = '2'
 
 
 extensions = [
-    "myst_parser",
+    "myst_parser",       # Pour le support Markdown
+    "sphinx.ext.intersphinx",
+    "sphinx_copybutton",
 ]
 
-source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md': 'markdown',
+# Configuration MyST (Markdown)
+myst_enable_extensions = ["colon_fence", "deflist"]
+myst_heading_anchors = 3
+
+# Internationalisation
+locale_dirs = ["locale/"]
+gettext_compact = False
+language = "index.md"
+languages = {
+    "index.md": "English",
+    "fr": "Français",
 }
 
-# Pour la traduction
-language = os.environ.get('READTHEDOCS_LANGUAGE', 'en')
-locale_dirs = ['locale/']
-gettext_compact = False
+# Thème (optionnel, RTD utilise son thème par défaut)
+html_theme = "sphinx_rtd_theme"

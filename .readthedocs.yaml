@@ -16,6 +16,9 @@ python:
 sphinx:
   configuration: help/conf.py
 
-translations:
-    - language: fr
-      base: en
+formats:
+  - pdf
+  - epub
+languages:
+  - index.md
+  - fr
