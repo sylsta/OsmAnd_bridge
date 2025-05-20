@@ -1,36 +1,76 @@
-# mkdocs.yml
-site_name: Ma Documentation Multilingue
-theme:
-  name: readthedocs
-  language: fr  # Langue par défaut
-  palette:
-    scheme: default
-  features:
-    - content.code.copy
-
+site_name: "OsmAnd bridge QGIS3 plugin documentation (en)"
+site_description: "OsmAnd bridge QGIS3 plugin documentation (en)"
+site_url: https://osmand-bridge.readthedocs.io/
+repo_url: https://gitlab.huma-num.fr/sthery/OsmAnd_bridge
 docs_dir: help  # Spécifie explicitement le répertoire des fichiers de documentation
+
+copyright: Copyright © 2021-2025 Sylvain Théry
+
+
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      primary: blue
+      scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      primary: blue grey
+      scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  logo:
+    assets/OsmAnd_logo.png
+  features:
+    - navigation.expand
+    - navigation.indexes
+    - navigation.sections
+    - navigation.tabs
+    - toc.follow
+    - toc.integrate
+
+extra:
+  social:
+    - icon: fontawesome/brands/gitlab
+      link: https://gitlab.huma-num.fr/sthery/OsmAnd_bridge
+      name: mkdocs-static-i18n on Github
+nav:
+  - Home: index.md
+  - Install: install/index.md
+  - Usage: usage/index.md
+  - Changelog: CHANGELOG.md
 
 plugins:
   - search
   - i18n:
+#    docs_structure: suffix
       languages:
-        - locale: en
-          default: true
-          name: English
-          build: true
-        - locale: fr
-          name: Français
-          build: true
-
-markdown_extensions:
-  - admonition
-  - pymdownx.details
-  - pymdownx.superfences
-
-nav:
-  - Accueil:
-      - fr: index.fr.md
-      - en: index.en.md
-  - Premiers pas:
-      - fr: getting_started.fr.md
-      - en: getting_started.en.md
+          - locale: en
+            default: true
+            name: English
+            build: true
+          - locale: fr
+            name: Français
+            build: true
+            site_name: "Documentation du plugin OsmAnd bridge pour QGIS (fr)"
+            site_description: "Documentation du plugin OsmAnd bridge pour QGIS (fr)"
+            theme:
+              palette:
+              # Palette toggle for light mode
+                - media: "(prefers-color-scheme: light)"
+                  primary: red
+                  scheme: default
+                # Palette toggle for dark mode
+                - media: "(prefers-color-scheme: dark)"
+                  primary: pink
+                  scheme: slate
+            nav_translations:
+                Home: Accueil
+                Install: Installation
+                Usage: Utilisation
