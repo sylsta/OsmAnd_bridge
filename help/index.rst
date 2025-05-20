@@ -31,6 +31,7 @@ How to install it
    :maxdepth: 2
 
    install
+   test
 
 **Logiciels et outils**
 
