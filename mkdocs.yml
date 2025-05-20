@@ -29,8 +29,8 @@ markdown_extensions:
 
 nav:
   - Accueil:
-      - fr: fr/index.fr.md
-      - en: en/index.en.md
+      - fr: index.fr.md
+      - en: index.en.md
   - Premiers pas:
-      - fr: en/getting_started.fr.md
-      - en: en/getting_started.en.md
+      - fr: getting_started.fr.md
+      - en: getting_started.en.md
