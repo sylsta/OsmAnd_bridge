@@ -8,7 +8,7 @@ build:
     python: "3.10"
 
 mkdocs:
-  configuration: .mkdocs.yml
+  configuration: mkdocs.yml
 
 python:
   install:
