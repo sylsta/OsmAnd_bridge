@@ -7,7 +7,7 @@ Welcome to OsmAnd bridge's documentation!
 =========================================
 
 Author : Sylvain Théry - CNRS - UMR 5281 ART-Dev
-
+test
 Licence : |cc_by_nc_sa|
 
 .. |cc_by_nc_sa| image:: figures/Cc-by-nc-sa_icone.png
