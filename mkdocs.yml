@@ -46,9 +46,24 @@ nav:
   - Usage: usage/index.md
   - Changelog: CHANGELOG.md
 
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
 plugins:
   - search
   - i18n:
+      fallback_to_default: true
 #    docs_structure: suffix
       languages:
           - locale: en
@@ -74,3 +89,6 @@ plugins:
                 Home: Accueil
                 Install: Installation
                 Usage: Utilisation
+          - locale: "null"
+            name: Help translating
+            fixed_link: https://translate.spaceship-prompt.sh/
