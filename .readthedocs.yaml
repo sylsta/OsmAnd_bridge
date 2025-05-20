@@ -13,6 +13,9 @@ python:
   install:
     - requirements: help/requirements.txt
 
+sphinx:
+  configuration: help/conf.py
+
 translations:
     - language: fr
       base: en
