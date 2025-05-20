@@ -10,7 +10,7 @@
 ##      - /docs/%locale%  # translated files
 ##      - /docs/blog/**/* # blog posts
 #    translation: /docs/%two_letters_code%/**/%original_file_name%
-project_id: "osmand-bridge"
+project_id: "792142"
 api_token_env: "CROWDIN_PERSONAL_TOKEN"
 base_path: "."
 preserve_hierarchy: true
