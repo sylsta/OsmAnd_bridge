@@ -13,6 +13,7 @@
 project_id: 792142
 api_token_env: "CROWDIN_PERSONAL_TOKEN"
 base_path: "."
+branch: main
 preserve_hierarchy: true
 
 files:
