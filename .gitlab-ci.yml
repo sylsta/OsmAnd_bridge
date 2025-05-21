@@ -32,7 +32,7 @@ crowdin_upload:
   script:
     - npm install -g @crowdin/cli
     - echo "Synchronisation des fichiers sources avec Crowdin"
-    - crowdin upload sources --config crowdin.yml
+    - crowdin upload sources --config crowdin.yml --branch main
 
 crowdin_download:
   stage: crowdin
@@ -42,7 +42,7 @@ crowdin_download:
   script:
     - npm install -g @crowdin/cli
     - echo "Téléchargement des traductions depuis Crowdin"
-    - crowdin download --config crowdin.yml
+    - crowdin download --config crowdin.yml --branch main
     - echo "Copie des fichiers traduits dans les chemins d'origine"
     - cp -r i18n_translations/fr/*.ts i18n/
     - find help_translations/fr -name '*.md' -exec cp --parents \{\} help/ \;
