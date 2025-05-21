@@ -27,8 +27,10 @@ sync_with_github:
 crowdin_upload:
   stage: crowdin
   image: node:20
-  only:
-    - main
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      when: always
+    - when: never
   script:
     - npm install -g @crowdin/cli
     - echo "Synchronisation des fichiers sources avec Crowdin"
