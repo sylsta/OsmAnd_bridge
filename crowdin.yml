@@ -10,7 +10,7 @@
 ##      - /docs/%locale%  # translated files
 ##      - /docs/blog/**/* # blog posts
 #    translation: /docs/%two_letters_code%/**/%original_file_name%
-project_id: 792142
+project_id: 792350
 api_token_env: "CROWDIN_PERSONAL_TOKEN"
 base_path: "."
 branch: main
