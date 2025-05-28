@@ -91,4 +91,4 @@ plugins:
                 Usage: Utilisation
           - locale: "null"
             name: Help translating
-            fixed_link: https://translate.spaceship-prompt.sh/
+            fixed_link: https://crowdin.com/project/osmand-bridge
