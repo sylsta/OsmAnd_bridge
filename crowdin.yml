@@ -13,15 +13,15 @@
 
 
 
-#project_id: 792350
-#api_token_env: "CROWDIN_PERSONAL_TOKEN"
-#base_path: "."
-#branch: main
-#preserve_hierarchy: true
-#
-#files:
-#  - source: "/i18n/*.ts"
-#    translation: "/i18n_translations/%locale%/%original_file_name%"
-#
-#  - source: "/help/**/*.md"
-#    translation: "/help_translations/%locale%/**/%original_file_name%"
+project_id: 792350
+api_token_env: "CROWDIN_PERSONAL_TOKEN"
+base_path: "."
+branch: main
+preserve_hierarchy: true
+
+files:
+  - source: "/i18n/*.ts"
+    translation: "/i18n_translations/%locale%/%original_file_name%"
+
+  - source: "/help/**/*.md"
+    translation: "/help_translations/%locale%/**/%original_file_name%"

@@ -24,28 +24,28 @@ sync_with_github:
     - git remote set-url --push origin git@github.com:sylsta/OsmAnd_bridge.git
     - git push --mirror
 
-crowdin_upload:
-  stage: crowdin
-  image: node:20
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-      when: always
-    - when: never
-  script:
-    - npm install -g @crowdin/cli@latest
-    - echo "Synchronisation des fichiers sources avec Crowdin"
-    - crowdin upload sources --config crowdin.yml --branch main
-
-crowdin_download:
-  stage: crowdin
-  image: node:20
-  only:
-    - schedules
-  script:
-    - npm install -g @crowdin/cli@latest
-    - echo "Téléchargement des traductions depuis Crowdin"
-    - crowdin download --config crowdin.yml --branch main
-    - echo "Copie des fichiers traduits dans les chemins d'origine"
-    - cp -r i18n_translations/fr/*.ts i18n/
-    - find help_translations/fr -name '*.md' -exec cp --parents \{\} help/ \;
+#crowdin_upload:
+#  stage: crowdin
+#  image: node:20
+#  rules:
+#    - if: '$CI_PIPELINE_SOURCE == "push"'
+#      when: always
+#    - when: never
+#  script:
+#    - npm install -g @crowdin/cli@latest
+#    - echo "Synchronisation des fichiers sources avec Crowdin"
+#    - crowdin upload sources --config crowdin.yml --branch main
+#
+#crowdin_download:
+#  stage: crowdin
+#  image: node:20
+#  only:
+#    - schedules
+#  script:
+#    - npm install -g @crowdin/cli@latest
+#    - echo "Téléchargement des traductions depuis Crowdin"
+#    - crowdin download --config crowdin.yml --branch main
+#    - echo "Copie des fichiers traduits dans les chemins d'origine"
+#    - cp -r i18n_translations/fr/*.ts i18n/
+#    - find help_translations/fr -name '*.md' -exec cp --parents \{\} help/ \;
 
