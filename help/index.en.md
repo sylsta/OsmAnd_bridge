@@ -34,12 +34,12 @@ https://www.macdroid.app/
  
 
 
-This plugin has been tested with QGIS 3.4x, under:
-- GNU/Linux Debian 12 & 13 with KDE, Gnome and XFCE;
-- Windows 11 in a VM;
-- macOS Catalina a VM. 
+This plugin has been tested with QGIS 3.4x, under:  
+- GNU/Linux Debian 12 & 13 with KDE, Gnome and XFCE;  
+- Windows 11 in a VM;  
+- macOS Catalina in a VM. 
 
-Plesae report any bug or functionality you would like to be implemented. 
+Please report any bug or functionality you would like to be implemented. 
 
 
 
