@@ -442,13 +442,14 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     if self.cBdeviceList.currentText() == (f'{device_model_name} - {str(device_open)[9:-2]}'):
                         # We use the right device
                         path_found = False
-                        first = True
+
                         for path in potential_paths:
                             # look for OsmAnd path
-                            if first:
-                                first = False
+                            print(f"Linux: searching in {path}")
+
                             if device_open.get_descendant_by_path(path) is not None:
                                 path_found = True
+                                print(f"Linux: data found in {path}")
                                 break
 
 
