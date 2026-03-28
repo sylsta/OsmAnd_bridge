@@ -52,12 +52,28 @@ elif platform.system() == 'Windows':
         pass
 
 # Loads .ui
-try:  # Qt5
+try:  # Qt5 — resource_suffix n'existe pas en Qt6
     FORM_CLASS, _ = uic.loadUiType(os.path.join(
         os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'), resource_suffix='')
 except:  # Qt6
     FORM_CLASS, _ = uic.loadUiType(os.path.join(
         os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'))
+
+
+def _qmessagebox_set_icon_warning(msg):
+    """Helper : définit l'icône Warning sur un QMessageBox, compatible Qt5 et Qt6."""
+    try:  # Qt6 — enums namespaced
+        msg.setIcon(QMessageBox.Icon.Warning)
+    except AttributeError:  # Qt5
+        msg.setIcon(QMessageBox.Warning)
+
+
+def _qmessagebox_set_buttons_ok(msg):
+    """Helper : définit le bouton Ok sur un QMessageBox, compatible Qt5 et Qt6."""
+    try:  # Qt6
+        msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+    except AttributeError:  # Qt5
+        msg.setStandardButtons(QMessageBox.Ok)
 
 
 class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
@@ -102,10 +118,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.tW_tracks.setHorizontalHeaderLabels(columns)
         self.tW_tracks.setSortingEnabled(True)
         self.tW_tracks.setRowCount(0)
-        try:  # pyQt5
-            self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        except:  # PyQt6
+        try:  # Qt6 — enums namespaced
             self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
+        except AttributeError:  # Qt5
+            self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.tW_tracks.selectionModel().selectionChanged.connect(self.enable_ok_button)
 
         # input and output path
@@ -114,31 +130,31 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.QgsFW_dest_path.setStorageMode(QgsFileWidget.StorageMode.GetDirectory)
         self.QgsFW_dest_path.fileChanged.connect(self.destination_changed)
 
-        # Combobox management
+        # Checkboxes management
         for cBB in [self.cB_favorites, self.cB_itinerary, self.cB_AVnotes]:
             cBB.setEnabled(False)
             cBB.setChecked(False)
             cBB.stateChanged.connect(self.enable_ok_button)
 
-        try:  # Qt5
-            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
-        except:  # Qt6
+        try:  # Qt6
             self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setEnabled(False)
+        except AttributeError:  # Qt5
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
 
         # clear tracks selection button
-        try:  # Qt5
-            icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCloseButton)
-        except:  # Qt6
+        try:  # Qt6
             icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogCloseButton)
+        except AttributeError:  # Qt5
+            icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCloseButton)
         self.clearPB.setIcon(icon)
         self.clearPB.setEnabled(False)
         self.clearPB.clicked.connect(self.clear_tracks_selection)
 
         # Select all tracks button
-        try:  # Qt5
-            icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogYesButton)
-        except:  # Qt6
+        try:  # Qt6
             icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogYesButton)
+        except AttributeError:  # Qt5
+            icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogYesButton)
         self.selectAllTracksPB.setIcon(icon)
         self.selectAllTracksPB.setEnabled(False)
         self.selectAllTracksPB.clicked.connect(self.select_all_tracks)
@@ -154,15 +170,15 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.qbGoMTP.hide()
         self.qbGoMTP.clicked.connect(self.search_copy_osmand_file_from_device)
         self.qbGoMTP.setEnabled(False)
-        try:  # Qt5
-            icon = self.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
-        except:  # Qt6
+        try:  # Qt6
             icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_BrowserReload)
+        except AttributeError:  # Qt5
+            icon = self.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
         self.qbRefresh.setIcon(icon)
-        try:  # Qt5
-            icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogOkButton)
-        except:  # Qt6
+        try:  # Qt6
             icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogOkButton)
+        except AttributeError:  # Qt5
+            icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogOkButton)
         self.qbGoMTP.setIcon(icon)
 
         # Params file for messageboxes
@@ -224,21 +240,17 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
                 else:
                     QMessageBox.critical(None, title_comtypes_failed, message_comtypes_failed)
-                    QgsMessageLog.logMessage(f"{title_comtypes_failed}. {message_comtypes_failed}", self.plugin_name, level=Qgis.Critical)
+                    QgsMessageLog.logMessage(f"{title_comtypes_failed}. {message_comtypes_failed}",
+                                             self.plugin_name, level=Qgis.Critical)
 
         # Macintosh stuff
         self.APP_NAME = "MacDroid"
         self.APP_PATH = f"/Applications/{self.APP_NAME}.app"
 
-
-
     def list_MTP_Devices(self):
         """
-        List TMP devices connected to system to feed interface listbox
-        :return:
+        List MTP devices connected to system to feed interface listbox.
         """
-
-        # Clear stuff on UI
         self.clear_UI_items()
         self.qbGoMTP.setEnabled(False)
 
@@ -258,8 +270,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     self.cBdeviceList.addItem(f'{device_model_name} - {str(device_open)[9:-2]}')
                     device_open.close()
                 except:
-                    QgsMessageLog.logMessage(f"{self.title_cant_connect} {self.message_cant_connect}", self.plugin_name,
-                                             level=Qgis.Critical)
+                    QgsMessageLog.logMessage(f"{self.title_cant_connect} {self.message_cant_connect}",
+                                             self.plugin_name, level=Qgis.Critical)
                     QMessageBox.warning(self, self.title_cant_connect, self.message_cant_connect)
 
             if self.cBdeviceList.count() > 0:
@@ -329,21 +341,20 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             )
             return result.returncode == 0
         except Exception as e:
-            QgsMessageLog.logMessage(f"Issue when trying to see if macDroid is launched {e}", self.plugin_name, level=Qgis.Critical)
+            QgsMessageLog.logMessage(f"Issue when trying to see if macDroid is launched {e}",
+                                     self.plugin_name, level=Qgis.Critical)
             return False
 
     def launch_macdroid(self):
         try:
             subprocess.run(["open", "-a", self.APP_NAME], check=True)
         except subprocess.CalledProcessError:
-            QgsMessageLog.logMessage("Failed to launch macDroid", self.plugin_name,
-                                     level=Qgis.Critical)
+            QgsMessageLog.logMessage("Failed to launch macDroid", self.plugin_name, level=Qgis.Critical)
 
     def search_copy_osmand_file_from_device(self):
         """
-        Search OSMand file from device and copy them to tmp directory (Linux & Windows)
-        Feed QgsFW_osmand_root_path widget with this directory
-        :return:
+        Search OsmAnd files from device and copy them to tmp directory (Linux & Windows).
+        For macOS, no copy needed since MacDroid mounts the device as a real filesystem.
         """
         setting_name = "hide_duration_message"
         title = self.tr("Warning")
@@ -355,9 +366,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                           f"it can cause Qgis to crash.")
         msgbox_setting(self, setting_name, title, message)
 
-        try:
+        try:  # Qt6
             QGuiApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
-        except AttributeError:
+        except AttributeError:  # Qt5
             QGuiApplication.setOverrideCursor(Qt.WaitCursor)
 
         items_list = ['/avnotes/', '/tracks/rec/', '/favorites/', '/itinerary.gpx']
@@ -392,7 +403,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
                         for path in potential_paths:
                             print(f"Linux: searching in {path}")
-
                             if device_open.get_descendant_by_path(path) is not None:
                                 path_found = True
                                 print(f"Linux: data found in {path}")
@@ -406,12 +416,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                 self.tr(f"OsmAnd files could not be found on {device_model_name}. Try copying the "
                                         "files to your hard disk and importing them into QGIS from the "
                                         "local directory."))
-                            try:
-                                msg.setIcon(QMessageBox.Icon.Warning)
-                                msg.setStandardButtons(QMessageBox.StandardButton.Ok)
-                            except:
-                                msg.setIcon(QMessageBox.Information)
-                                msg.setStandardButtons(QMessageBox.Ok)
+                            _qmessagebox_set_icon_warning(msg)
+                            _qmessagebox_set_buttons_ok(msg)
                             msg.exec()
                             return
 
@@ -475,12 +481,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                 self.tr(f"OsmAnd files could not be found on {device_model_name}. Try copying the "
                                         "files to your hard disk and importing them into QGIS from the "
                                         "local directory."))
-                            try:
-                                msg.setIcon(QMessageBox.Icon.Warning)
-                                msg.setStandardButtons(QMessageBox.StandardButton.Ok)
-                            except:
-                                msg.setIcon(QMessageBox.Warning)
-                                msg.setStandardButtons(QMessageBox.Ok)
+                            _qmessagebox_set_icon_warning(msg)
+                            _qmessagebox_set_buttons_ok(msg)
                             msg.exec()
                             return
 
@@ -523,12 +525,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     self.tr(f"OsmAnd files could not be found on {self.cBdeviceList.currentText()}. Try copying the "
                             "files to your hard disk and importing them into QGIS from the "
                             "local directory."))
-                try:
-                    msg.setIcon(QMessageBox.Icon.Warning)
-                    msg.setStandardButtons(QMessageBox.StandardButton.Ok)
-                except:
-                    msg.setIcon(QMessageBox.Warning)
-                    msg.setStandardButtons(QMessageBox.Ok)
+                _qmessagebox_set_icon_warning(msg)
+                _qmessagebox_set_buttons_ok(msg)
                 msg.exec()
                 return
 
@@ -561,9 +559,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.list_MTP_Devices()
 
     def clear_UI_items(self):
-        """
-        Clear UI items.
-        """
+        """Clear UI items."""
         self.cBdeviceList.clear()
         self.tW_tracks.clearContents()
         self.tW_tracks.setRowCount(0)
@@ -574,9 +570,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def kill_pid(self):
         """
-        Find and kill process by its PID.
+        Find and kill kio/gvfs processes that lock USB devices on Linux.
         see https://bugs.kde.org/show_bug.cgi?id=412257
-        :return: nothing
         """
         try:
             for desktop in ['kio', 'gvfs']:
@@ -599,11 +594,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.enable_ok_button()
 
     def osmand_root_path_changed(self) -> None:
-        """
-        Called when source text area content changes
-        :return: None
-        :rtype: None
-        """
+        """Called when source text area content changes."""
         self.tW_tracks.clearContents()
         self.tW_tracks.setRowCount(0)
         self.clearPB.setEnabled(False)
@@ -631,8 +622,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             except:
                 QgsMessageLog.logMessage(self.tr('No gpx file to import.'), self.plugin_name, level=Qgis.Warning)
 
-            # checkbox favorites
-            # BUG FIX #4 : le fichier favoris est dans le sous-dossier favorites/
+            # checkbox favorites — fichier dans le sous-dossier favorites/
             try:
                 with open(f'{self.QgsFW_osmand_root_path.filePath()}/favorites/favorites.gpx'):
                     QgsMessageLog.logMessage(self.tr('Found favorites.gpx.'), self.plugin_name, level=Qgis.Info)
@@ -662,7 +652,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     self.cB_AVnotes.setEnabled(False)
                     self.cB_AVnotes.setChecked(False)
                 else:
-                    # BUG FIX #3 : parenthèse parasite supprimée dans le pattern *.3gp
                     avnotes_path = self.QgsFW_osmand_root_path.filePath()
                     if len(glob.glob(f'{avnotes_path}/avnotes/*.3gp')) + \
                             len(glob.glob(f'{avnotes_path}/avnotes/*.jpg')) + \
@@ -672,20 +661,17 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         QgsMessageLog.logMessage(self.tr('Found OsmAnd AV note(s) to import.'), self.plugin_name,
                                                  level=Qgis.Info)
             except:
-                QgsMessageLog.logMessage(self.tr('No AV note file(s) to import.'), self.plugin_name, level=Qgis.Warning)
+                QgsMessageLog.logMessage(self.tr('No AV note file(s) to import.'), self.plugin_name,
+                                         level=Qgis.Warning)
 
         self.enable_ok_button()
 
     def get_gpx_file_information(self, pattern: str) -> None:
         """
-        List files according to pattern and send info the function that feed dialog table
+        List files according to pattern and feed the dialog table.
         :param pattern: a file pattern with directory (e.g. '/home/sylvain/test/*.gpx')
-        :type pattern: string
-        :return: None
-        :rtype: None
         """
-        # BUG FIX #2 : f est déjà le chemin complet retourné par glob.glob,
-        # os.path.join(pattern, f) était incorrect et donnait un chemin invalide
+        # f est le chemin complet retourné par glob.glob
         for f in glob.glob(pattern):
             st = os.stat(f)
             self.add_gpx_file_table_row([os.path.basename(f),
@@ -701,7 +687,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.tW_tracks.setItem(row, col, cell)
             col += 1
 
-    def human_readable_filesize(self, bytes: int, units=[' bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB']) -> str:
+    def human_readable_filesize(self, bytes: int,
+                                units=[' bytes', ' KB', ' MB', ' GB', ' TB', ' PB', ' EB']) -> str:
         return str(bytes) + units[0] if bytes < 1024 else self.human_readable_filesize(bytes >> 10, units[1:])
 
     def enable_ok_button(self):
@@ -709,13 +696,14 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         try:
             if os.path.isdir(os.path.dirname(self.QgsFW_osmand_root_path.filePath())):
                 if os.path.isdir(self.QgsFW_dest_path.filePath()):
-                    if self.cB_AVnotes.isChecked() or self.cB_favorites.isChecked() or self.cB_itinerary.isChecked() \
+                    if self.cB_AVnotes.isChecked() or self.cB_favorites.isChecked() \
+                            or self.cB_itinerary.isChecked() \
                             or len(set(index.row() for index in self.tW_tracks.selectedIndexes())) > 0:
                         flag = True
         except:
             pass
 
-        try:  # Qt5
-            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(flag)
-        except:  # Qt6
+        try:  # Qt6
             self.buttonBox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setEnabled(flag)
+        except AttributeError:  # Qt5
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(flag)

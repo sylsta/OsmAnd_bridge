@@ -43,6 +43,7 @@ from .OsmAnd_bridge_settings_management import msgbox_setting
 
 from qgis.utils import showPluginHelp
 
+
 class OsmAndBridge:
     """QGIS Plugin Implementation."""
 
@@ -62,7 +63,8 @@ class OsmAndBridge:
         config = ConfigParser()
         config.read(f'{self.plugin_dir}/metadata.txt')
         print(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded")
-        QgsMessageLog.logMessage(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded", self.plugin_name, level=Qgis.Info)
+        QgsMessageLog.logMessage(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded",
+                                 self.plugin_name, level=Qgis.Info)
 
         self.debug = False
         if self.debug:
@@ -70,7 +72,8 @@ class OsmAndBridge:
             try:
                 import pydevd_pycharm
                 try:
-                    pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
+                    pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True,
+                                            stderrToServer=True, suspend=False)
                     QgsMessageLog.logMessage("Debugging into pyCharm", self.plugin_name, level=Qgis.Info)
                 except:
                     QgsMessageLog.logMessage("No python remote debug server", self.plugin_name, level=Qgis.Warning)
@@ -178,11 +181,9 @@ class OsmAndBridge:
 
         self.first_start = True
 
-
     def show_help_website(self):
         """Show the help screen."""
-        # BUG FIX #5 : le QUrl construit avec la locale était créé mais non utilisé.
-        # On utilise maintenant correctement l'URL avec la locale.
+        # BUG FIX #5 : utilisation correcte de l'URL avec la locale
         locale = QgsSettings().value("locale/userLocale", QLocale().name())
         locale = locale[0:2]
         if locale not in self.help_languages:
@@ -190,14 +191,12 @@ class OsmAndBridge:
         url = QUrl(f"{self.help_url_website}{locale}/{self.help_version}/")
         QDesktopServices.openUrl(url)
 
-
     def remove_config_file(self):
-        """remove config file"""
+        """Remove config file."""
         try:
             os.remove(self.PARAM_FILE)
         except OSError:
             pass
-
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -209,11 +208,8 @@ class OsmAndBridge:
             self.iface.pluginHelpMenu().removeAction(action)
         del self.toolbar
 
-
     def run(self):
-        """
-        Launch import dialog and import OsmAnd data if found.
-        """
+        """Launch import dialog and import OsmAnd data if found."""
 
         setting_name = "hide_unstable_warning_message"
         title = self.tr("Warning")
@@ -256,6 +252,7 @@ class OsmAndBridge:
             os.makedirs(os.path.dirname(f'{self.dlg_import.QgsFW_dest_path.filePath()}'), exist_ok=True)
 
             # Work around to create GPKG file (with an empty table that will be removed)
+            # see https://gis.stackexchange.com/a/417950
             schema = QgsFields()
             schema.append(QgsField("bool_field", QVariant.Bool))
             create_empty_gpkg_layer(self.dest_gpkg, "temp_table", QgsWkbTypes.NoGeometry, '', schema)
@@ -309,9 +306,9 @@ class OsmAndBridge:
             progressMessageBar = self.iface.messageBar().createMessage(self.tr("Importing track files..."))
             progress = QProgressBar()
             progress.setMaximum(10)
-            try:
+            try:  # Qt6 — enums namespaced
                 progress.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-            except AttributeError:
+            except AttributeError:  # Qt5
                 progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             progressMessageBar.layout().addWidget(progress)
             self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
