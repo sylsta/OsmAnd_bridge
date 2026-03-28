@@ -31,7 +31,6 @@ import qgis
 from qgis.core import QgsVectorLayer, QgsProject, QgsVectorFileWriter, QgsField, QgsFeature, QgsGeometry, \
     QgsPointXY, QgsSvgMarkerSymbolLayer, QgsAction
 from qgis.PyQt.QtCore import QVariant
-# from .extra_packages.openstreetmap_ng.app.lib.shortlink import shortlink_decode
 
 import pathlib
 
@@ -47,7 +46,6 @@ def import_avnotes(self: object, source_path: str) -> bool:
     :return:
     :rtype:
     """
-
 
     extension_list = [['3gp', 'audio'], ['mp4', 'video'], ['mp3', 'audio'], ['jpg', 'picture'], ['tif', 'picture']]
     file_to_import = []
@@ -97,8 +95,11 @@ def import_avnotes(self: object, source_path: str) -> bool:
         full_path = f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes/{filename}'
         rel_path = f'./avnotes/{filename}'
         shutil.copy(file, full_path)
-        # y, x, z = decode_short_code(pathlib.Path(file).stem)
-        x, y, z = shortlink_decode(pathlib.Path(file).stem)
+
+        # BUG FIX #1 : la fonction s'appelle decode_short_code (pas shortlink_decode)
+        # et retourne [y, x, z] donc on dépack dans l'ordre y, x, z
+        y, x, z = decode_short_code(pathlib.Path(file).stem)
+
         f = QgsFeature()
         f.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(x, y)))
         f.setAttributes([full_path, rel_path, filename, elt[1], x, y])
@@ -129,13 +130,10 @@ def import_avnotes(self: object, source_path: str) -> bool:
             f'{os.path.dirname(__file__)}/svg_markers/Speaker_Icon.svg'
             if options.layerName =='audio':
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Speaker_Icon.svg')
-                # new_sublayer.setMapTipTemplate('<img src="file://[% "full_path" %]"/>')
             elif options.layerName =='video':
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Video_Camera_-_The_Noun_Project.svg')
-                # new_sublayer.setMapTipTemplate('<video controls width=\'250\'><source src=\'[% "full_path" %]\' type=\'video/mp4\{></video>')
             elif options.layerName =='picture':
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Font_Awesome_5_solid_camera.svg')
-                # strange values for the following html code but it works :/ Don't know why
                 new_sublayer.setMapTipTemplate("""
                     <style>
                         body {width:800px!;}
@@ -161,12 +159,6 @@ def import_avnotes(self: object, source_path: str) -> bool:
             for scope in my_scopes:
                     actionManager.setDefaultAction(scope, action.id())
 
-
-
-            # symbol.setSize(6)
-            # new_sublayer.renderer().symbol().changeSymbolLayer(0, symbol)
-            # new_sublayer.triggerRepaint()
-            # self.iface.layerTreeView().refreshLayerSymbology(new_sublayer.id())
         QgsProject.instance().removeMapLayer(layer[0])
 
 
@@ -286,14 +278,14 @@ def move_to_group(thing, group, pos=0, expanded=False) -> tuple:
 
 def decode_short_code(shortcode: str) -> list:
     """
-    From a shortcode string, returns a list whith XY coordinates and zoom level
+    From a shortcode string, returns a list with XY coordinates and zoom level.
     Inspired by http://www.salesianer.de/util/shortcode.js
     Thanks H. v. Hatzfeld http://www.salesianer.de/hatzfeld/
 
     :param shortcode: a string which represents a pair of geographical coordinates and a zoom level
-    :type shortcode:
-    :return: Y coordinates, X coordinates, zoom level
-    :rtype: real, real, int
+    :type shortcode: str
+    :return: Y coordinates (latitude), X coordinates (longitude), zoom level
+    :rtype: list [float, float, int]
     """
 
     char_array = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_~"
@@ -309,17 +301,16 @@ def decode_short_code(shortcode: str) -> list:
         y <<= 3
 
         for j in range(2, -1, -1):
-            # x |= ((digit & (1 << (j+j+1))) == 0 ? 0 : (1 << j))
             if (digit & (1 << (j + j + 1))) == 0:
                 x |= 0
             else:
                 x |= (1 << j)
-            # y |= ((digit & (1 << (j + j))) == 0 ? 0: (1 << j));
             if (digit & (1 << (j + j))) == 0:
                 y |= 0
             else:
                 y |= (1 << j)
-        z += 3;
+        z += 3
+
     x = x * math.pow(2, 2 - 3 * i) * 90 - 180
     y = y * math.pow(2, 2 - 3 * i) * 45 - 90
 
@@ -328,7 +319,5 @@ def decode_short_code(shortcode: str) -> list:
         if i + 1 < len(shortcode) and char_array.find(shortcode[i + 1]) == "-":
             z += 1
 
+    # Retourne [latitude (y), longitude (x), zoom]
     return [y, x, z]
-
-
-

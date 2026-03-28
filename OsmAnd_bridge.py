@@ -36,12 +36,7 @@ from qgis._core import QgsApplication
 from qgis.core import QgsWkbTypes, QgsField, QgsMessageLog, Qgis, QgsProject, QgsFields, QgsRasterLayer, \
     QgsRectangle, QgsCoordinateReferenceSystem, QgsSettings
 
-
-# Initialize Qt resources from file resources.py
-# from .resources import *
-# Import the code for the dialog
 from .OsmAnd_bridge_import_dialog import OsmAndBridgeImportDialog
-# Import the code for the process
 from .OsmAnd_bridge_import_process import import_gpx_track_file, import_avnotes, move_to_group
 from .OsmAnd_bridge_geopackage_management import create_empty_gpkg_layer
 from .OsmAnd_bridge_settings_management import msgbox_setting
@@ -52,14 +47,7 @@ class OsmAndBridge:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
-        """Constructor.
-
-        :param iface: An interface instance that will be passed to this class
-            which provides the hook by which you can manipulate the QGIS
-            application at run time.
-        :type iface: QgsInterface
-        """
-
+        """Constructor."""
 
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
@@ -76,26 +64,18 @@ class OsmAndBridge:
         print(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded")
         QgsMessageLog.logMessage(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded", self.plugin_name, level=Qgis.Info)
 
-
-        # Pycharm debug server
-        # To use it, you need to use a 'python remote debug' configuration into pycharm *pro*
-        # Then 'pip install pydevd-pycharm~=221.5591.52'  at the time of writing (20022-05-27)
-
         self.debug = False
         if self.debug:
             QgsMessageLog.logMessage("Trying to run into debug mode", self.plugin_name, level=Qgis.Info)
             try:
                 import pydevd_pycharm
                 try:
-                    pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend = False)
+                    pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True, suspend=False)
                     QgsMessageLog.logMessage("Debugging into pyCharm", self.plugin_name, level=Qgis.Info)
                 except:
                     QgsMessageLog.logMessage("No python remote debug server", self.plugin_name, level=Qgis.Warning)
             except ImportError:
                 QgsMessageLog.logMessage("pydedv_pycharm package not found", self.plugin_name, level=Qgis.Critical)
-
-
-
 
         # Save reference to the QGIS interface
         self.iface = iface
@@ -120,8 +100,6 @@ class OsmAndBridge:
         self.actions = []
         self.menu = self.tr(u'&OsmAnd bridge')
 
-        # Check if plugin was started the first time in current QGIS session
-        # Must be set in initGui() to survive plugin reloads
         self.first_start = None
 
         # Add a toolbar
@@ -134,14 +112,6 @@ class OsmAndBridge:
         self.PARAM_FILE = f"{os.path.dirname(__file__)}/settings.json"
 
     def tr(self, message):
-        """
-        Get the translation for a string using Qt translation API.
-        We implement this ourselves since we do not inherit QObject.
-        :param message: String for translation.
-        :type message: str, QString
-        :returns: Translated version of message.
-        :rtype: QString
-        """
         return QCoreApplication.translate('OsmAndBridge', message)
 
     def add_action(
@@ -155,34 +125,6 @@ class OsmAndBridge:
             status_tip=None,
             whats_this=None,
             parent=None):
-        """Add a toolbar icon to the toolbar.
-        :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
-        :param text: Text that should be shown in menu items for this action.
-        :type text: str
-        :param callback: Function to be called when the action is triggered.
-        :type callback: function
-        :param enabled_flag: A flag indicating if the action should be enabled
-            by default. Defaults to True.
-        :type enabled_flag: bool
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
-        :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
-        :param status_tip: Optional text to show in a popup when mouse pointer
-            hovers over the action.
-        :type status_tip: str
-        :param parent: Parent widget for the new action. Defaults None.
-        :type parent: QWidget
-        :param whats_this: Optional text to show in the status bar when the
-            mouse pointer hovers over the action.
-        :returns: The action that was created. Note that the action is also
-            added to self.actions list.
-        :rtype: QAction
-        """
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -196,7 +138,6 @@ class OsmAndBridge:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            # Add plugin icon to its own toolbar
             self.toolbar.addAction(action)
 
         if add_to_menu:
@@ -229,7 +170,6 @@ class OsmAndBridge:
             callback=self.show_help_website,
             parent=self.iface.mainWindow(),
             add_to_toolbar=False)
-        # will be set False in run()
 
         help_plugin_osmand_bridge_menu = QAction(QIcon(icon_path), self.plugin_name, self.iface.mainWindow())
         self.iface.pluginHelpMenu().addAction(help_plugin_osmand_bridge_menu)
@@ -241,18 +181,18 @@ class OsmAndBridge:
 
     def show_help_website(self):
         """Show the help screen."""
+        # BUG FIX #5 : le QUrl construit avec la locale était créé mais non utilisé.
+        # On utilise maintenant correctement l'URL avec la locale.
         locale = QgsSettings().value("locale/userLocale", QLocale().name())
         locale = locale[0:2]
         if locale not in self.help_languages:
             locale = 'en'
-        QUrl(f"{self.help_url_website}/{locale}/{self.help_version}/")
-        QDesktopServices.openUrl(QUrl(self.help_url_website))
+        url = QUrl(f"{self.help_url_website}{locale}/{self.help_version}/")
+        QDesktopServices.openUrl(url)
 
 
     def remove_config_file(self):
-        """
-        remove config file
-        """
+        """remove config file"""
         try:
             os.remove(self.PARAM_FILE)
         except OSError:
@@ -266,16 +206,13 @@ class OsmAndBridge:
                 self.tr(u'&OsmAnd bridge'),
                 action)
             self.iface.removeToolBarIcon(action)
-            # For help->extension-osmand_bridge help menu
             self.iface.pluginHelpMenu().removeAction(action)
-        # remove the toolbar
         del self.toolbar
 
 
     def run(self):
         """
         Launch import dialog and import OsmAnd data if found.
-        :return:
         """
 
         setting_name = "hide_unstable_warning_message"
@@ -284,10 +221,6 @@ class OsmAndBridge:
                   "\nIn rare cases, it can cause Qgis to crash.")
         msgbox_setting(self, setting_name, title, message)
 
-        # # Create the dialog with elements (after translation) and keep reference
-        # # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        # if self.first_start:
-        #     self.first_start = False
         self.dlg_import = OsmAndBridgeImportDialog()
 
         # show the dialog
@@ -323,7 +256,6 @@ class OsmAndBridge:
             os.makedirs(os.path.dirname(f'{self.dlg_import.QgsFW_dest_path.filePath()}'), exist_ok=True)
 
             # Work around to create GPKG file (with an empty table that will be removed)
-            # see https://gis.stackexchange.com/a/417950
             schema = QgsFields()
             schema.append(QgsField("bool_field", QVariant.Bool))
             create_empty_gpkg_layer(self.dest_gpkg, "temp_table", QgsWkbTypes.NoGeometry, '', schema)
@@ -335,19 +267,16 @@ class OsmAndBridge:
 
             ## Now dealing with AV notes
             if self.dlg_import.cB_AVnotes.isChecked():
-                # create destination folder if not exists
                 os.makedirs(f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes', exist_ok=True)
-
                 import_avnotes(self, f"{self.osmand_root_path}/avnotes/")
 
             ## Now dealing with favorites gpx file
             if self.dlg_import.cB_favorites.isChecked():
-                # user and log info
-                file = 'favorites.gpx'
+                # BUG FIX #4 : le fichier favoris est dans favorites/favorites.gpx
+                file = 'favorites/favorites.gpx'
                 message = self.tr(f"Importing favorites ({file})")
                 self.iface.messageBar().pushMessage(message, level=Qgis.Info)
                 QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Info)
-                # Process and test result
                 result = import_gpx_track_file(self, f'{self.osmand_root_path}/{file}')
                 if not result:
                     self.iface.messageBar().clearWidgets()
@@ -359,12 +288,10 @@ class OsmAndBridge:
 
             ## Now dealing with itinerary gpx file
             if self.dlg_import.cB_itinerary.isChecked():
-                # user and log info
                 file = 'itinerary.gpx'
                 message = self.tr(f"Importing itinerary ({file})")
                 self.iface.messageBar().pushMessage(message, level=Qgis.Info)
                 QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Info)
-                # Process and test result
                 result = import_gpx_track_file(self, f'{self.osmand_root_path}/{file}')
                 if not result:
                     self.iface.messageBar().clearWidgets()
@@ -375,8 +302,6 @@ class OsmAndBridge:
             self.iface.messageBar().clearWidgets()
 
             ## Now dealing with selected gpx tracks files
-            # We iterate thru selected row(s) of the gpx file table first to count files to import and prepare
-            # a message bar
             i = 0
             for currentQTableWidgetItem in self.dlg_import.tW_tracks.selectedItems():
                 if currentQTableWidgetItem.column() == 0:
@@ -385,18 +310,14 @@ class OsmAndBridge:
             progress = QProgressBar()
             progress.setMaximum(10)
             try:
-                # PyQt6
                 progress.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
             except AttributeError:
-                # PyQt5
                 progress.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             progressMessageBar.layout().addWidget(progress)
             self.iface.messageBar().pushWidget(progressMessageBar, Qgis.Info)
 
-            # We now iterate thru selected row(s) of the gpx file table to import data
             j = 0
             for currentQTableWidgetItem in self.dlg_import.tW_tracks.selectedItems():
-                # We just need to get first column value (gpx filename)
                 if currentQTableWidgetItem.column() == 0:
                     result = import_gpx_track_file(self,
                                                    f'{self.osmand_root_path}/tracks/rec/{currentQTableWidgetItem.text()}')
@@ -410,9 +331,8 @@ class OsmAndBridge:
                         return
             self.iface.messageBar().clearWidgets()
 
-            ## Now deasling with map background
-            # checking internet connection
-            try :
+            ## Now dealing with map background
+            try:
                 socket.create_connection(("tile.openstreetmap.org", 443))
                 tms = 'type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png&zmax=19&zmin=0'
                 layer = QgsRasterLayer(tms, 'OpenStreetMap', 'wms')
@@ -424,11 +344,11 @@ class OsmAndBridge:
                 self.iface.messageBar().pushMessage(message, level=Qgis.Warning)
 
             ## set map canvas extent
-            QApplication.instance().processEvents() # needed but not safe (see https://issues.qgis.org/issues/19311)
+            QApplication.instance().processEvents()
             self.iface.mapCanvas().zoomToFeatureExtent(self.extent)
             self.iface.mapCanvas().refresh()
 
-            # if present, remove the temp_layer previously created to genarete destination gpkg
+            # if present, remove the temp_layer previously created to generate destination gpkg
             try:
                 processing.run("native:spatialiteexecutesql",
                                {'DATABASE': f'{self.dest_gpkg}|layername=temp_table', 'SQL': 'drop table temp_table'})
@@ -444,10 +364,6 @@ class OsmAndBridge:
             # close dialog and save project
             self.dlg_import.close()
             try:
-                # since qgis_project_filename can be not defined if import cancelled
                 self.project.write(qgis_project_filename)
             except:
                 pass
-
-
-
