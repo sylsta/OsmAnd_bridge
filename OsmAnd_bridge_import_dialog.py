@@ -42,7 +42,9 @@ from qgis.core import QgsMessageLog, Qgis, QgsApplication, QgsProject
 from .OsmAnd_bridge_settings_management import msgbox_setting, load_settings, save_settings
 
 # Import MTP libraries depending on OS.
-# On Linux we now use the unified KIO/gvfs backend instead of the old mtpy/libmtp binding.
+# Linux  : unified KIO/gvfs backend (mtp_access_kio_gvfs).
+# Windows: native WPD COM backend (mtp_access_windows) — no third-party MTP lib.
+MTPClient = None
 if platform.system() == 'Linux':
     try:
         from .extra_packages.mtp_access_kio_gvfs.mtp_access_kio_gvfs import MTPClient
@@ -50,10 +52,9 @@ if platform.system() == 'Linux':
         MTPClient = None
 elif platform.system() == 'Windows':
     try:
-        import comtypes
-        from .extra_packages.mtp.win_access import get_portable_devices, walk
-    except Exception:
-        pass
+        from .extra_packages.mtp_access_windows.mtp_access_windows import MTPClient
+    except Exception as _mtp_import_error:
+        MTPClient = None
 
 # Loads .ui
 try:  # Qt5 — resource_suffix does not exist in Qt6
@@ -198,56 +199,17 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.message_no_device_found = self.tr("Check that your device is properly connected and unlocked.\n"
                                                "You can press left button to refresh devices list or to restart QGIS.")
 
-        # Windows: comtypes package must be installed for MTP access
+        # Windows: MTPClient is imported from mtp_access_windows (WPD COM API).
+        # comtypes must be available; if not, the device radio button is disabled.
         if platform.system() == 'Windows':
-            self.rBdevice.setEnabled(False)
-
-            try:
-                import comtypes.client
+            if MTPClient is None:
+                self.rBdevice.setEnabled(False)
+                QgsMessageLog.logMessage(
+                    "mtp_access_windows could not be imported (comtypes missing?). "
+                    "MTP device access disabled.",
+                    self.plugin_name, level=Qgis.Warning)
+            else:
                 self.rBdevice.setEnabled(True)
-
-            except Exception:
-                QgsMessageLog.logMessage("Failed to import Comtypes", self.plugin_name,
-                                         level=Qgis.Warning)
-
-                title_comtypes_failed = self.tr("Previous installation attempt failed...")
-                message_comtypes_failed = self.tr("Manually install comtypes package to download OsmAnd data "
-                                                  "directly from your device.")
-                title_comtypes = self.tr("Python package COMTYPES not found")
-                message_comtypes = self.tr("This plugins needs a package that is not in the "
-                                           "standard library. \nDo you want to try to install "
-                                           "COMTYPES automatically?")
-
-                settings = load_settings(self.PARAM_FILE)
-                setting_name = 'comptypes_install_tried'
-                if not settings.get(setting_name, False):
-                    try:
-                        answer = msgbox_setting(self, setting_name, title_comtypes, message_comtypes, yes_no=True)
-                        if answer:
-                            from .extra_packages.eqip.configuration.piper import install_requirements_from_file
-                            install_requirements_from_file(os.path.join(os.path.dirname(__file__), "requirements.txt"))
-
-                            title_restart = self.tr("An attempt to install comptypes was made")
-                            message_restart = self.tr(
-                                "QGIS has to be restarted. Do you want to do it now "
-                                "(and be asked to save your project if needed)?")
-                            setting_name = "qgis_restarted"
-                            answer_reboot = msgbox_setting(self, setting_name, title_restart, message_restart,
-                                                           yes_no=True)
-                            if answer_reboot:
-                                if QgsProject.instance().isDirty():
-                                    iface.actionSaveProject().trigger()
-                                iface.actionExit().trigger()
-                                subprocess.Popen(QgsApplication.applicationFilePath())
-
-                    except Exception:
-                        QMessageBox.critical(None, title_comtypes_failed, message_comtypes_failed)
-                        QgsMessageLog.logMessage(f"{title_comtypes_failed}. {message_comtypes_failed}",
-                                                 self.plugin_name, level=Qgis.Critical)
-                else:
-                    QMessageBox.critical(None, title_comtypes_failed, message_comtypes_failed)
-                    QgsMessageLog.logMessage(f"{title_comtypes_failed}. {message_comtypes_failed}",
-                                             self.plugin_name, level=Qgis.Critical)
 
         # macOS: MacDroid app is required
         self.APP_NAME = "MacDroid"
@@ -304,24 +266,32 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.qbGoMTP.setEnabled(True)
 
         elif platform.system() == 'Windows':
+            # Windows — WPD COM backend via MTPClient (mtp_access_windows)
+            if MTPClient is None:
+                QgsMessageLog.logMessage(
+                    "MTPClient not available on Windows. Check comtypes installation.",
+                    self.plugin_name, level=Qgis.Critical)
+                QMessageBox.warning(self, self.title_no_device_found,
+                                    "MTP backend not available. Check plugin installation.")
+                return
+
             try:
-                devices = get_portable_devices()
-            except Exception:
+                client = MTPClient()
+            except RuntimeError as e:
+                QgsMessageLog.logMessage(str(e), self.plugin_name, level=Qgis.Warning)
+                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
+                return
+
+            devices = client.list_devices()
+            if not devices:
                 QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
                 return
 
             for device in devices:
-                try:
-                    self.cBdeviceList.addItem(f"{device.get_description()[0]} - {device.get_description()[1]}")
-                except Exception:
-                    QgsMessageLog.logMessage(f"{self.title_cant_connect} {self.message_cant_connect}",
-                                             self.plugin_name, level=Qgis.Critical)
-                    QMessageBox.critical(self, self.title_cant_connect, self.message_cant_connect)
+                # userData stores the device name used by MTPClient
+                self.cBdeviceList.addItem(device, userData=device)
 
-            if self.cBdeviceList.count() > 0:
-                self.qbGoMTP.setEnabled(True)
-            else:
-                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
+            self.qbGoMTP.setEnabled(True)
 
         elif platform.system() == 'Darwin':
             if self.is_macdroid_installed():
@@ -478,72 +448,76 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         self.plugin_name, level=Qgis.Warning)
 
         # ==============================================================
-        # Windows — comtypes / win_access (unchanged)
+        # Windows — WPD COM backend via MTPClient (mtp_access_windows)
+        # Uses the same logic as the Linux section.
         # ==============================================================
         elif platform.system() == 'Windows':
-            try:
-                devices = get_portable_devices()
-            except Exception:
-                QMessageBox.warning(self, self.title_cant_connect, self.message_cant_connect)
+            if MTPClient is None:
                 QGuiApplication.restoreOverrideCursor()
-                return
-            if len(devices) == 0:
-                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
-                QGuiApplication.restoreOverrideCursor()
+                QMessageBox.warning(self, self.title_cant_connect,
+                                    "MTP backend not available. Check plugin installation.")
                 return
 
             try:
-                for device in devices:
-                    device_model_name, device_desc = device.get_description()
-                    selected_device = device
-                    cont = device.get_content()
-                    found = False
-                    if self.cBdeviceList.currentText() == (f'{device_model_name} - {device_desc}'):
-                        root_path = None
-                        for root, dirs, files in walk(device, device_model_name):
-                            if (len(dirs)) > 0:
-                                root_path = dirs[0].name
-                                break
-
-                        if root_path is not None:
-                            for path in potential_paths:
-                                for root, dirs, files in walk(device, device_desc + '\\' + root_path + path):
-                                    if (len(dirs)) > 0:
-                                        found = True
-                                        break
-                                if found:
-                                    break
-
-                        if not found:
-                            QGuiApplication.restoreOverrideCursor()
-                            msg = QMessageBox()
-                            msg.setWindowTitle(self.tr("No files found"))
-                            msg.setText(
-                                self.tr(f"OsmAnd files could not be found on {device_model_name}. Try copying the "
-                                        "files to your hard disk and importing them into QGIS from the "
-                                        "local directory."))
-                            _qmessagebox_set_icon_warning(msg)
-                            _qmessagebox_set_buttons_ok(msg)
-                            msg.exec()
-                            return
-
-                cont = selected_device.get_content()
-                for item in items_list:
-                    if item == '/itinerary.gpx':
-                        file_name = f"{root_path}{path}/itinerary.gpx".replace('/', os.sep)
-                        content = cont[0].get_path(file_name)
-                        content.download_file(f"{tmp_dir_name}\\itinerary.gpx")
-                    else:
-                        item = item.replace('/', os.sep)
-                        item_path = f"{device_model_name}/{root_path}{path}{item[:-1]}".replace('/', os.sep)
-                        for root, dirs, files in walk(device, item_path):
-                            for file in files:
-                                file.download_file(f"{tmp_dir_name}{item}{file.name}")
-
-            except Exception:
+                client = MTPClient()
+            except RuntimeError as e:
                 QGuiApplication.restoreOverrideCursor()
+                QgsMessageLog.logMessage(str(e), self.plugin_name, level=Qgis.Critical)
                 QMessageBox.warning(self, self.title_cant_connect, self.message_cant_connect)
                 return
+
+            selected_device = self.cBdeviceList.currentData()
+            if selected_device is None:
+                selected_device = self.cBdeviceList.currentText()
+
+            # Find the OsmAnd root path by checking storage roots against
+            # known candidate paths and confirming with OsmAnd marker files.
+            osmand_root_on_device = None
+            osmand_markers = {'tracks', 'favorites', 'avnotes', 'itinerary.gpx', 'voice'}
+            for storage_root in client.list_folder(selected_device, ''):
+                for path in potential_paths:
+                    probe = f"{storage_root}/{path.lstrip('/')}"
+                    try:
+                        contents = client.list_folder(selected_device, probe)
+                        if contents and osmand_markers.intersection(set(contents)):
+                            osmand_root_on_device = probe
+                            QgsMessageLog.logMessage(
+                                f"Windows MTP: OsmAnd data found at {osmand_root_on_device}",
+                                self.plugin_name, level=Qgis.Info)
+                            break
+                    except Exception:
+                        pass
+                if osmand_root_on_device:
+                    break
+
+            if not osmand_root_on_device:
+                QGuiApplication.restoreOverrideCursor()
+                msg = QMessageBox()
+                msg.setWindowTitle(self.tr("No files found"))
+                msg.setText(self.tr(
+                    f"OsmAnd files could not be found on {selected_device}. "
+                    "Check that MTP transport is selected on it. "
+                    "As a last resort, copy files to your hard disk and import them "
+                    "into QGIS from the local directory."))
+                _qmessagebox_set_icon_warning(msg)
+                _qmessagebox_set_buttons_ok(msg)
+                msg.exec()
+                return
+
+            # Copy each OsmAnd item to the exact local path expected by
+            # osmand_root_path_changed (same logic as Linux).
+            for item in items_list:
+                src_path = f"{osmand_root_on_device}{item}".rstrip('/')
+                dst_exact = (tmp_dir_name + item).rstrip('/')
+                try:
+                    client.copy_from_device_to_exact(selected_device, src_path, dst_exact)
+                    QgsMessageLog.logMessage(
+                        f"Windows MTP: copied {src_path} -> {dst_exact}",
+                        self.plugin_name, level=Qgis.Info)
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f"Windows MTP: could not copy {src_path}: {e}",
+                        self.plugin_name, level=Qgis.Warning)
 
         # ==============================================================
         # macOS — MacDroid mounts device as filesystem, no copy needed
