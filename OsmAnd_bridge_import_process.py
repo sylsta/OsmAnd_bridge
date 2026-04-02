@@ -84,10 +84,10 @@ def import_avnotes(self: object, source_path: str) -> bool:
     p_pr.addAttributes(attributes_list)
     p_layer.updateFields()
 
-    QgsProject.instance().addMapLayer(a_layer)
-    QgsProject.instance().addMapLayer(v_layer)
-    QgsProject.instance().addMapLayer(p_layer)
-
+    # NOTE: layers are NOT added to the project yet. We populate them in memory
+    # first, then add only those with actual features. This avoids a SIGSEGV
+    # crash that occurred when removeMapLayer() was called on layers that had
+    # never been added to the project (empty layers).
 
     for elt in file_to_import:
         file = elt[0]
@@ -113,10 +113,15 @@ def import_avnotes(self: object, source_path: str) -> bool:
             pr = p_pr
             layer = p_layer
         pr.addFeature(f)
-    # update layer extent and final extent of the mapCanvas
-    # move layer to group
+
+    # Export non-empty memory layers to gpkg, then add them to the project.
+    # Empty layers are simply deleted without ever touching the project,
+    # which avoids the SIGSEGV crash caused by removeMapLayer() on layers
+    # that were never registered with QgsProject.
     for layer in [[v_layer, v_uri], [p_layer, p_uri], [a_layer, a_uri]]:
         if layer[0].featureCount() > 0:
+            # Add to project only now, just before writing to gpkg
+            QgsProject.instance().addMapLayer(layer[0])
             options = QgsVectorFileWriter.SaveVectorOptions()
             options.layerName = layer[1].split('layername=')[1] # quick and dirty to get gpkg layername
             options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
@@ -159,7 +164,13 @@ def import_avnotes(self: object, source_path: str) -> bool:
             for scope in my_scopes:
                     actionManager.setDefaultAction(scope, action.id())
 
-        QgsProject.instance().removeMapLayer(layer[0])
+            # Remove the temporary memory layer now that it has been written
+            # to the gpkg and replaced by new_sublayer. Only reached when
+            # featureCount() > 0, so layer[0] is guaranteed to be in the project.
+            QgsProject.instance().removeMapLayer(layer[0])
+        else:
+            # Empty layer: never added to the project, just delete the Python object.
+            del layer[0]
 
 
 

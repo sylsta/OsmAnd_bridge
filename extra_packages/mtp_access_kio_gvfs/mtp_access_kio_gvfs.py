@@ -1,33 +1,26 @@
 """
-mtp_access.py
-=============
+mtp_access_kio_gvfs.py
+======================
 A cross-backend Python module for accessing MTP (Media Transfer Protocol) devices
 on Linux, supporting both KDE (KIO/kiod5) and GNOME (gvfs) environments.
 
-The module automatically detects which backend is active and provides a unified
-API for listing devices, browsing directories, and copying files/directories
-in both directions (device <-> host).
-
 Backends:
-    - KIO  : used by KDE Plasma; files are accessed via `kioclient5` CLI
-    - gvfs : used by GNOME/GTK environments; files are mounted under /run/user/.../gvfsd/
+    - KIO  : KDE Plasma, files accessed via ``kioclient5`` CLI
+    - gvfs : GNOME/GTK, files mounted under /run/user/.../gvfsd/
 
 Usage example::
 
-    from mtp_access import MTPClient
+    from mtp_access_kio_gvfs import MTPClient
 
     client = MTPClient()
-    print(client.list_devices())
+    devices = client.list_devices()
 
-    # List root folders of the first device
-    device, folders = list(client.list_root_folders().items())[0]
-    print(device, folders)
-
-    # Copy a folder from the device to the host
-    client.copy_from_device(device, "DCIM", "/tmp/photos")
-
-    # Copy a file from the host to the device
-    client.copy_to_device("/tmp/note.txt", device, "Documents/note.txt")
+    # Copy files/tracks/rec  →  /tmp/osmand/tracks/rec/<gpx files>
+    client.copy_from_device_to_exact(
+        devices[0],
+        'Espace de stockage interne partagé/Android/data/net.osmand.plus/files/tracks/rec',
+        '/tmp/osmand/tracks/rec'
+    )
 """
 
 import os
@@ -44,21 +37,15 @@ from pathlib import Path
 def detect_backend() -> str | None:
     """Detect which MTP backend is running on the system.
 
-    Checks for active processes:
-    - ``kiod5``   → KDE KIO backend
-    - ``gvfsd-mtp`` → GNOME gvfs backend
-
     Returns:
         ``'kio'``, ``'gvfs'``, or ``None`` if no backend is found.
     """
     result = subprocess.run(['pgrep', '-a', 'kiod5'], capture_output=True, text=True)
     if result.stdout.strip():
         return 'kio'
-
     result = subprocess.run(['pgrep', '-a', 'gvfsd-mtp'], capture_output=True, text=True)
     if result.stdout.strip():
         return 'gvfs'
-
     return None
 
 
@@ -70,10 +57,10 @@ def _kio_ls(path: str) -> list[str]:
     """List entries at a KIO MTP path, filtering out '.' and '..'.
 
     Args:
-        path: A KIO URI such as ``mtp:/`` or ``mtp:/Smini/DCIM/``.
+        path: KIO URI such as ``mtp:/Smini/DCIM/``.
 
     Returns:
-        List of entry names (files and directories).
+        List of entry names.
     """
     result = subprocess.run(['kioclient5', 'ls', path], capture_output=True, text=True)
     return [
@@ -83,28 +70,49 @@ def _kio_ls(path: str) -> list[str]:
     ]
 
 
-def _kio_copy(src: str, dst: str) -> None:
-    """Copy a single file or directory using kioclient5.
+def _kio_is_dir(kio_path: str) -> bool:
+    """Determine whether a KIO MTP path is a directory.
+
+    Uses ``kioclient5 stat`` and checks FILE_TYPE:
+    - ``0040000`` (octal) = directory
+    - ``0100000`` (octal) = regular file
 
     Args:
-        src: Source KIO URI or local path.
-        dst: Destination KIO URI or local path.
+        kio_path: KIO URI without trailing slash.
 
-    Raises:
-        subprocess.CalledProcessError: if kioclient5 returns a non-zero exit code.
+    Returns:
+        ``True`` if directory, ``False`` if file or on error.
     """
-    subprocess.run(['kioclient5', 'copy', src, dst], check=True)
+    result = subprocess.run(
+        ['kioclient5', 'stat', kio_path],
+        capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        return False
+    for line in result.stdout.splitlines():
+        if 'FILE_TYPE' in line:
+            # directory: octal 0040000 → decimal 16384
+            # regular file: octal 0100000 → decimal 32768
+            parts = line.split()
+            if len(parts) >= 2:
+                try:
+                    file_type = int(parts[-1], 8)  # parse as octal
+                    return file_type == 0o040000
+                except ValueError:
+                    pass
+    return False
 
 
-def _kio_copy_recursive(src_kio: str, dst_local: Path) -> None:
-    """Recursively copy a KIO MTP directory to a local destination.
+def _kio_copy_into(src_kio: str, dst_local: Path) -> None:
+    """Recursively copy the *contents* of a KIO directory into a local directory.
 
-    Walks the KIO tree depth-first, creating local directories as needed
-    and copying each file individually via ``kioclient5``.
+    Each child of ``src_kio`` is copied directly inside ``dst_local``:
+    - files    → ``dst_local/<filename>``
+    - dirs     → recurse into ``dst_local/<dirname>/``
 
     Args:
-        src_kio: Source KIO URI (e.g. ``mtp:/Smini/DCIM``).
-        dst_local: Local :class:`pathlib.Path` where files will be written.
+        src_kio:   KIO URI of the source directory.
+        dst_local: Local directory that receives the contents.
     """
     dst_local.mkdir(parents=True, exist_ok=True)
     entries = _kio_ls(src_kio + '/')
@@ -113,51 +121,29 @@ def _kio_copy_recursive(src_kio: str, dst_local: Path) -> None:
         child_kio = f"{src_kio}/{entry}"
         child_local = dst_local / entry
 
-        # Try listing the child; if it returns results it is a directory
-        children = _kio_ls(child_kio + '/')
-        if children or _kio_is_dir(child_kio):
-            # Recurse into subdirectory
-            _kio_copy_recursive(child_kio, child_local)
+        if _kio_is_dir(child_kio):
+            _kio_copy_into(child_kio, child_local)
         else:
-            # It is a file: copy it
             print(f"  Copying {child_kio} -> {child_local}")
-            _kio_copy(child_kio, str(child_local))
-
-
-def _kio_is_dir(kio_path: str) -> bool:
-    """Heuristic to determine whether a KIO path is a directory.
-
-    Runs ``kioclient5 ls`` and considers the path a directory if the command
-    succeeds and produces output (even an empty listing).
-
-    Args:
-        kio_path: KIO URI to test.
-
-    Returns:
-        ``True`` if the path appears to be a directory, ``False`` otherwise.
-    """
-    result = subprocess.run(
-        ['kioclient5', 'ls', kio_path + '/'],
-        capture_output=True, text=True
-    )
-    # A directory listing returns exit code 0; a file typically returns an error
-    return result.returncode == 0
+            subprocess.run(
+                ['kioclient5', 'copy', child_kio, str(child_local)],
+                check=True
+            )
 
 
 def _kio_upload_recursive(src_local: Path, dst_kio: str) -> None:
-    """Recursively copy a local file or directory to a KIO MTP path.
+    """Recursively upload a local file or directory to a KIO MTP path.
 
     Args:
-        src_local: Local :class:`pathlib.Path` to copy (file or directory).
-        dst_kio: Destination KIO URI on the MTP device.
+        src_local: Local path to copy.
+        dst_kio:   Destination KIO URI.
     """
     if src_local.is_file():
         print(f"  Uploading {src_local} -> {dst_kio}")
-        _kio_copy(str(src_local), dst_kio)
+        subprocess.run(['kioclient5', 'copy', str(src_local), dst_kio], check=True)
     elif src_local.is_dir():
         for child in src_local.iterdir():
-            child_dst = f"{dst_kio}/{child.name}"
-            _kio_upload_recursive(child, child_dst)
+            _kio_upload_recursive(child, f"{dst_kio}/{child.name}")
 
 
 # ---------------------------------------------------------------------------
@@ -165,22 +151,13 @@ def _kio_upload_recursive(src_local: Path, dst_kio: str) -> None:
 # ---------------------------------------------------------------------------
 
 def _gvfs_base() -> Path:
-    """Return the gvfs mount root for the current user.
-
-    Returns:
-        Path to ``/run/user/<uid>/gvfsd/``.
-    """
+    """Return the gvfs mount root for the current user."""
     return Path(f"/run/user/{os.getuid()}/gvfsd/")
 
 
 def _gvfs_mtp_mounts() -> list[Path]:
-    """Find all currently mounted MTP devices under gvfsd.
-
-    Returns:
-        List of :class:`pathlib.Path` objects, one per mounted MTP device.
-    """
-    base = _gvfs_base()
-    return [Path(p) for p in glob.glob(str(base / "mtp*"))]
+    """Find all mounted MTP devices under gvfsd."""
+    return [Path(p) for p in glob.glob(str(_gvfs_base() / "mtp*"))]
 
 
 # ---------------------------------------------------------------------------
@@ -188,27 +165,15 @@ def _gvfs_mtp_mounts() -> list[Path]:
 # ---------------------------------------------------------------------------
 
 class MTPClient:
-    """Unified MTP client that works with both KIO and gvfs backends.
+    """Unified MTP client supporting KIO (KDE) and gvfs (GNOME) backends.
 
-    Automatically detects the active backend on instantiation. All public
-    methods accept a *device* parameter whose meaning depends on the backend:
+    Device identifier meaning by backend:
 
-    - **KIO**  : the device name as shown by ``kioclient5 ls mtp:/``
-      (e.g. ``'Smini'``).
-    - **gvfs** : the full mount-point path under ``/run/user/.../gvfsd/``
-      (e.g. ``'/run/user/1000/gvfsd/mtp:host=...'``).
-
-    Attributes:
-        backend (str): ``'kio'`` or ``'gvfs'``.
+    - **KIO**  : short device name from ``kioclient5 ls mtp:/``  (e.g. ``'Smini'``)
+    - **gvfs** : full mount-point path under ``/run/user/.../gvfsd/``
 
     Raises:
-        RuntimeError: if no MTP backend is detected at instantiation time.
-
-    Example::
-
-        client = MTPClient()
-        devices = client.list_devices()
-        client.copy_from_device(devices[0], "DCIM", "/tmp/photos")
+        RuntimeError: if no MTP backend is detected.
     """
 
     def __init__(self):
@@ -225,115 +190,123 @@ class MTPClient:
     # ------------------------------------------------------------------
 
     def list_devices(self) -> list[str]:
-        """Return the list of connected MTP devices.
-
-        For KIO, this queries ``mtp:/`` via kioclient5.
-        For gvfs, this scans the ``gvfsd/`` directory for ``mtp*`` mounts.
+        """Return connected MTP device identifiers.
 
         Returns:
-            List of device identifiers (names for KIO, paths for gvfs).
+            List of device names (KIO) or mount-point paths (gvfs).
         """
         if self.backend == 'kio':
             return _kio_ls('mtp:/')
-
-        # gvfs: return string paths for consistency
         return [str(p) for p in _gvfs_mtp_mounts()]
 
     def list_root_folders(self) -> dict[str, list[str]]:
-        """Return the root-level folders for every connected MTP device.
+        """Return root-level folders for every connected device.
 
         Returns:
-            A dict mapping each device identifier to its list of root folders.
-
-        Example::
-
-            {'Smini': ['Internal storage', 'SD card']}
+            Dict mapping device identifier → list of folder names.
         """
-        result = {}
-        for device in self.list_devices():
-            result[device] = self.list_folder(device, '')
-        return result
+        return {dev: self.list_folder(dev, '') for dev in self.list_devices()}
 
     def list_folder(self, device: str, path: str) -> list[str]:
         """List the contents of a folder on an MTP device.
 
         Args:
-            device: Device identifier (name for KIO, mount path for gvfs).
+            device: Device identifier.
             path:   Relative path on the device (empty string for root).
 
         Returns:
-            List of entry names inside the folder.
+            List of entry names, or ``[]`` if the path does not exist.
         """
         if self.backend == 'kio':
             kio_path = f"mtp:/{device}/{path}" if path else f"mtp:/{device}"
             return _kio_ls(kio_path)
 
-        # gvfs: plain filesystem access
         full_path = Path(device) / path if path else Path(device)
         try:
             return os.listdir(full_path)
-        except PermissionError as exc:
-            print(f"[MTPClient] Permission denied: {full_path} ({exc})")
+        except (PermissionError, FileNotFoundError) as exc:
+            print(f"[MTPClient] Cannot list {full_path}: {exc}")
             return []
 
     # ------------------------------------------------------------------
-    # Copy: device -> host
+    # Copy: device → host
     # ------------------------------------------------------------------
 
     def copy_from_device(self, device: str, src_path: str, dst_local: str) -> None:
-        """Copy a file or directory from the MTP device to the local host.
+        """Copy a file or directory from the device into a local directory.
 
-        The copy is always recursive: if *src_path* points to a directory,
-        the entire tree is replicated under *dst_local*.
+        The result lands at ``dst_local/<basename of src_path>``.
+        Use :meth:`copy_from_device_to_exact` for full path control.
 
         Args:
             device:    Device identifier.
-            src_path:  Relative path on the device (e.g. ``'DCIM'`` or
-                       ``'Documents/notes.txt'``).
-            dst_local: Local destination path (file or directory).
+            src_path:  Relative path on the device.
+            dst_local: Local parent directory.
 
         Example::
 
             client.copy_from_device('Smini', 'DCIM', '/tmp/photos')
+            # → /tmp/photos/DCIM/<files>
         """
-        dst = Path(dst_local)
+        dst_exact = str(Path(dst_local) / Path(src_path).name)
+        self.copy_from_device_to_exact(device, src_path, dst_exact)
+
+    def copy_from_device_to_exact(self, device: str, src_path: str,
+                                   dst_exact: str) -> None:
+        """Copy a file or directory from the device to an exact local path.
+
+        - Directory: contents are placed *inside* ``dst_exact``
+          (``dst_exact`` itself is created if needed).
+        - File: ``dst_exact`` is the resulting file path.
+
+        Args:
+            device:    Device identifier.
+            src_path:  Relative path on the device.
+            dst_exact: Exact local destination path.
+
+        Example::
+
+            client.copy_from_device_to_exact(
+                'Smini',
+                'Espace de stockage interne partagé/…/files/tracks/rec',
+                '/tmp/osmand/tracks/rec'
+            )
+            # → /tmp/osmand/tracks/rec/2026-01-31.gpx  etc.
+        """
+        dst = Path(dst_exact)
 
         if self.backend == 'kio':
             kio_src = f"mtp:/{device}/{src_path}"
             if _kio_is_dir(kio_src):
-                # Recursive directory copy
-                _kio_copy_recursive(kio_src, dst / Path(src_path).name)
+                # Copy contents of kio_src directly into dst
+                _kio_copy_into(kio_src, dst)
             else:
-                # Single file copy
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 print(f"  Copying {kio_src} -> {dst}")
-                _kio_copy(kio_src, str(dst))
+                subprocess.run(
+                    ['kioclient5', 'copy', kio_src, str(dst)],
+                    check=True
+                )
 
         else:  # gvfs
             src = Path(device) / src_path
             if src.is_dir():
-                print(f"  Copying directory {src} -> {dst}")
-                shutil.copytree(str(src), str(dst / src.name), dirs_exist_ok=True)
+                shutil.copytree(str(src), str(dst), dirs_exist_ok=True)
             else:
                 dst.parent.mkdir(parents=True, exist_ok=True)
-                print(f"  Copying file {src} -> {dst}")
                 shutil.copy2(str(src), str(dst))
 
     # ------------------------------------------------------------------
-    # Copy: host -> device
+    # Copy: host → device
     # ------------------------------------------------------------------
 
     def copy_to_device(self, src_local: str, device: str, dst_path: str) -> None:
-        """Copy a file or directory from the local host to the MTP device.
-
-        The copy is always recursive: if *src_local* is a directory, the
-        entire tree is uploaded under *dst_path* on the device.
+        """Copy a file or directory from the host to the MTP device.
 
         Args:
-            src_local: Local source path (file or directory).
+            src_local: Local source path.
             device:    Device identifier.
-            dst_path:  Relative destination path on the device
-                       (e.g. ``'Documents'`` or ``'Music/album'``).
+            dst_path:  Relative destination path on the device.
 
         Example::
 
@@ -344,33 +317,27 @@ class MTPClient:
             raise FileNotFoundError(f"Source not found: {src_local}")
 
         if self.backend == 'kio':
-            kio_dst = f"mtp:/{device}/{dst_path}"
-            _kio_upload_recursive(src, kio_dst)
-
-        else:  # gvfs
+            _kio_upload_recursive(src, f"mtp:/{device}/{dst_path}")
+        else:
             dst = Path(device) / dst_path
             if src.is_dir():
-                print(f"  Uploading directory {src} -> {dst}")
                 shutil.copytree(str(src), str(dst), dirs_exist_ok=True)
             else:
                 dst.parent.mkdir(parents=True, exist_ok=True)
-                print(f"  Uploading file {src} -> {dst}")
                 shutil.copy2(str(src), str(dst))
 
 
 # ---------------------------------------------------------------------------
-# Quick self-test when run directly
+# Quick self-test
 # ---------------------------------------------------------------------------
 
 if __name__ == '__main__':
     client = MTPClient()
 
     print("\n=== Connected MTP devices ===")
-    devices = client.list_devices()
-    for dev in devices:
+    for dev in client.list_devices():
         print(f"  {dev}")
 
     print("\n=== Root folders per device ===")
-    roots = client.list_root_folders()
-    for dev, folders in roots.items():
+    for dev, folders in client.list_root_folders().items():
         print(f"  {dev}: {folders}")

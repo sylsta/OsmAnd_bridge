@@ -41,27 +41,31 @@ from qgis.core import QgsMessageLog, Qgis, QgsApplication, QgsProject
 
 from .OsmAnd_bridge_settings_management import msgbox_setting, load_settings, save_settings
 
-# Import MTP librairies depending on OS
+# Import MTP libraries depending on OS.
+# On Linux we now use the unified KIO/gvfs backend instead of the old mtpy/libmtp binding.
 if platform.system() == 'Linux':
-    from .extra_packages.mtpy.mtpy import get_raw_devices, common_retrieve_to_folder
+    try:
+        from .extra_packages.mtp_access_kio_gvfs.mtp_access_kio_gvfs import MTPClient
+    except Exception as _mtp_import_error:
+        MTPClient = None
 elif platform.system() == 'Windows':
     try:
         import comtypes
         from .extra_packages.mtp.win_access import get_portable_devices, walk
-    except:
+    except Exception:
         pass
 
 # Loads .ui
-try:  # Qt5 — resource_suffix n'existe pas en Qt6
+try:  # Qt5 — resource_suffix does not exist in Qt6
     FORM_CLASS, _ = uic.loadUiType(os.path.join(
         os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'), resource_suffix='')
-except:  # Qt6
+except Exception:  # Qt6
     FORM_CLASS, _ = uic.loadUiType(os.path.join(
         os.path.dirname(__file__), 'OsmAnd_bridge_import_dialog.ui'))
 
 
 def _qmessagebox_set_icon_warning(msg):
-    """Helper : définit l'icône Warning sur un QMessageBox, compatible Qt5 et Qt6."""
+    """Set Warning icon on a QMessageBox, compatible with Qt5 and Qt6."""
     try:  # Qt6 — enums namespaced
         msg.setIcon(QMessageBox.Icon.Warning)
     except AttributeError:  # Qt5
@@ -69,7 +73,7 @@ def _qmessagebox_set_icon_warning(msg):
 
 
 def _qmessagebox_set_buttons_ok(msg):
-    """Helper : définit le bouton Ok sur un QMessageBox, compatible Qt5 et Qt6."""
+    """Set Ok button on a QMessageBox, compatible with Qt5 and Qt6."""
     try:  # Qt6
         msg.setStandardButtons(QMessageBox.StandardButton.Ok)
     except AttributeError:  # Qt5
@@ -78,9 +82,9 @@ def _qmessagebox_set_buttons_ok(msg):
 
 class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
     """
-    Class to manage import settings from OsmAnd directory or MTP device
+    Class to manage import settings from OsmAnd directory or MTP device.
     """
-    # annotations for completion in code editor
+    # Annotations for code editor completion
     buttonBox: QDialogButtonBox
     tW_tracks: QTableWidget
     QgsFW_osmand_root_path: QgsFileWidget
@@ -103,9 +107,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def __init__(self, parent=None):
         """
-        Constructor
-        :param parent: None
-        :type parent: None
+        Constructor.
+
+        :param parent: Parent widget (None for top-level dialog).
+        :type parent: QWidget or None
         """
         super(OsmAndBridgeImportDialog, self).__init__(parent)
         self.setupUi(self)
@@ -124,7 +129,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.tW_tracks.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.tW_tracks.selectionModel().selectionChanged.connect(self.enable_ok_button)
 
-        # input and output path
+        # Input and output path widgets
         self.QgsFW_osmand_root_path.setStorageMode(QgsFileWidget.StorageMode.GetDirectory)
         self.QgsFW_osmand_root_path.fileChanged.connect(self.osmand_root_path_changed)
         self.QgsFW_dest_path.setStorageMode(QgsFileWidget.StorageMode.GetDirectory)
@@ -141,7 +146,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         except AttributeError:  # Qt5
             self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
 
-        # clear tracks selection button
+        # Clear tracks selection button
         try:  # Qt6
             icon = self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogCloseButton)
         except AttributeError:  # Qt5
@@ -159,7 +164,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.selectAllTracksPB.setEnabled(False)
         self.selectAllTracksPB.clicked.connect(self.select_all_tracks)
 
-        # radio buttons to switch between device and directory
+        # Radio buttons to switch between device and directory mode
         self.rBdir.toggled.connect(self.on_radio_button_toggled)
         self.rBdevice.toggled.connect(self.on_radio_button_toggled)
         self.cBdeviceList.hide()
@@ -181,10 +186,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogOkButton)
         self.qbGoMTP.setIcon(icon)
 
-        # Params file for messageboxes
+        # Path to the settings JSON file
         self.PARAM_FILE = f"{os.path.dirname(__file__)}/settings.json"
 
-        # strings that will be used later
+        # Strings reused across methods
         self.title_cant_connect = self.tr("Can't connect to device...")
         self.message_cant_connect = self.tr(
             "Check that it is properly connected and unlocked.\n Try unplugging "
@@ -192,7 +197,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.title_no_device_found = self.tr('No device found!')
         self.message_no_device_found = self.tr("Check that your device is properly connected and unlocked.\n"
                                                "You can press left button to refresh devices list or to restart QGIS.")
-        # If windows, comtypes python package needs to be installed
+
+        # Windows: comtypes package must be installed for MTP access
         if platform.system() == 'Windows':
             self.rBdevice.setEnabled(False)
 
@@ -200,16 +206,16 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 import comtypes.client
                 self.rBdevice.setEnabled(True)
 
-            except:
+            except Exception:
                 QgsMessageLog.logMessage("Failed to import Comtypes", self.plugin_name,
                                          level=Qgis.Warning)
 
                 title_comtypes_failed = self.tr("Previous installation attempt failed...")
-                message_comtypes_failed = self.tr("Manually install comtypes package to download OsmAnd data " \
-                                  "directly from your device.")
+                message_comtypes_failed = self.tr("Manually install comtypes package to download OsmAnd data "
+                                                  "directly from your device.")
                 title_comtypes = self.tr("Python package COMTYPES not found")
-                message_comtypes = self.tr("This plugins needs a package that is not in the " \
-                                           "standard library. \nDo you want to try to install " \
+                message_comtypes = self.tr("This plugins needs a package that is not in the "
+                                           "standard library. \nDo you want to try to install "
                                            "COMTYPES automatically?")
 
                 settings = load_settings(self.PARAM_FILE)
@@ -226,70 +232,88 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                 "QGIS has to be restarted. Do you want to do it now "
                                 "(and be asked to save your project if needed)?")
                             setting_name = "qgis_restarted"
-                            answer_reboot = msgbox_setting(self, setting_name, title_restart, message_restart, yes_no=True)
+                            answer_reboot = msgbox_setting(self, setting_name, title_restart, message_restart,
+                                                           yes_no=True)
                             if answer_reboot:
                                 if QgsProject.instance().isDirty():
                                     iface.actionSaveProject().trigger()
                                 iface.actionExit().trigger()
                                 subprocess.Popen(QgsApplication.applicationFilePath())
 
-                    except:
+                    except Exception:
                         QMessageBox.critical(None, title_comtypes_failed, message_comtypes_failed)
                         QgsMessageLog.logMessage(f"{title_comtypes_failed}. {message_comtypes_failed}",
                                                  self.plugin_name, level=Qgis.Critical)
-
                 else:
                     QMessageBox.critical(None, title_comtypes_failed, message_comtypes_failed)
                     QgsMessageLog.logMessage(f"{title_comtypes_failed}. {message_comtypes_failed}",
                                              self.plugin_name, level=Qgis.Critical)
 
-        # Macintosh stuff
+        # macOS: MacDroid app is required
         self.APP_NAME = "MacDroid"
         self.APP_PATH = f"/Applications/{self.APP_NAME}.app"
 
+    # ------------------------------------------------------------------
+    # MTP device listing
+    # ------------------------------------------------------------------
+
     def list_MTP_Devices(self):
         """
-        List MTP devices connected to system to feed interface listbox.
+        List MTP devices connected to the system and populate the device combo-box.
+
+        - Linux  : uses MTPClient (KIO or gvfs backend, auto-detected).
+        - Windows: uses comtypes / win_access.
+        - macOS  : uses MacDroid's virtual filesystem under ~/.AFTVolumes.
         """
         self.clear_UI_items()
         self.qbGoMTP.setEnabled(False)
 
         if platform.system() == 'Linux':
-            self.kill_pid()
+            # ----------------------------------------------------------------
+            # Linux — KIO/gvfs backend via MTPClient
+            # ----------------------------------------------------------------
+            if MTPClient is None:
+                QgsMessageLog.logMessage(
+                    "MTPClient could not be imported. Check mtp_access_kio_gvfs installation.",
+                    self.plugin_name, level=Qgis.Critical)
+                QMessageBox.warning(self, self.title_no_device_found,
+                                    "MTP backend not available. Check plugin installation.")
+                return
+
             try:
-                devices = get_raw_devices()
-            except:
+                client = MTPClient()
+            except RuntimeError as e:
+                # No backend detected (kiod5 / gvfsd-mtp not running)
+                QgsMessageLog.logMessage(str(e), self.plugin_name, level=Qgis.Warning)
+                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
+                return
+
+            devices = client.list_devices()
+
+            if not devices:
                 QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
                 return
 
             for device in devices:
-                try:
-                    self.kill_pid()
-                    device_open = device.open()
-                    device_model_name = str(device_open.get_model_name())
-                    self.cBdeviceList.addItem(f'{device_model_name} - {str(device_open)[9:-2]}')
-                    device_open.close()
-                except:
-                    QgsMessageLog.logMessage(f"{self.title_cant_connect} {self.message_cant_connect}",
-                                             self.plugin_name, level=Qgis.Critical)
-                    QMessageBox.warning(self, self.title_cant_connect, self.message_cant_connect)
+                # For KIO the device is a short name (e.g. "Smini");
+                # for gvfs it is a full mount-point path.
+                # We display only the last path component for gvfs to keep the UI readable.
+                display_name = os.path.basename(device) if os.sep in device else device
+                self.cBdeviceList.addItem(display_name, userData=device)
 
-            if self.cBdeviceList.count() > 0:
-                self.qbGoMTP.setEnabled(True)
-            else:
-                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
+            self.qbGoMTP.setEnabled(True)
 
         elif platform.system() == 'Windows':
             try:
                 devices = get_portable_devices()
-            except:
+            except Exception:
                 QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
                 return
 
             for device in devices:
                 try:
                     self.cBdeviceList.addItem(f"{device.get_description()[0]} - {device.get_description()[1]}")
-                except:
+                except Exception:
                     QgsMessageLog.logMessage(f"{self.title_cant_connect} {self.message_cant_connect}",
                                              self.plugin_name, level=Qgis.Critical)
                     QMessageBox.critical(self, self.title_cant_connect, self.message_cant_connect)
@@ -310,13 +334,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     for subdir in os.listdir(path):
                         if os.path.isdir(os.path.join(path, subdir)):
                             self.cBdeviceList.addItem(subdir)
-                except:
+                except Exception:
                     pass
+
                 if self.cBdeviceList.count() > 0:
                     self.qbGoMTP.setEnabled(True)
                 else:
                     QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
-
             else:
                 self.rBdir.setChecked(True)
                 self.rBdevice.setEnabled(False)
@@ -326,42 +350,23 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                     "This plugin needs MacDroid (even Free version) to access MTP Device. Please consider installing it."
                     "See <a href='https://www.macdroid.app/fr/downloads/'>https://www.macdroid.app/fr/downloads</a>")
                 QMessageBox.warning(None, title, message)
-        else:
-            pass
 
-    def is_macdroid_installed(self):
-        return os.path.exists(self.APP_PATH)
-
-    def is_macdroid_running(self):
-        try:
-            result = subprocess.run(
-                ["pgrep", "-fx", f"/Applications/{self.APP_NAME}.app/Contents/MacOS/{self.APP_NAME}"],
-                capture_output=True,
-                text=True
-            )
-            return result.returncode == 0
-        except Exception as e:
-            QgsMessageLog.logMessage(f"Issue when trying to see if macDroid is launched {e}",
-                                     self.plugin_name, level=Qgis.Critical)
-            return False
-
-    def launch_macdroid(self):
-        try:
-            subprocess.run(["open", "-a", self.APP_NAME], check=True)
-        except subprocess.CalledProcessError:
-            QgsMessageLog.logMessage("Failed to launch macDroid", self.plugin_name, level=Qgis.Critical)
+    # ------------------------------------------------------------------
+    # MTP file search & copy
+    # ------------------------------------------------------------------
 
     def search_copy_osmand_file_from_device(self):
         """
-        Search OsmAnd files from device and copy them to tmp directory (Linux & Windows).
-        For macOS, no copy needed since MacDroid mounts the device as a real filesystem.
+        Search OsmAnd files on the selected MTP device and copy them to a
+        temporary directory so the rest of the plugin can process them normally.
+
+        - Linux  : uses MTPClient.copy_from_device() (KIO/gvfs backend).
+        - Windows: uses comtypes / win_access (unchanged).
+        - macOS  : MacDroid mounts the device as a real filesystem; no copy needed.
         """
         setting_name = "hide_duration_message"
         title = self.tr("Warning")
-        mtpy_msg = ''
-        if platform.system() == 'Linux':
-            mtpy_msg = self.tr(", especially under GNU/Linux :(")
-
+        mtpy_msg = self.tr(", especially under GNU/Linux :(") if platform.system() == 'Linux' else ''
         message = self.tr(f"Be patient! \nThis operation can take several minutes{mtpy_msg}.\nIn rare cases, "
                           f"it can cause Qgis to crash.")
         msgbox_setting(self, setting_name, title, message)
@@ -371,85 +376,121 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         except AttributeError:  # Qt5
             QGuiApplication.setOverrideCursor(Qt.WaitCursor)
 
+        # Sub-paths relative to the OsmAnd root that we want to retrieve.
+        # Each entry maps device relative path → local relative path under tmp_dir_name.
+        # They are identical here but kept separate for clarity.
         items_list = ['/avnotes/', '/tracks/rec/', '/favorites/', '/itinerary.gpx']
-        potential_paths = ['/Android/data/net.osmand/files', '/Android/data/net.osmand.plus/files',
-                           '/Android/media/net.osmand/files', '/Android/media/net.osmand.plus/files',
-                           '/Android/obb/net.osmand/files', '/Android/obb/net.osmand.plus/files',
-                           ]
+
+        # Possible OsmAnd root paths on the Android device storage
+        potential_paths = [
+            '/Android/data/net.osmand/files',
+            '/Android/data/net.osmand.plus/files',
+            '/Android/media/net.osmand/files',
+            '/Android/media/net.osmand.plus/files',
+            '/Android/obb/net.osmand/files',
+            '/Android/obb/net.osmand.plus/files',
+        ]
 
         if platform.system() != "Darwin":
+            # Create a temporary directory; sub-directories are created on demand
+            # by copy_from_device_to_exact, except tracks/rec which needs its
+            # parent created first.
             tmp_dir_name = tempfile.TemporaryDirectory().name
-            os.makedirs(tmp_dir_name + items_list[0])
-            os.makedirs(tmp_dir_name + items_list[1])
-            os.makedirs(tmp_dir_name + items_list[2])
+            os.makedirs(tmp_dir_name + '/tracks/rec', exist_ok=True)
 
+        # ==============================================================
+        # Linux — KIO/gvfs via MTPClient
+        # ==============================================================
         if platform.system() == 'Linux':
-            self.kill_pid()
-            try:
-                devices = get_raw_devices()
-            except:
-                QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
+            if MTPClient is None:
                 QGuiApplication.restoreOverrideCursor()
+                QMessageBox.warning(self, self.title_cant_connect,
+                                    "MTP backend not available. Check plugin installation.")
                 return
 
             try:
-                for device in devices:
-                    self.kill_pid()
-                    device_open = device.open()
-                    device_model_name = str(device_open.get_model_name())
-
-                    if self.cBdeviceList.currentText() == (f'{device_model_name} - {str(device_open)[9:-2]}'):
-                        path_found = False
-
-                        for path in potential_paths:
-                            print(f"Linux: searching in {path}")
-                            if device_open.get_descendant_by_path(path) is not None:
-                                path_found = True
-                                print(f"Linux: data found in {path}")
-                                break
-
-                        if not path_found:
-                            QGuiApplication.restoreOverrideCursor()
-                            msg = QMessageBox()
-                            msg.setWindowTitle(self.tr("No files found"))
-                            msg.setText(
-                                self.tr(f"OsmAnd files could not be found on {device_model_name}. Try copying the "
-                                        "files to your hard disk and importing them into QGIS from the "
-                                        "local directory."))
-                            _qmessagebox_set_icon_warning(msg)
-                            _qmessagebox_set_buttons_ok(msg)
-                            msg.exec()
-                            return
-
-                        for item in items_list:
-                            try:
-                                self.kill_pid()
-                                item_content = device_open.get_descendant_by_path(path + item)
-                                if item_content is not None:
-                                    self.kill_pid()
-                                    if item == '/itinerary.gpx':
-                                        item_content.retrieve_to_file(tmp_dir_name)
-                                    else:
-                                        common_retrieve_to_folder(item_content, tmp_dir_name + item)
-                            except:
-                                pass
-
-                    device_open.close()
-            except:
+                client = MTPClient()
+            except RuntimeError as e:
+                QGuiApplication.restoreOverrideCursor()
+                QgsMessageLog.logMessage(str(e), self.plugin_name, level=Qgis.Critical)
                 QMessageBox.warning(self, self.title_cant_connect, self.message_cant_connect)
-                QGuiApplication.restoreOverrideCursor()
                 return
 
+            # Retrieve the device identifier stored as userData in the combo-box.
+            # KIO: short name (e.g. "Smini"); gvfs: full mount-point path.
+            selected_device = self.cBdeviceList.currentData()
+            if selected_device is None:
+                selected_device = self.cBdeviceList.currentText()
+
+            # Identify the OsmAnd root path on the device by iterating over
+            # storage roots (e.g. "Espace de stockage interne partagé") and
+            # candidate sub-paths. We confirm a match by checking that the
+            # listed contents include at least one known OsmAnd marker.
+            osmand_root_on_device = None
+            osmand_markers = {'tracks', 'favorites', 'avnotes', 'itinerary.gpx', 'voice'}
+            for storage_root in client.list_folder(selected_device, ''):
+                for path in potential_paths:
+                    probe = f"{storage_root}/{path.lstrip('/')}"
+                    try:
+                        contents = client.list_folder(selected_device, probe)
+                        if contents and osmand_markers.intersection(set(contents)):
+                            osmand_root_on_device = probe
+                            QgsMessageLog.logMessage(
+                                f"Linux MTP: OsmAnd data found at {osmand_root_on_device}",
+                                self.plugin_name, level=Qgis.Info)
+                            break
+                    except Exception:
+                        pass
+                if osmand_root_on_device:
+                    break
+
+            if not osmand_root_on_device:
+                QGuiApplication.restoreOverrideCursor()
+                msg = QMessageBox()
+                msg.setWindowTitle(self.tr("No files found"))
+                msg.setText(self.tr(
+                    f"OsmAnd files could not be found on {selected_device}. "
+                    "Check that MTP transport is selected on it. "
+                    "As a last resort, copy files to your hard disk and import them "
+                    "into QGIS from the local directory."))
+                _qmessagebox_set_icon_warning(msg)
+                _qmessagebox_set_buttons_ok(msg)
+                msg.exec()
+                return
+
+            # Copy each OsmAnd item to the exact local path expected by
+            # osmand_root_path_changed:
+            #   avnotes/      → tmp/avnotes/<files>
+            #   tracks/rec/   → tmp/tracks/rec/<gpx files>
+            #   favorites/    → tmp/favorites/<gpx files>
+            #   itinerary.gpx → tmp/itinerary.gpx
+            for item in items_list:
+                src_path = f"{osmand_root_on_device}{item}".rstrip('/')
+                dst_exact = (tmp_dir_name + item).rstrip('/')
+                try:
+                    client.copy_from_device_to_exact(selected_device, src_path, dst_exact)
+                    QgsMessageLog.logMessage(
+                        f"Linux MTP: copied {src_path} -> {dst_exact}",
+                        self.plugin_name, level=Qgis.Info)
+                except Exception as e:
+                    QgsMessageLog.logMessage(
+                        f"Linux MTP: could not copy {src_path}: {e}",
+                        self.plugin_name, level=Qgis.Warning)
+
+        # ==============================================================
+        # Windows — comtypes / win_access (unchanged)
+        # ==============================================================
         elif platform.system() == 'Windows':
             try:
                 devices = get_portable_devices()
-            except:
+            except Exception:
                 QMessageBox.warning(self, self.title_cant_connect, self.message_cant_connect)
                 QGuiApplication.restoreOverrideCursor()
                 return
             if len(devices) == 0:
                 QMessageBox.warning(self, self.title_no_device_found, self.message_no_device_found)
                 QGuiApplication.restoreOverrideCursor()
+                return
 
             try:
                 for device in devices:
@@ -499,11 +540,14 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                             for file in files:
                                 file.download_file(f"{tmp_dir_name}{item}{file.name}")
 
-            except:
+            except Exception:
                 QGuiApplication.restoreOverrideCursor()
                 QMessageBox.warning(self, self.title_cant_connect, self.message_cant_connect)
                 return
 
+        # ==============================================================
+        # macOS — MacDroid mounts device as filesystem, no copy needed
+        # ==============================================================
         elif platform.system() == 'Darwin':
             root_path = os.path.join(os.path.expanduser("~"), ".AFTVolumes", self.cBdeviceList.currentText())
             found = False
@@ -522,8 +566,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 msg = QMessageBox()
                 msg.setWindowTitle(self.tr("No files found"))
                 msg.setText(
-                    self.tr(f"OsmAnd files could not be found on {self.cBdeviceList.currentText()}. Try copying the "
-                            "files to your hard disk and importing them into QGIS from the "
+                    self.tr(f"OsmAnd files could not be found on {self.cBdeviceList.currentText()}. "
+                            "Try copying the files to your hard disk and importing them into QGIS from the "
                             "local directory."))
                 _qmessagebox_set_icon_warning(msg)
                 _qmessagebox_set_buttons_ok(msg)
@@ -532,6 +576,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.QgsFW_osmand_root_path.setFilePath(tmp_dir_name)
         QGuiApplication.restoreOverrideCursor()
+
+    # ------------------------------------------------------------------
+    # UI helpers
+    # ------------------------------------------------------------------
 
     def on_radio_button_toggled(self):
         self.label.show()
@@ -544,7 +592,6 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.qbGoMTP.hide()
             self.label.setText(self.tr('<html><head/><body><p><span style=" font-weight:600;">Select the OSMand'
                                        ' \'file\' directory on you computer:</span></p></body></html>'))
-
         elif self.rBdevice.isChecked():
             self.QgsFW_osmand_root_path.hide()
             self.QgsFW_osmand_root_path.setFilePath('')
@@ -559,7 +606,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             self.list_MTP_Devices()
 
     def clear_UI_items(self):
-        """Clear UI items."""
+        """Clear all UI items (device list, track table, path widgets, checkboxes)."""
         self.cBdeviceList.clear()
         self.tW_tracks.clearContents()
         self.tW_tracks.setRowCount(0)
@@ -568,17 +615,25 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             item.setEnabled(False)
             item.setChecked(False)
 
-    def kill_pid(self):
-        """
-        Find and kill kio/gvfs processes that lock USB devices on Linux.
-        see https://bugs.kde.org/show_bug.cgi?id=412257
-        """
+    def is_macdroid_installed(self):
+        return os.path.exists(self.APP_PATH)
+
+    def is_macdroid_running(self):
         try:
-            for desktop in ['kio', 'gvfs']:
-                pid = os.popen(f"pgrep -f '{desktop}'").read()
-                os.system("kill -9 " + pid)
-        except:
-            pass
+            result = subprocess.run(
+                ["pgrep", "-fx", f"/Applications/{self.APP_NAME}.app/Contents/MacOS/{self.APP_NAME}"],
+                capture_output=True, text=True)
+            return result.returncode == 0
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Issue when trying to see if macDroid is launched {e}",
+                                     self.plugin_name, level=Qgis.Critical)
+            return False
+
+    def launch_macdroid(self):
+        try:
+            subprocess.run(["open", "-a", self.APP_NAME], check=True)
+        except subprocess.CalledProcessError:
+            QgsMessageLog.logMessage("Failed to launch macDroid", self.plugin_name, level=Qgis.Critical)
 
     def clear_tracks_selection(self) -> None:
         self.tW_tracks.clearSelection()
@@ -594,7 +649,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.enable_ok_button()
 
     def osmand_root_path_changed(self) -> None:
-        """Called when source text area content changes."""
+        """Called when the source directory path changes."""
         self.tW_tracks.clearContents()
         self.tW_tracks.setRowCount(0)
         self.clearPB.setEnabled(False)
@@ -603,7 +658,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         if not os.path.isdir(self.QgsFW_osmand_root_path.filePath()):
             QgsMessageLog.logMessage(self.tr('Not a valid directory.'), self.plugin_name, level=Qgis.Critical)
         else:
-            # tracks table
+            # Tracks table
             try:
                 if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/tracks/rec/'):
                     QgsMessageLog.logMessage(self.tr('No valid OsmAnd tracks path.'), self.plugin_name,
@@ -619,10 +674,10 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         self.select_all_tracks()
                         QgsMessageLog.logMessage(self.tr('Found gpx file(s) to import.'), self.plugin_name,
                                                  level=Qgis.Info)
-            except:
+            except Exception:
                 QgsMessageLog.logMessage(self.tr('No gpx file to import.'), self.plugin_name, level=Qgis.Warning)
 
-            # checkbox favorites — fichier dans le sous-dossier favorites/
+            # Favorites checkbox — file is under favorites/favorites.gpx
             try:
                 with open(f'{self.QgsFW_osmand_root_path.filePath()}/favorites/favorites.gpx'):
                     QgsMessageLog.logMessage(self.tr('Found favorites.gpx.'), self.plugin_name, level=Qgis.Info)
@@ -633,7 +688,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 self.cB_favorites.setEnabled(False)
                 self.cB_favorites.setChecked(False)
 
-            # checkbox itinerary
+            # Itinerary checkbox
             try:
                 with open(f'{self.QgsFW_osmand_root_path.filePath()}/itinerary.gpx'):
                     QgsMessageLog.logMessage(self.tr('Found ./itinerary.gpx.'), self.plugin_name, level=Qgis.Info)
@@ -644,7 +699,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 self.cB_itinerary.setEnabled(False)
                 self.cB_itinerary.setChecked(False)
 
-            # checkbox AVnotes
+            # AVnotes checkbox
             try:
                 if not os.path.isdir(f'{self.QgsFW_osmand_root_path.filePath()}/avnotes/'):
                     QgsMessageLog.logMessage(self.tr('No valid OsmAnd avnotes path.'), self.plugin_name,
@@ -660,7 +715,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         self.cB_AVnotes.setChecked(True)
                         QgsMessageLog.logMessage(self.tr('Found OsmAnd AV note(s) to import.'), self.plugin_name,
                                                  level=Qgis.Info)
-            except:
+            except Exception:
                 QgsMessageLog.logMessage(self.tr('No AV note file(s) to import.'), self.plugin_name,
                                          level=Qgis.Warning)
 
@@ -668,10 +723,11 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def get_gpx_file_information(self, pattern: str) -> None:
         """
-        List files according to pattern and feed the dialog table.
-        :param pattern: a file pattern with directory (e.g. '/home/sylvain/test/*.gpx')
+        List files matching *pattern* and populate the track table.
+
+        :param pattern: A glob pattern with directory (e.g. '/home/user/test/*.gpx').
+        :type pattern: str
         """
-        # f est le chemin complet retourné par glob.glob
         for f in glob.glob(pattern):
             st = os.stat(f)
             self.add_gpx_file_table_row([os.path.basename(f),
@@ -700,7 +756,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                             or self.cB_itinerary.isChecked() \
                             or len(set(index.row() for index in self.tW_tracks.selectedIndexes())) > 0:
                         flag = True
-        except:
+        except Exception:
             pass
 
         try:  # Qt6
