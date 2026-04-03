@@ -260,7 +260,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 # For KIO the device is a short name (e.g. "Smini");
                 # for gvfs it is a full mount-point path.
                 # We display only the last path component for gvfs to keep the UI readable.
-                display_name = os.path.basename(device) if os.sep in device else device
+                display_name = client.get_display_name(device)
                 self.cBdeviceList.addItem(display_name, userData=device)
 
             self.qbGoMTP.setEnabled(True)
@@ -288,8 +288,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 return
 
             for device in devices:
-                # userData stores the device name used by MTPClient
-                self.cBdeviceList.addItem(device, userData=device)
+                display_name = client.get_display_name(device)
+                self.cBdeviceList.addItem(display_name, userData=device)
 
             self.qbGoMTP.setEnabled(True)
 

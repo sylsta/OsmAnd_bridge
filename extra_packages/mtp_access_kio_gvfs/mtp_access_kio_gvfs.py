@@ -37,15 +37,28 @@ from pathlib import Path
 def detect_backend() -> str | None:
     """Detect which MTP backend is running on the system.
 
+    Checks KIO (kiod5) first, then gvfs. For gvfs, the daemon
+    ``gvfsd-mtp`` may be running even when no device is yet mounted in the
+    filesystem — :func:`_gvfs_mtp_mounts` handles mounting automatically.
+
     Returns:
         ``'kio'``, ``'gvfs'``, or ``None`` if no backend is found.
     """
+    # KIO: kiod5 process owns the MTP device
     result = subprocess.run(['pgrep', '-a', 'kiod5'], capture_output=True, text=True)
     if result.stdout.strip():
         return 'kio'
+
+    # gvfs: gvfsd-mtp daemon running, or device already visible in gvfsd dir
     result = subprocess.run(['pgrep', '-a', 'gvfsd-mtp'], capture_output=True, text=True)
     if result.stdout.strip():
         return 'gvfs'
+
+    # gvfs fallback: daemon not running but mounts may already exist
+    # (can happen when gvfsd-mtp exited after mounting)
+    if _gvfs_mtp_mounts():
+        return 'gvfs'
+
     return None
 
 
@@ -147,17 +160,323 @@ def _kio_upload_recursive(src_local: Path, dst_kio: str) -> None:
 
 
 # ---------------------------------------------------------------------------
+# gio helpers (gvfs without filesystem mount — GDaemonMount via D-Bus)
+# ---------------------------------------------------------------------------
+
+def _gio_ls(uri: str) -> list[str]:
+    """List entries at a gvfs URI using ``gio list``.
+
+    Works even when the device is not mounted as a FUSE filesystem (i.e.
+    accessible via ``mtp://...`` URIs through D-Bus only).
+
+    Args:
+        uri: gvfs URI such as ``mtp://SAMSUNG_.../Stockage interne/``.
+
+    Returns:
+        List of entry names, filtering out empty lines.
+    """
+    result = subprocess.run(['gio', 'list', uri],
+                            capture_output=True, text=True)
+    return [line.strip() for line in result.stdout.splitlines()
+            if line.strip()]
+
+
+def _gio_is_dir(uri: str) -> bool:
+    """Return True if a gvfs URI points to a directory.
+
+    Uses ``gio info`` and checks ``standard::type``:
+    - type 2 = G_FILE_TYPE_DIRECTORY
+    - type 1 = G_FILE_TYPE_REGULAR
+
+    Args:
+        uri: gvfs URI to test.
+
+    Returns:
+        ``True`` if directory, ``False`` otherwise.
+    """
+    result = subprocess.run(['gio', 'info', uri],
+                            capture_output=True, text=True)
+    for line in result.stdout.splitlines():
+        if 'standard::type:' in line:
+            try:
+                return int(line.split(':')[-1].strip()) == 2
+            except ValueError:
+                pass
+    return False
+
+
+def _gio_copy_into(src_uri: str, dst_local: Path) -> None:
+    """Recursively copy the *contents* of a gvfs URI directory into a local path.
+
+    Each child of ``src_uri`` is placed directly inside ``dst_local``:
+    - files → ``dst_local/<filename>``
+    - dirs  → recurse into ``dst_local/<dirname>/``
+
+    Args:
+        src_uri:   gvfs URI of the source directory.
+        dst_local: Local directory that receives the contents.
+    """
+    dst_local.mkdir(parents=True, exist_ok=True)
+    entries = _gio_ls(src_uri.rstrip('/') + '/')
+
+    for entry in entries:
+        # URI-encode spaces and special chars minimally (gvfs handles most)
+        child_uri = src_uri.rstrip('/') + '/' + entry
+        child_local = dst_local / entry
+
+        if _gio_is_dir(child_uri):
+            _gio_copy_into(child_uri, child_local)
+        else:
+            print(f"  Copying {child_uri} -> {child_local}")
+            subprocess.run(
+                ['gio', 'copy', child_uri, str(child_local)],
+                check=True
+            )
+
+
+def _gio_upload_recursive(src_local: Path, dst_uri: str) -> None:
+    """Recursively upload a local file or directory to a gvfs URI.
+
+    Args:
+        src_local: Local path to upload.
+        dst_uri:   Destination gvfs URI.
+    """
+    if src_local.is_file():
+        print(f"  Uploading {src_local} -> {dst_uri}")
+        subprocess.run(['gio', 'copy', str(src_local), dst_uri], check=True)
+    elif src_local.is_dir():
+        for child in src_local.iterdir():
+            _gio_upload_recursive(child, dst_uri.rstrip('/') + '/' + child.name)
+
+
+# ---------------------------------------------------------------------------
 # gvfs helpers
 # ---------------------------------------------------------------------------
 
-def _gvfs_base() -> Path:
-    """Return the gvfs mount root for the current user."""
-    return Path(f"/run/user/{os.getuid()}/gvfsd/")
+def _gvfs_try_mount_devices() -> None:
+    """Attempt to mount all unmounted MTP devices visible to gvfs.
+
+    Uses ``gio mount -l`` to find MTP volumes that are detected but not yet
+    mounted, then mounts each one via ``udevadm`` + ``gio mount``.
+    This is needed because gvfs-detected devices only appear in the gvfsd
+    directory after an explicit mount.
+    """
+    try:
+        # Find MTP devices via udevadm (works regardless of desktop environment)
+        result = subprocess.run(['udevadm', 'info', '--export-db'],
+                                capture_output=True, text=True)
+        current_block: list[str] = []
+        for line in result.stdout.splitlines() + ['']:
+            if line == '':
+                block = chr(10).join(current_block)
+                if 'ID_MTP_DEVICE=1' in block and 'DEVTYPE=usb_device' in block:
+                    props: dict[str, str] = {}
+                    for l in current_block:
+                        if l.startswith('E: '):
+                            k, _, v = l[3:].partition('=')
+                            props[k] = v
+                    bus = props.get('BUSNUM', '').zfill(3)
+                    dev = props.get('DEVNUM', '').zfill(3)
+                    if bus and dev:
+                        uri = f'mtp://[usb:{bus},{dev}]/'
+                        subprocess.run(['gio', 'mount', uri],
+                                       capture_output=True, text=True)
+                current_block = []
+            else:
+                current_block.append(line)
+    except Exception:
+        pass
+
+
+def _gvfs_is_listable(path: Path) -> bool:
+    """Return True if *path* can actually be listed without error.
+
+    ``exists()`` / ``is_dir()`` raise OSError errno 107 (ENOTCONN) on stale
+    FUSE/gvfs mounts. Only ``os.listdir()`` tells us whether the path is
+    truly usable.
+
+    Args:
+        path: Path to test.
+
+    Returns:
+        ``True`` only if ``os.listdir(path)`` succeeds.
+    """
+    try:
+        os.listdir(path)
+        return True
+    except OSError:
+        return False
+
+
+def _gvfs_base() -> Path | None:
+    """Return the first listable gvfs mount root for the current user.
+
+    Tries every known directory variant (``gvfs``, ``gvfsd``) under
+    ``/run/user/<uid>/``. Returns the first one that can be listed without
+    raising OSError (errno 107 ENOTCONN occurs on stale mounts).
+
+    Returns:
+        A :class:`pathlib.Path` or ``None`` if none is usable.
+    """
+    uid = os.getuid()
+    for name in ('gvfs', 'gvfsd'):
+        p = Path(f"/run/user/{uid}/{name}/")
+        if _gvfs_is_listable(p):
+            return p
+    return None
+
+
+def _gvfs_list_mtp_uris() -> list[str]:
+    """Return MTP URIs of all devices detected or mounted by gvfs.
+
+    Parses ``gio mount -l`` output looking for:
+    - ``Mount(N): name -> mtp://...``  (already mounted)
+    - ``Volume(N): name / Type: GProxyVolumeMonitorMTP`` (detected, not mounted)
+
+    For unmounted volumes, :func:`_gvfs_mount_all_mtp` must be called first.
+    This function is the authoritative source because ``gvfsd/mtp*`` only
+    appears after FUSE mount, which may never happen for GDaemonMount devices.
+
+    Returns:
+        List of unique ``mtp://...`` URI strings.
+    """
+    try:
+        result = subprocess.run(['gio', 'mount', '-l'],
+                                capture_output=True, text=True)
+        uris: list[str] = []
+        for line in result.stdout.splitlines():
+            stripped = line.strip()
+            # Any line with "-> mtp://" contains a mounted MTP URI
+            if '->' in stripped and 'mtp://' in stripped:
+                uri = 'mtp://' + stripped.split('mtp://')[1].strip()
+                if uri not in uris:
+                    uris.append(uri)
+        return uris
+    except Exception:
+        return []
+
+
+def _gvfs_get_display_name(uri: str) -> str:
+    """Return the display name of a gvfs MTP device from its URI.
+
+    Uses ``gio info`` to read ``standard::display-name``.
+    The output line looks like::
+
+        standard::display-name: SylTab
+
+    so we split on ``standard::display-name:`` and take the right part.
+
+    Args:
+        uri: gvfs MTP URI (e.g. ``mtp://SAMSUNG_.../``).
+
+    Returns:
+        Display name (e.g. ``'SylTab'``) or the raw URI if not found.
+    """
+    try:
+        result = subprocess.run(['gio', 'info', uri],
+                                capture_output=True, text=True)
+        for line in result.stdout.splitlines():
+            if 'standard::display-name:' in line:
+                # Line format: "  standard::display-name: SylTab"
+                # Split on the key including its colon to get only the value.
+                return line.split('standard::display-name:')[1].strip()
+    except Exception:
+        pass
+    return uri
+
+
+def _gvfs_mount_all_mtp() -> None:
+    """Mount all MTP devices detected by gvfs but not yet mounted.
+
+    Strategy 1: use ``gio mount -l`` to find already-known URIs and mount them.
+    Strategy 2: use ``udevadm`` to find MTP USB devices by BUSNUM/DEVNUM
+                and build ``mtp://[usb:BUS,DEV]/`` URIs directly.
+
+    Both strategies call ``gio mount <uri>`` which is idempotent (safe to
+    call on already-mounted devices).
+    """
+    uris: set[str] = set()
+
+    # Strategy 1: URIs from gio mount -l (already-known volumes)
+    try:
+        result = subprocess.run(['gio', 'mount', '-l'],
+                                capture_output=True, text=True)
+        in_mtp = False
+        for line in result.stdout.splitlines():
+            s = line.strip()
+            if 'GProxyVolumeMonitorMTP' in s:
+                in_mtp = True
+            elif in_mtp:
+                # Mounted volumes show "Mount(N): name -> mtp://..."
+                if '->' in s and 'mtp://' in s:
+                    uri = 'mtp://' + s.split('mtp://')[1].strip()
+                    uris.add(uri)
+                    in_mtp = False
+                elif s == '' or s.startswith('Drive') or s.startswith('Volume'):
+                    in_mtp = False
+    except Exception:
+        pass
+
+    # Strategy 2: USB bus/device numbers from udevadm
+    try:
+        result = subprocess.run(['udevadm', 'info', '--export-db'],
+                                capture_output=True, text=True)
+        block: list[str] = []
+        for line in result.stdout.splitlines() + ['']:
+            if line == '':
+                text = chr(10).join(block)
+                if 'ID_MTP_DEVICE=1' in text and 'DEVTYPE=usb_device' in text:
+                    props: dict[str, str] = {}
+                    for bl in block:
+                        if bl.startswith('E: '):
+                            k, _, v = bl[3:].partition('=')
+                            props[k] = v
+                    bus = props.get('BUSNUM', '').zfill(3)
+                    dev = props.get('DEVNUM', '').zfill(3)
+                    if bus and dev:
+                        uris.add(f'mtp://[usb:{bus},{dev}]/')
+                block = []
+            else:
+                block.append(line)
+    except Exception:
+        pass
+
+    # Mount all found URIs
+    for uri in uris:
+        try:
+            subprocess.run(['gio', 'mount', uri],
+                           capture_output=True, text=True, timeout=10)
+        except Exception:
+            pass
 
 
 def _gvfs_mtp_mounts() -> list[Path]:
-    """Find all mounted MTP devices under gvfsd."""
-    return [Path(p) for p in glob.glob(str(_gvfs_base() / "mtp*"))]
+    """Return paths to all MTP devices currently mounted in the gvfs directory.
+
+    If no mounts are found initially, attempts to trigger mounting via
+    :func:`_gvfs_mount_all_mtp` and checks again.
+
+    Returns:
+        List of :class:`pathlib.Path` objects, one per mounted MTP device.
+    """
+    base = _gvfs_base()
+    if base is not None:
+        mounts = [Path(p) for p in glob.glob(str(base / "mtp*"))
+                  if _gvfs_is_listable(Path(p))]
+        if mounts:
+            return mounts
+
+    # No mounts found — try to trigger mounting and recheck
+    _gvfs_mount_all_mtp()
+
+    base = _gvfs_base()
+    if base is None:
+        return []
+    try:
+        return [Path(p) for p in glob.glob(str(base / "mtp*"))
+                if _gvfs_is_listable(Path(p))]
+    except OSError:
+        return []
 
 
 # ---------------------------------------------------------------------------
@@ -192,12 +511,35 @@ class MTPClient:
     def list_devices(self) -> list[str]:
         """Return connected MTP device identifiers.
 
+        For KIO : short device names (e.g. ``'Smini'``).
+        For gvfs: ``mtp://...`` URIs as reported by ``gio mount -l``.
+                  These work whether the device is mounted as a FUSE
+                  filesystem or only as a GDaemonMount (D-Bus only).
+
         Returns:
-            List of device names (KIO) or mount-point paths (gvfs).
+            List of device identifiers.
         """
         if self.backend == 'kio':
             return _kio_ls('mtp:/')
-        return [str(p) for p in _gvfs_mtp_mounts()]
+        # gvfs: use URIs — they always work regardless of mount type
+        return _gvfs_list_mtp_uris()
+
+    def get_display_name(self, device: str) -> str:
+        """Return a human-readable name for a device identifier.
+
+        For KIO  : the device name is already human-readable (e.g. ``'Smini'``).
+        For gvfs : reads ``standard::display-name`` via ``gio info``
+                   (e.g. ``'SylTab'`` from ``mtp://SAMSUNG_.../``).
+
+        Args:
+            device: Device identifier as returned by :meth:`list_devices`.
+
+        Returns:
+            Display name string, falling back to the raw identifier.
+        """
+        if self.backend == 'kio':
+            return device
+        return _gvfs_get_display_name(device)
 
     def list_root_folders(self) -> dict[str, list[str]]:
         """Return root-level folders for every connected device.
@@ -211,7 +553,7 @@ class MTPClient:
         """List the contents of a folder on an MTP device.
 
         Args:
-            device: Device identifier.
+            device: Device identifier. For gvfs this is a ``mtp://`` URI.
             path:   Relative path on the device (empty string for root).
 
         Returns:
@@ -221,12 +563,11 @@ class MTPClient:
             kio_path = f"mtp:/{device}/{path}" if path else f"mtp:/{device}"
             return _kio_ls(kio_path)
 
-        full_path = Path(device) / path if path else Path(device)
-        try:
-            return os.listdir(full_path)
-        except (PermissionError, FileNotFoundError) as exc:
-            print(f"[MTPClient] Cannot list {full_path}: {exc}")
-            return []
+        # gvfs: always use gio (works for both FUSE and GDaemonMount)
+        uri = device.rstrip('/')
+        if path:
+            uri = uri + '/' + path
+        return _gio_ls(uri + '/')
 
     # ------------------------------------------------------------------
     # Copy: device → host
@@ -260,15 +601,15 @@ class MTPClient:
         - File: ``dst_exact`` is the resulting file path.
 
         Args:
-            device:    Device identifier.
+            device:    Device identifier. For gvfs: ``mtp://`` URI.
             src_path:  Relative path on the device.
             dst_exact: Exact local destination path.
 
         Example::
 
             client.copy_from_device_to_exact(
-                'Smini',
-                'Espace de stockage interne partagé/…/files/tracks/rec',
+                'mtp://SAMSUNG_SAMSUNG_Android_R5GYB0ALMGV/',
+                'Stockage interne/Android/data/net.osmand.plus/files/tracks/rec',
                 '/tmp/osmand/tracks/rec'
             )
             # → /tmp/osmand/tracks/rec/2026-01-31.gpx  etc.
@@ -278,7 +619,6 @@ class MTPClient:
         if self.backend == 'kio':
             kio_src = f"mtp:/{device}/{src_path}"
             if _kio_is_dir(kio_src):
-                # Copy contents of kio_src directly into dst
                 _kio_copy_into(kio_src, dst)
             else:
                 dst.parent.mkdir(parents=True, exist_ok=True)
@@ -288,13 +628,14 @@ class MTPClient:
                     check=True
                 )
 
-        else:  # gvfs
-            src = Path(device) / src_path
-            if src.is_dir():
-                shutil.copytree(str(src), str(dst), dirs_exist_ok=True)
+        else:  # gvfs — always use gio (works for GDaemonMount and FUSE)
+            uri = device.rstrip('/') + '/' + src_path
+            if _gio_is_dir(uri):
+                _gio_copy_into(uri, dst)
             else:
                 dst.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(str(src), str(dst))
+                print(f"  Copying {uri} -> {dst}")
+                subprocess.run(['gio', 'copy', uri, str(dst)], check=True)
 
     # ------------------------------------------------------------------
     # Copy: host → device
@@ -305,12 +646,14 @@ class MTPClient:
 
         Args:
             src_local: Local source path.
-            device:    Device identifier.
+            device:    Device identifier. For gvfs: ``mtp://`` URI.
             dst_path:  Relative destination path on the device.
 
         Example::
 
-            client.copy_to_device('/tmp/report.pdf', 'Smini', 'Documents/report.pdf')
+            client.copy_to_device('/tmp/report.pdf',
+                                  'mtp://SAMSUNG_.../',
+                                  'Stockage interne/Documents/report.pdf')
         """
         src = Path(src_local)
         if not src.exists():
@@ -318,13 +661,9 @@ class MTPClient:
 
         if self.backend == 'kio':
             _kio_upload_recursive(src, f"mtp:/{device}/{dst_path}")
-        else:
-            dst = Path(device) / dst_path
-            if src.is_dir():
-                shutil.copytree(str(src), str(dst), dirs_exist_ok=True)
-            else:
-                dst.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(str(src), str(dst))
+        else:  # gvfs — use gio
+            dst_uri = device.rstrip('/') + '/' + dst_path
+            _gio_upload_recursive(src, dst_uri)
 
 
 # ---------------------------------------------------------------------------
