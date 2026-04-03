@@ -308,22 +308,36 @@ def _gvfs_is_listable(path: Path) -> bool:
         return False
 
 
-def _gvfs_base() -> Path | None:
-    """Return the first listable gvfs mount root for the current user.
+def _gvfs_all_bases() -> list[Path]:
+    """Return all listable gvfs mount directories for the current user.
 
-    Tries every known directory variant (``gvfs``, ``gvfsd``) under
-    ``/run/user/<uid>/``. Returns the first one that can be listed without
-    raising OSError (errno 107 ENOTCONN occurs on stale mounts).
+    Different desktop environments use different directory names:
+    - GNOME / Ubuntu : ``/run/user/<uid>/gvfs/``
+    - XFCE / others  : ``/run/user/<uid>/gvfsd/``
+    - Some systems   : both may exist
+
+    All variants that are actually listable are returned (not just the first).
+
+    Returns:
+        List of listable :class:`pathlib.Path` directories (may be empty).
+    """
+    uid = os.getuid()
+    result = []
+    for name in ('gvfs', 'gvfsd'):
+        p = Path(f"/run/user/{uid}/{name}/")
+        if _gvfs_is_listable(p):
+            result.append(p)
+    return result
+
+
+def _gvfs_base() -> Path | None:
+    """Return the first listable gvfs mount root (for backward compat).
 
     Returns:
         A :class:`pathlib.Path` or ``None`` if none is usable.
     """
-    uid = os.getuid()
-    for name in ('gvfs', 'gvfsd'):
-        p = Path(f"/run/user/{uid}/{name}/")
-        if _gvfs_is_listable(p):
-            return p
-    return None
+    bases = _gvfs_all_bases()
+    return bases[0] if bases else None
 
 
 def _gvfs_list_mtp_uris() -> list[str]:
@@ -450,33 +464,53 @@ def _gvfs_mount_all_mtp() -> None:
             pass
 
 
-def _gvfs_mtp_mounts() -> list[Path]:
-    """Return paths to all MTP devices currently mounted in the gvfs directory.
+def _gvfs_scan_mtp_in_bases(bases: list[Path]) -> list[Path]:
+    """Scan a list of gvfs base directories for MTP mount points.
 
-    If no mounts are found initially, attempts to trigger mounting via
-    :func:`_gvfs_mount_all_mtp` and checks again.
+    MTP mount points can be named:
+    - ``mtp:host=SAMSUNG_...``      (GNOME, unencoded)
+    - ``mtp:host%3DSAMSUNG_...``    (URL-encoded variant)
+    - ``mtp:[usb:003,022]``         (USB bus/device format)
+
+    All entries whose name starts with ``mtp`` and that are listable
+    are returned.
+
+    Args:
+        bases: List of candidate gvfs base directories.
+
+    Returns:
+        List of listable MTP mount :class:`pathlib.Path` objects.
+    """
+    mounts: list[Path] = []
+    for base in bases:
+        try:
+            for entry in base.iterdir():
+                if entry.name.startswith('mtp') and _gvfs_is_listable(entry):
+                    mounts.append(entry)
+        except OSError:
+            pass
+    return mounts
+
+
+def _gvfs_mtp_mounts() -> list[Path]:
+    """Return paths to all MTP devices currently mounted in any gvfs directory.
+
+    Scans all known gvfs base directories (``gvfs``, ``gvfsd``). If nothing
+    is found, attempts to trigger mounting via :func:`_gvfs_mount_all_mtp`
+    and rescans.
 
     Returns:
         List of :class:`pathlib.Path` objects, one per mounted MTP device.
     """
-    base = _gvfs_base()
-    if base is not None:
-        mounts = [Path(p) for p in glob.glob(str(base / "mtp*"))
-                  if _gvfs_is_listable(Path(p))]
-        if mounts:
-            return mounts
+    bases = _gvfs_all_bases()
+    mounts = _gvfs_scan_mtp_in_bases(bases)
+    if mounts:
+        return mounts
 
-    # No mounts found — try to trigger mounting and recheck
+    # Nothing found — try to trigger mounting and rescan
     _gvfs_mount_all_mtp()
-
-    base = _gvfs_base()
-    if base is None:
-        return []
-    try:
-        return [Path(p) for p in glob.glob(str(base / "mtp*"))
-                if _gvfs_is_listable(Path(p))]
-    except OSError:
-        return []
+    bases = _gvfs_all_bases()
+    return _gvfs_scan_mtp_in_bases(bases)
 
 
 # ---------------------------------------------------------------------------
@@ -521,25 +555,51 @@ class MTPClient:
         """
         if self.backend == 'kio':
             return _kio_ls('mtp:/')
-        # gvfs: use URIs — they always work regardless of mount type
+        # gvfs strategy:
+        # 1. Prefer FUSE filesystem mounts (gvfs/ or gvfsd/) — direct path access,
+        #    works on GNOME Ubuntu (gvfs/mtp:host=...) and XFCE (gvfsd/mtp:...)
+        # 2. Fall back to mtp:// URIs via gio — works when device is a GDaemonMount
+        #    (D-Bus only, no FUSE mount), seen on some GNOME/Wayland setups
+        mounts = _gvfs_mtp_mounts()
+        if mounts:
+            return [str(p) for p in mounts]
         return _gvfs_list_mtp_uris()
 
     def get_display_name(self, device: str) -> str:
         """Return a human-readable name for a device identifier.
 
-        For KIO  : the device name is already human-readable (e.g. ``'Smini'``).
-        For gvfs : reads ``standard::display-name`` via ``gio info``
-                   (e.g. ``'SylTab'`` from ``mtp://SAMSUNG_.../``).
+        For KIO              : the device name is already human-readable.
+        For gvfs (URI)       : reads ``standard::display-name`` via ``gio info``.
+        For gvfs (FUSE path) : reads display name via ``gio info`` on the
+                               equivalent ``mtp://`` URI, extracted from the
+                               path name (e.g. ``mtp:host=SAMSUNG_...``
+                               → ``mtp://SAMSUNG_.../``).
 
         Args:
             device: Device identifier as returned by :meth:`list_devices`.
 
         Returns:
-            Display name string, falling back to the raw identifier.
+            Display name string, falling back to the basename of the path.
         """
         if self.backend == 'kio':
             return device
-        return _gvfs_get_display_name(device)
+        if device.startswith('mtp://'):
+            return _gvfs_get_display_name(device)
+        # FUSE path: extract device name from directory name
+        # e.g. /run/user/1000/gvfs/mtp:host=SAMSUNG_SAMSUNG_Android_R5GYB0ALMGV
+        # → try gio info on the equivalent URI first
+        dir_name = Path(device).name  # e.g. "mtp:host=SAMSUNG_..."
+        if dir_name.startswith('mtp:host='):
+            host = dir_name[len('mtp:host='):]
+            uri = f'mtp://{host}/'
+            name = _gvfs_get_display_name(uri)
+            if name != uri:
+                return name
+        # Final fallback: use the host part of the directory name
+        for prefix in ('mtp:host=', 'mtp:host%3D'):
+            if dir_name.startswith(prefix):
+                return dir_name[len(prefix):]
+        return Path(device).name
 
     def list_root_folders(self) -> dict[str, list[str]]:
         """Return root-level folders for every connected device.
@@ -563,11 +623,20 @@ class MTPClient:
             kio_path = f"mtp:/{device}/{path}" if path else f"mtp:/{device}"
             return _kio_ls(kio_path)
 
-        # gvfs: always use gio (works for both FUSE and GDaemonMount)
-        uri = device.rstrip('/')
-        if path:
-            uri = uri + '/' + path
-        return _gio_ls(uri + '/')
+        # gvfs: use filesystem access for FUSE mounts, gio for GDaemonMount URIs
+        if device.startswith('mtp://'):
+            # GDaemonMount (D-Bus) — use gio
+            uri = device.rstrip('/')
+            if path:
+                uri = uri + '/' + path
+            return _gio_ls(uri + '/')
+        # FUSE mount — direct filesystem access
+        full_path = Path(device) / path if path else Path(device)
+        try:
+            return os.listdir(full_path)
+        except OSError as exc:
+            print(f"[MTPClient] Cannot list {full_path}: {exc}")
+            return []
 
     # ------------------------------------------------------------------
     # Copy: device → host
@@ -628,14 +697,25 @@ class MTPClient:
                     check=True
                 )
 
-        else:  # gvfs — always use gio (works for GDaemonMount and FUSE)
-            uri = device.rstrip('/') + '/' + src_path
-            if _gio_is_dir(uri):
-                _gio_copy_into(uri, dst)
+        else:  # gvfs
+            if device.startswith('mtp://'):
+                # GDaemonMount (D-Bus only) — use gio
+                uri = device.rstrip('/') + '/' + src_path
+                if _gio_is_dir(uri):
+                    _gio_copy_into(uri, dst)
+                else:
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    print(f"  Copying {uri} -> {dst}")
+                    subprocess.run(['gio', 'copy', uri, str(dst)], check=True)
             else:
-                dst.parent.mkdir(parents=True, exist_ok=True)
-                print(f"  Copying {uri} -> {dst}")
-                subprocess.run(['gio', 'copy', uri, str(dst)], check=True)
+                # FUSE mount — direct filesystem access (faster, more reliable)
+                src = Path(device) / src_path
+                if src.is_dir():
+                    shutil.copytree(str(src), str(dst), dirs_exist_ok=True)
+                else:
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    print(f"  Copying {src} -> {dst}")
+                    shutil.copy2(str(src), str(dst))
 
     # ------------------------------------------------------------------
     # Copy: host → device
@@ -661,9 +741,19 @@ class MTPClient:
 
         if self.backend == 'kio':
             _kio_upload_recursive(src, f"mtp:/{device}/{dst_path}")
-        else:  # gvfs — use gio
-            dst_uri = device.rstrip('/') + '/' + dst_path
-            _gio_upload_recursive(src, dst_uri)
+        else:  # gvfs
+            if device.startswith('mtp://'):
+                # GDaemonMount — use gio
+                dst_uri = device.rstrip('/') + '/' + dst_path
+                _gio_upload_recursive(src, dst_uri)
+            else:
+                # FUSE mount — direct filesystem access
+                dst = Path(device) / dst_path
+                if src.is_dir():
+                    shutil.copytree(str(src), str(dst), dirs_exist_ok=True)
+                else:
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(str(src), str(dst))
 
 
 # ---------------------------------------------------------------------------
