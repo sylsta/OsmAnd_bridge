@@ -55,6 +55,16 @@ elif platform.system() == 'Windows':
         from .extra_packages.mtp_access_windows.mtp_access_windows import MTPClient
     except Exception as _mtp_import_error:
         MTPClient = None
+        # Log the actual error so the cause is visible in the QGIS message log.
+        # Common causes: comtypes not installed in QGIS's Python environment,
+        # wrong extra_packages path, or a missing Windows DLL.
+        try:
+            from qgis.core import QgsMessageLog, Qgis
+            QgsMessageLog.logMessage(
+                f"OsmAnd bridge: mtp_access_windows import failed — {type(_mtp_import_error).__name__}: {_mtp_import_error}",
+                'OsmAnd bridge', level=Qgis.Warning)
+        except Exception:
+            pass  # QgsMessageLog not yet available at module import time
 
 # Loads .ui
 try:  # Qt5 — resource_suffix does not exist in Qt6
@@ -365,7 +375,12 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             # Create a temporary directory; sub-directories are created on demand
             # by copy_from_device_to_exact, except tracks/rec which needs its
             # parent created first.
-            tmp_dir_name = tempfile.TemporaryDirectory().name
+            # Store the TemporaryDirectory object in self so it is NOT
+            # garbage-collected before the copy completes.  Without this,
+            # Python immediately destroys the object (and the directory)
+            # because no reference is kept.
+            self._tmp_dir = tempfile.TemporaryDirectory()
+            tmp_dir_name  = self._tmp_dir.name
             os.makedirs(tmp_dir_name + '/tracks/rec', exist_ok=True)
 
         # ==============================================================
