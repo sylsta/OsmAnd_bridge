@@ -204,9 +204,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.title_cant_connect = self.tr("Can't connect to device...")
         self.message_cant_connect = self.tr(
             "Check that it is properly connected and unlocked.\n Try unplugging "
-            "and replugging it.")
+            "and replugging it. Consider disabling ADB.")
         self.title_no_device_found = self.tr('No device found!')
-        self.message_no_device_found = self.tr("Check that your device is properly connected and unlocked.\n"
+        self.message_no_device_found = self.tr("Check that your device is properly connected and unlocked. Consider disabling ADB.\n"
                                                "You can press left button to refresh devices list or to restart QGIS.")
 
         # Windows: MTPClient is imported from mtp_access_windows (WPD COM API).

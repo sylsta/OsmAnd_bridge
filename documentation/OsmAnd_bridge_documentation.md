@@ -400,4 +400,4 @@ Utilisez **Extensions → OsmAnd bridge → Reset saved settings** pour effacer 
 
 ---
 
-*Documentation générée pour OsmAnd bridge — © 2022-2025 Sylvain Théry, UMR 5281 ART-Dev (CNRS) — Licence GPL v2+*
+*Documentation générée pour OsmAnd bridge — © 2022-2026 Sylvain Théry, UMR 5281 ART-Dev (CNRS) — Licence GPL v2+*
