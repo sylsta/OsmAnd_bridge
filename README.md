@@ -34,7 +34,7 @@ https://www.macdroid.app/
  
 
 
-This plugin has been tested with QGIS 3.4x, under:  
+This plugin has been tested with QGIS 3.44, and QGIS 4.0 under:  
 - GNU/Linux Debian 12 & 13 with KDE, Gnome and XFCE;  
 - Windows 11 in a VM;  
 - macOS Catalina in a VM. 
