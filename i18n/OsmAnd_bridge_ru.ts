@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr_FR">
+<TS version="2.1" language="ru_RU">
 <context>
     <name />
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="68" />
         <source>Audio notes</source>
-        <translation>Notes audio</translation>
+        <translation>Аудиозаписи</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="75" />
         <source>Video notes</source>
-        <translation>Notes vidéo</translation>
+        <translation>Видеозаписи</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="82" />
         <source>Picture notes</source>
-        <translation>Notes photo</translation>
+        <translation>Фотозаписи</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="134" />
         <source>Audiovisual notes</source>
-        <translation>Notes audiovisuelles</translation>
+        <translation>Аудиовизуальные заметки</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="159" />
         <source>Open file</source>
-        <translation>Ouvrir le fichier</translation>
+        <translation>Открыть файл</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="191" />
         <source>Waypoints</source>
-        <translation>Waypoints</translation>
+        <translation>Точки маршрута</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="191" />
         <source>Routes</source>
-        <translation>Routes</translation>
+        <translation>Маршруты</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="191" />
         <source>Tracks</source>
-        <translation>Traces</translation>
+        <translation>Треки</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="192" />
         <source>Route points</source>
-        <translation>Points de route</translation>
+        <translation>Точки маршрута</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="192" />
         <source>Track points</source>
-        <translation>Points de trace</translation>
+        <translation>Точки трека</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="220" />
         <source>favorites</source>
-        <translation>favoris</translation>
+        <translation>избранное</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_process.py" line="222" />
         <source>Itinerary</source>
-        <translation>Itinéraire</translation>
+        <translation>Маршрут</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_settings_management.py" line="79" />
         <source>Don't show this message again</source>
-        <translation>Ne plus afficher ce message</translation>
+        <translation>Больше не показывать это сообщение</translation>
     </message>
 </context>
 <context>
@@ -74,22 +74,22 @@
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="17" />
         <source>OsmAnd bridge - Select items to import </source>
-        <translation>OsmAnd bridge - Sélectionnez les éléments à importer </translation>
+        <translation>OsmAnd bridge - Выберите элементы для импорта </translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="117" />
         <source>Favorites</source>
-        <translation>Favoris</translation>
+        <translation>Избранное</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="139" />
         <source>Itinerary</source>
-        <translation>Itinéraire</translation>
+        <translation>Маршрут</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="158" />
         <source>AVnotes</source>
-        <translation>Notes audiovisuelles</translation>
+        <translation>AV-заметки</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="171" />
@@ -99,52 +99,52 @@
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="190" />
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Select the track(s) you want to download:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Sélectionnez les traces à télécharger :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Выберите треки для загрузки:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="203" />
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Select the point feature(s) you want to download:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Sélectionnez les couches ponctuelles que vous voulez télécharger :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Выберите точечные слои для загрузки:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="216" />
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Choose the destination folder on your computer:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Choisissez le répertoire de destination sur votre ordinateur :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Выберите папку назначения на компьютере:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="248" />
         <source>Device</source>
-        <translation>un appareil Android</translation>
+        <translation>Устройство Android</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="264" />
         <source>Local directory</source>
-        <translation>un répertoire local</translation>
+        <translation>Локальная папка</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="280" />
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Import &lt;/span&gt;&lt;a href="https://osmand.net/"&gt;&lt;span style=" font-weight:600; text-decoration: underline; color:#1d99f3;"&gt;OsmAnd&lt;/span&gt;&lt;/a&gt;&lt;span style=" font-weight:600;"&gt; data from:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Importer les données &lt;/span&gt;&lt;a href="https://osmand.net/"&gt;&lt;span style=" font-weight:600; text-decoration: underline; color:#1d99f3;"&gt;OsmAnd&lt;/span&gt;&lt;/a&gt;&lt;span style=" font-weight:600;"&gt; depuis :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Импортировать &lt;/span&gt;&lt;a href="https://osmand.net/"&gt;&lt;span style=" font-weight:600; text-decoration: underline; color:#1d99f3;"&gt;OsmAnd&lt;/span&gt;&lt;/a&gt;&lt;span style=" font-weight:600;"&gt; данные из:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="296" />
         <source>Clear selection</source>
-        <translation>Effacer la sélection</translation>
+        <translation>Снять выделение</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="312" />
         <source>Select All</source>
-        <translation>Sélectionner tout</translation>
+        <translation>Выбрать всё</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="328" />
         <source>Refresh device list</source>
-        <translation>Rafraîchir la liste des appareils</translation>
+        <translation>Обновить список устройств</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.ui" line="354" />
         <source>Search for OsmAnd files</source>
-        <translation>Recherche des fichiers OsmAnd</translation>
+        <translation>Поиск файлов OsmAnd</translation>
     </message>
 </context>
 <context>
@@ -157,74 +157,74 @@
     <message>
         <location filename="../OsmAnd_bridge.py" line="159" />
         <source>Import tracks, favorites, itinerary and AV notes</source>
-        <translation>Import de traces, favoris, marques et notes audios, vidéos et photos</translation>
+        <translation>Импорт треков, избранного, маршрутов и AV-заметок</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="164" />
         <source>Reset saved settings</source>
-        <translation>Réinitialiser les paramètres sauvegardés</translation>
+        <translation>Сбросить сохранённые настройки</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="170" />
         <source>Help</source>
-        <translation>Aide</translation>
+        <translation>Справка</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="215" />
         <source>Warning</source>
-        <translation>Attention</translation>
+        <translation>Предупреждение</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="216" />
         <source>This plugin uses libraries known to be unstable to access devices (MTP protocol). 
 In rare cases, it can cause Qgis to crash.</source>
-        <translation>Pour accéder aux appareils, cette extension utilise des librairies qui peuvent être instables (protocole MTP).
-Dans de rares cas, cela peut faire planter QGIS.</translation>
+        <translation>Этот плагин использует библиотеки, известные нестабильностью при доступе к устройствам (протокол MTP).
+В редких случаях это может привести к аварийному завершению QGIS.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="260" />
         <source>Issue when trying to create destination geopackage file ({self.dest_gpkg})</source>
-        <translation>Impossible de créer le geopackage de destination ({self.dest_gpkg})</translation>
+        <translation>Ошибка при создании файла geopackage назначения ({self.dest_gpkg})</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="274" />
         <source>Importing favorites ({file})</source>
-        <translation>Import des favoris ({file})</translation>
+        <translation>Импорт избранного ({file})</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="280" />
         <source>Something went wrong while importing favorites ({file})</source>
-        <translation>Un problème a été rencontré lors de l'import des favoris ({file})</translation>
+        <translation>Ошибка при импорте избранного ({file})</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="289" />
         <source>Importing itinerary ({file})</source>
-        <translation>Import de l'itinéraire ({file})</translation>
+        <translation>Импорт маршрута ({file})</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="295" />
         <source>Something went wrong while importing itinerary ({file})</source>
-        <translation>Un problème a été rencontré lors de l'import de l'itinéraire ({file})</translation>
+        <translation>Ошибка при импорте маршрута ({file})</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="306" />
         <source>Importing track files...</source>
-        <translation>Import des fichiers de trace...</translation>
+        <translation>Импорт файлов треков...</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="325" />
         <source>Something went wrong while importing {currentQTableWidgetItem.text()}</source>
-        <translation>Un problème a été rencontré lors de l'import de {currentQTableWidgetItem.text()}</translation>
+        <translation>Ошибка при импорте {currentQTableWidgetItem.text()}</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="337" />
         <source>Map background</source>
-        <translation>Fond de carte</translation>
+        <translation>Фон карты</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="339" />
         <source>No internet connection. Unable to load OSM tile background</source>
-        <translation>Pas de connexion Internet. Impossible de charger le fond de carte OSM</translation>
+        <translation>Нет подключения к интернету. Невозможно загрузить фон карты OSM</translation>
     </message>
 </context>
 <context>
@@ -232,150 +232,150 @@ Dans de rares cas, cela peut faire planter QGIS.</translation>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="133" />
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="133" />
         <source>Size</source>
-        <translation>Taille</translation>
+        <translation>Размер</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="133" />
         <source>Last Modified</source>
-        <translation>Dernière modification</translation>
+        <translation>Дата изменения</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="204" />
         <source>Can't connect to device...</source>
-        <translation>Impossible de se connecter à l'appareil...</translation>
+        <translation>Невозможно подключиться к устройству...</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="205" />
         <source>Check that it is properly connected and unlocked.
  Try unplugging and replugging it. Consider disabling ADB.</source>
-        <translation>Vérifiez qu'il est correctement connecté et déverrouillé.
- Essayez de le débrancher et de le rebrancher. Pensez à désactiver ADB.</translation>
+        <translation>Убедитесь, что устройство правильно подключено и разблокировано.
+ Попробуйте отключить и снова подключить его. Рассмотрите отключение ADB.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="208" />
         <source>No device found!</source>
-        <translation>Aucun appareil trouvé !</translation>
+        <translation>Устройства не найдены!</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="209" />
         <source>Check that your device is properly connected and unlocked. Consider disabling ADB.
 You can press left button to refresh devices list or to restart QGIS.</source>
-        <translation>Vérifiez que votre appareil est correctement connecté et déverrouillé. Pensez à désactiver ADB.
-Vous pouvez appuyer sur le bouton gauche pour rafraîchir la liste des appareils ou redémarrer QGIS.</translation>
+        <translation>Убедитесь, что устройство правильно подключено и разблокировано. Рассмотрите отключение ADB.
+Нажмите левую кнопку для обновления списка устройств или перезапуска QGIS.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="348" />
         <source>Warning</source>
-        <translation>Attention</translation>
+        <translation>Предупреждение</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="329" />
         <source>This plugin needs MacDroid (even Free version) to access MTP Device. Please consider installing it.See &lt;a href='https://www.macdroid.app/fr/downloads/'&gt;https://www.macdroid.app/fr/downloads&lt;/a&gt;</source>
-        <translation>Cette extension a besoin de MacDroid (même la version gratuite) pour accéder à l'appareil Android. Pensez à l'installer. &lt;a href='https://www.macdroid.app/fr/downloads/'&gt;https://www.macdroid.app/fr/downloads&lt;/a&gt;</translation>
+        <translation>Этому плагину требуется MacDroid (даже бесплатная версия) для доступа к MTP-устройству. Рекомендуется установить. &lt;a href='https://www.macdroid.app/fr/downloads/'&gt;https://www.macdroid.app/fr/downloads&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="349" />
         <source>, especially under GNU/Linux :(</source>
-        <translation>, particulièrement sous GNU/Linux :(</translation>
+        <translation>, особенно в GNU/Linux :(</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="350" />
         <source>Be patient! 
 This operation can take several minutes{mtpy_msg}.
 In rare cases, it can cause Qgis to crash.</source>
-        <translation>Soyez patient !
-Cette opération peut prendre plusieurs minutes{mtpy_msg}.
-En de rares occasions, cela peut faire planter QGIS.</translation>
+        <translation>Подождите!
+Эта операция может занять несколько минут{mtpy_msg}.
+В редких случаях это может привести к аварийному завершению QGIS.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="556" />
         <source>No files found</source>
-        <translation>Aucun fichier trouvé</translation>
+        <translation>Файлы не найдены</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="512" />
         <source>OsmAnd files could not be found on {selected_device}. Check that MTP transport is selected on it. As a last resort, copy files to your hard disk and import them into QGIS from the local directory.</source>
-        <translation>Les fichiers OsmAnd n'ont pas pu être trouvés sur {selected_device}. Vérifiez que le transport MTP est sélectionné. En dernier recours, copiez les fichiers sur votre disque dur et importez-les dans QGIS depuis le répertoire local.</translation>
+        <translation>Файлы OsmAnd не найдены на {selected_device}. Убедитесь, что выбран транспорт MTP. В крайнем случае скопируйте файлы на жёсткий диск и импортируйте их в QGIS из локальной папки.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="557" />
         <source>OsmAnd files could not be found on {self.cBdeviceList.currentText()}. Try copying the files to your hard disk and importing them into QGIS from the local directory.</source>
-        <translation>Les fichiers OsmAnd ne peuvent pas être trouvés sur {self.cBdeviceList.currentText()}. Essayez de les copier sur votre disque dur et de les importer dans QGIS depuis le répertoire local.</translation>
+        <translation>Файлы OsmAnd не найдены на {self.cBdeviceList.currentText()}. Попробуйте скопировать файлы на жёсткий диск и импортировать их в QGIS из локальной папки.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="582" />
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Select the OSMand 'file' directory on you computer:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Sélectionnez le répertoire 'file' d'OsmAnd copié sur votre ordinateur :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Выберите папку 'file' OsmAnd на компьютере:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="590" />
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Select your device and press the right button to search for OsmAnd files.&lt;br&gt;You can use the left button to refresh devices list.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Sélectionnez votre appareil et appuyez sur le bouton de droite pour rechercher les fichiers OsmAnd.&lt;br&gt;Appuyez sur le bouton de gauche pour rafraîchir la liste des appareils.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=" font-weight:600;"&gt;Выберите устройство и нажмите правую кнопку для поиска файлов OsmAnd.&lt;br&gt;Левая кнопка — обновить список устройств.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="637" />
         <source>Not a valid output file path.</source>
-        <translation>Le chemin du fichier de sortie n'est pas valide.</translation>
+        <translation>Неверный путь к файлу назначения.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="648" />
         <source>Not a valid directory.</source>
-        <translation>Le répertoire n'est pas valide.</translation>
+        <translation>Неверная папка.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="653" />
         <source>No valid OsmAnd tracks path.</source>
-        <translation>Pas de chemin valide pour les traces OsmAnd.</translation>
+        <translation>Неверный путь к трекам OsmAnd.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="664" />
         <source>Found gpx file(s) to import.</source>
-        <translation>Des fichiers GPX à importer ont été trouvés.</translation>
+        <translation>Найдены файлы GPX для импорта.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="667" />
         <source>No gpx file to import.</source>
-        <translation>Aucun fichier GPX à importer.</translation>
+        <translation>Нет файлов GPX для импорта.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="672" />
         <source>Found favorites.gpx.</source>
-        <translation>Le fichier favorites.gpx a été trouvé.</translation>
+        <translation>Найден файл favorites.gpx.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="676" />
         <source>No favorites found.</source>
-        <translation>Aucun favori trouvé.</translation>
+        <translation>Избранное не найдено.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="683" />
         <source>Found ./itinerary.gpx.</source>
-        <translation>Le fichier ./itinerary.gpx a été trouvé.</translation>
+        <translation>Найден файл ./itinerary.gpx.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="687" />
         <source>./itinerary.gpx not found.</source>
-        <translation>Le fichier ./itinerary.gpx n'a pas été trouvé.</translation>
+        <translation>Файл ./itinerary.gpx не найден.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="694" />
         <source>No valid OsmAnd avnotes path.</source>
-        <translation>Pas de chemin valide pour les notes AV OsmAnd.</translation>
+        <translation>Неверный путь к AV-заметкам OsmAnd.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="705" />
         <source>Found OsmAnd AV note(s) to import.</source>
-        <translation>Des notes AV OsmAnd à importer ont été trouvées.</translation>
+        <translation>Найдены AV-заметки OsmAnd для импорта.</translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="708" />
         <source>No AV note file(s) to import.</source>
-        <translation>Aucun fichier de notes AV à importer.</translation>
+        <translation>Нет файлов AV-заметок для импорта.</translation>
     </message>
 </context>
 </TS>
