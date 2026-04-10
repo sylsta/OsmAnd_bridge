@@ -2,7 +2,7 @@
 # -*- encoding: UTF-8 -*-
 DIRECTORY=..
 PREFIX="OsmAnd_bridge"
-I18N_LIST="fr es pt"
+I18N_LIST="ar es fr pt ru zh it gr"
 FORMS="FORMS = "
 SOURCES="SOURCES = "
 TRANSLATIONS="TRANSLATIONS = "
