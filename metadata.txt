@@ -13,9 +13,8 @@ repository=https://gitlab.huma-num.fr/sthery/OsmAnd_bridge
 homepage=https://gitlab.huma-num.fr/sthery/OsmAnd_bridge
 category=Plugins
 
+tags=OsmAnd, GPS, GNSS, gps, gnss, AV notes, OSM, osm, OpenStreetMap, Android, phone, ground survey, relevés de terrain, téléphone
 
-
-tags=OsmAnd, gps, gnss, AV notes, OSM, OpenStreetMap, Android, phone, ground survey, relevés de terrain, téléphone
 description=Import tracks, favorites, itinerary and AV notes from OsmAnd on an Android device
 about=Import tracks, favorites, itinerary and AV notes from OsmAnd on an Android device to QGIS 3.x. Data are organized by type (point/lines) and audiovisual notes (sounds, pictures and movies) are downloaded and spatialised. Geographical data are stored in a gpkg file while AV notes are stored in their original file format.
     A direct connexion can be establish with the device, or data can be taken from a copy of OsmAnd directory on an hard drive. Supposed to work natively on Linux and Windows. MacOS users needs to use macDroid (even its free version) or similar. Feel free to fork the code and/or to send feedback, especially if something goes wrong with this plugin.
