@@ -22,21 +22,24 @@
  ***************************************************************************/
 """
 
-import datetime as dt
-import glob
 import os
+import datetime as dt
 import platform
 import subprocess
 import tempfile
+import glob
 
-from qgis.PyQt import uic, QtWidgets
-from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QGuiApplication
 from qgis.PyQt.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
     QRadioButton, QComboBox, QMessageBox, QVBoxLayout
-from qgis.gui import QgsFileWidget
+from qgis.PyQt import uic, QtWidgets
 
-from .OsmAnd_bridge_settings_management import msgbox_setting
+from qgis.PyQt.QtCore import Qt
+from qgis.utils import iface
+from qgis.gui import QgsFileWidget
+from qgis.core import QgsMessageLog, Qgis, QgsApplication, QgsProject
+
+from .OsmAnd_bridge_settings_management import msgbox_setting, load_settings, save_settings
 
 # Import MTP libraries depending on OS.
 # Linux  : unified KIO/gvfs backend (mtp_access_kio_gvfs).
@@ -125,8 +128,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
 
         # Make the scroll area resize with the dialog, keeping the buttonBox anchored at the bottom
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 6)
-        main_layout.setSpacing(6)
+        main_layout.setContentsMargins(10, 0, 10, 10)
+        main_layout.setSpacing(10)
         main_layout.addWidget(self.scrollArea)
         main_layout.addWidget(self.buttonBox)
         self.setLayout(main_layout)
