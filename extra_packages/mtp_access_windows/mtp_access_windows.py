@@ -25,35 +25,35 @@ from comtypes import GUID, COMError
 # ---------------------------------------------------------------------------
 # Load WPD type library — comtypes generates interface wrappers automatically
 # ---------------------------------------------------------------------------
-_wpd       = comtypes.client.GetModule(r"C:\Windows\System32\portabledeviceapi.dll")
+_wpd = comtypes.client.GetModule(r"C:\Windows\System32\portabledeviceapi.dll")
 _wpd_types = comtypes.client.GetModule(r"C:\Windows\System32\portabledevicetypes.dll")
 
-IPortableDeviceManager    = _wpd.IPortableDeviceManager
-IPortableDevice           = _wpd.IPortableDevice
-IPortableDeviceContent    = _wpd.IPortableDeviceContent
+IPortableDeviceManager = _wpd.IPortableDeviceManager
+IPortableDevice = _wpd.IPortableDevice
+IPortableDeviceContent = _wpd.IPortableDeviceContent
 IPortableDeviceProperties = _wpd.IPortableDeviceProperties
-IPortableDeviceValues     = _wpd.IPortableDeviceValues
+IPortableDeviceValues = _wpd.IPortableDeviceValues
 
 # ---------------------------------------------------------------------------
 # CLSIDs
 # ---------------------------------------------------------------------------
 CLSID_PortableDeviceManager = GUID("{0AF10CEC-2ECD-4B92-9581-34F6AE0637F3}")
-CLSID_PortableDevice        = GUID("{728A21C5-3D9E-48D7-9810-864848F0F404}")
-CLSID_PortableDeviceValues  = GUID("{0C15D503-D017-47CE-9016-7B3F978721CC}")
+CLSID_PortableDevice = GUID("{728A21C5-3D9E-48D7-9810-864848F0F404}")
+CLSID_PortableDeviceValues = GUID("{0C15D503-D017-47CE-9016-7B3F978721CC}")
 
 # ---------------------------------------------------------------------------
 # WPD constants
 # ---------------------------------------------------------------------------
-WPD_DEVICE_OBJECT_ID            = "DEVICE"
-_FMTID_OBJECT                   = GUID("{EF6B490D-5CD8-437A-AFFC-DA8B60EE4A3C}")
-WPD_OBJECT_NAME_PID             = 4
-WPD_OBJECT_CONTENT_TYPE_PID     = 7
-WPD_CONTENT_TYPE_FOLDER         = GUID("{27E2E392-A111-48E0-AB0C-E17705A05F85}")
-WPD_CONTENT_TYPE_FUNCTIONAL     = GUID("{99ED0160-17FF-4C44-9D98-1D7A6F941921}")
-_FMTID_RESOURCE                 = GUID("{E81E79BE-34F0-41BF-B53F-F1A06AE87842}")
-WPD_RESOURCE_DEFAULT_PID        = 0
-STGM_READ                       = 0x00000000
-_CHUNK                          = 256 * 1024   # 256 KB
+WPD_DEVICE_OBJECT_ID = "DEVICE"
+_FMTID_OBJECT = GUID("{EF6B490D-5CD8-437A-AFFC-DA8B60EE4A3C}")
+WPD_OBJECT_NAME_PID = 4
+WPD_OBJECT_CONTENT_TYPE_PID = 7
+WPD_CONTENT_TYPE_FOLDER = GUID("{27E2E392-A111-48E0-AB0C-E17705A05F85}")
+WPD_CONTENT_TYPE_FUNCTIONAL = GUID("{99ED0160-17FF-4C44-9D98-1D7A6F941921}")
+_FMTID_RESOURCE = GUID("{E81E79BE-34F0-41BF-B53F-F1A06AE87842}")
+WPD_RESOURCE_DEFAULT_PID = 0
+STGM_READ = 0x00000000
+_CHUNK = 256 * 1024  # 256 KB
 
 
 # ---------------------------------------------------------------------------
@@ -64,11 +64,14 @@ def _find_pk_type(mod):
         t = getattr(mod, name, None)
         if t is not None:
             return t
+
     class _PK(ctypes.Structure):
         _fields_ = [("fmtid", GUID), ("pid", c_ulong)]
     return _PK
 
+
 _PK = _find_pk_type(_wpd)
+
 
 def _pk(fmtid, pid):
     k = _PK(); k.fmtid = fmtid; k.pid = pid; return k
@@ -90,7 +93,7 @@ def _guid_eq(a, b):
 def _vtbl_fn(obj_addr, slot, restype, *argtypes):
     """Return a callable WINFUNCTYPE for vtable slot *slot* of COM object at *obj_addr*."""
     vtbl = ctypes.cast(obj_addr, ctypes.POINTER(ctypes.c_void_p))[0]
-    fn   = ctypes.cast(ctypes.c_void_p(
+    fn = ctypes.cast(ctypes.c_void_p(
                ctypes.cast(vtbl, ctypes.POINTER(ctypes.c_void_p))[slot]),
                ctypes.c_void_p).value
     return ctypes.WINFUNCTYPE(restype, ctypes.c_void_p, *argtypes)(fn)
@@ -100,12 +103,12 @@ def _vtbl_fn(obj_addr, slot, restype, *argtypes):
 # IPortableDeviceManager — GetDevices and GetDeviceFriendlyName via vtable
 # (nullable LPWSTR* params that comtypes cannot marshal)
 # Vtable after IUnknown (0=QI,1=AddRef,2=Release):
-#   3=GetDevices, 4=RefreshDeviceList, 5=GetDeviceFriendlyName, ...
+# 3=GetDevices, 4=RefreshDeviceList, 5=GetDeviceFriendlyName, ...
 # ---------------------------------------------------------------------------
 def _list_device_ids(mgr) -> list:
-    addr  = ctypes.cast(mgr, ctypes.c_void_p).value
-    fn    = _vtbl_fn(addr, 3, ctypes.HRESULT,
-                     ctypes.c_void_p, ctypes.POINTER(c_ulong))
+    addr = ctypes.cast(mgr, ctypes.c_void_p).value
+    fn = _vtbl_fn(addr, 3, ctypes.HRESULT,
+         ctypes.c_void_p, ctypes.POINTER(c_ulong))
     count = c_ulong(0)
     fn(addr, None, byref(count))
     if count.value == 0:
@@ -116,8 +119,8 @@ def _list_device_ids(mgr) -> list:
 
 
 def _get_friendly_name(mgr, device_id: str) -> str:
-    addr   = ctypes.cast(mgr, ctypes.c_void_p).value
-    fn     = _vtbl_fn(addr, 5, ctypes.HRESULT,
+    addr = ctypes.cast(mgr, ctypes.c_void_p).value
+    fn = _vtbl_fn(addr, 5, ctypes.HRESULT,
                       c_wchar_p, ctypes.c_void_p, ctypes.POINTER(c_ulong))
     length = c_ulong(0)
     fn(addr, device_id, None, byref(length))
@@ -135,11 +138,11 @@ def _get_friendly_name(mgr, device_id: str) -> str:
 # ---------------------------------------------------------------------------
 def _content_enum_objects(content_addr, parent_id: str):
     """Call EnumObjects and return raw enum pointer address."""
-    fn      = _vtbl_fn(content_addr, 3, ctypes.HRESULT,
+    fn = _vtbl_fn(content_addr, 3, ctypes.HRESULT,
                        c_ulong, c_wchar_p,
                        ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
     out_ptr = ctypes.c_void_p(0)
-    hr      = fn(content_addr, 0, parent_id, None, byref(out_ptr))
+    hr = fn(content_addr, 0, parent_id, None, byref(out_ptr))
     if hr != 0:
         raise COMError(hr, "EnumObjects failed", ())
     return out_ptr.value
@@ -147,10 +150,10 @@ def _content_enum_objects(content_addr, parent_id: str):
 
 def _content_transfer(content_addr):
     """Call Transfer() and return raw IPortableDeviceResources pointer address."""
-    fn      = _vtbl_fn(content_addr, 5, ctypes.HRESULT,
+    fn = _vtbl_fn(content_addr, 5, ctypes.HRESULT,
                        ctypes.POINTER(ctypes.c_void_p))
     out_ptr = ctypes.c_void_p(0)
-    hr      = fn(content_addr, byref(out_ptr))
+    hr = fn(content_addr, byref(out_ptr))
     if hr != 0:
         raise COMError(hr, "Transfer() failed", ())
     return out_ptr.value
@@ -162,18 +165,18 @@ def _content_transfer(content_addr):
 # ---------------------------------------------------------------------------
 def _enum_next(enum_addr, batch=16) -> list:
     """Drain an IEnumPortableDeviceObjectIDs and return all object ID strings."""
-    fn      = _vtbl_fn(enum_addr, 3, ctypes.HRESULT,
+    fn = _vtbl_fn(enum_addr, 3, ctypes.HRESULT,
                        c_ulong, ctypes.c_void_p, ctypes.POINTER(c_ulong))
-    ids     = []
+    ids = []
     while True:
-        buf     = (c_wchar_p * batch)()
+        buf = (c_wchar_p * batch)()
         fetched = c_ulong(0)
-        hr      = fn(enum_addr, batch, ctypes.cast(buf, ctypes.c_void_p), byref(fetched))
-        n       = fetched.value
+        hr = fn(enum_addr, batch, ctypes.cast(buf, ctypes.c_void_p), byref(fetched))
+        n = fetched.value
         for i in range(n):
             if buf[i]:
                 ids.append(buf[i])
-        if hr != 0 or n < batch:   # S_FALSE or last batch
+        if hr != 0 or n < batch:  # S_FALSE or last batch
             break
     return ids
 
@@ -187,15 +190,15 @@ def _enum_next(enum_addr, batch=16) -> list:
 # ---------------------------------------------------------------------------
 def _resources_get_stream(res_addr, oid: str):
     """Open a read stream for *oid*. Returns (stream_addr, chunk_size)."""
-    pk            = _pk(_FMTID_RESOURCE, WPD_RESOURCE_DEFAULT_PID)
+    pk = _pk(_FMTID_RESOURCE, WPD_RESOURCE_DEFAULT_PID)
     optimal_chunk = c_ulong(0)
-    stream_ptr    = ctypes.c_void_p(0)
+    stream_ptr = ctypes.c_void_p(0)
     fn = _vtbl_fn(res_addr, 5, ctypes.HRESULT,
-                  c_wchar_p,                      # pszObjectID
-                  ctypes.c_void_p,                # pKey (REFPROPERTYKEY)
-                  c_ulong,                        # dwMode
-                  ctypes.POINTER(c_ulong),        # pdwOptimalBufferSize [in,out]
-                  ctypes.POINTER(ctypes.c_void_p) # ppStream [out]
+                  c_wchar_p,              # pszObjectID
+                  ctypes.c_void_p,                 # pKey (REFPROPERTYKEY)
+                  c_ulong,                         # dwMode
+                  ctypes.POINTER(c_ulong),         # pdwOptimalBufferSize [in,out]
+                  ctypes.POINTER(ctypes.c_void_p)  # ppStream [out]
                   )
     hr = fn(res_addr, oid,
             ctypes.cast(ctypes.addressof(pk), ctypes.c_void_p),
@@ -209,17 +212,17 @@ def _resources_get_stream(res_addr, oid: str):
 
 
 # ---------------------------------------------------------------------------
-# ISequentialStream.Read via vtable  (slot 3 after IUnknown)
+# ISequentialStream.Read via vtable (slot 3 after IUnknown)
 # ---------------------------------------------------------------------------
 def _com_release(addr):
     """Call IUnknown::Release() (vtable slot 2) on a raw COM pointer address."""
     if addr:
-        _vtbl_fn(addr, 2, ctypes.c_ulong)  (addr)
+        _vtbl_fn(addr, 2, ctypes.c_ulong)(addr)
 
 
 def _stream_read_to_file(stream_addr, chunk_size, dst_file: Path):
     """Read stream into dst_file, then Release() the stream."""
-    fn  = _vtbl_fn(stream_addr, 3, ctypes.HRESULT,
+    fn = _vtbl_fn(stream_addr, 3, ctypes.HRESULT,
                    ctypes.c_void_p, c_ulong, ctypes.POINTER(c_ulong))
     buf = (ctypes.c_char * chunk_size)()
     dst_file.parent.mkdir(parents=True, exist_ok=True)
@@ -227,7 +230,7 @@ def _stream_read_to_file(stream_addr, chunk_size, dst_file: Path):
         with open(dst_file, 'wb') as fh:
             while True:
                 n_read = c_ulong(0)
-                hr     = fn(stream_addr,
+                hr = fn(stream_addr,
                             ctypes.cast(buf, ctypes.c_void_p),
                             chunk_size,
                             byref(n_read))
@@ -256,7 +259,7 @@ def _obj_name(properties, oid: str) -> str:
 def _obj_is_folder(properties, oid: str) -> bool:
     try:
         pk = _pk(_FMTID_OBJECT, WPD_OBJECT_CONTENT_TYPE_PID)
-        g  = properties.GetValues(oid, None).GetGuidValue(ctypes.pointer(pk))
+        g = properties.GetValues(oid, None).GetGuidValue(ctypes.pointer(pk))
         return _guid_eq(g, WPD_CONTENT_TYPE_FOLDER) or _guid_eq(g, WPD_CONTENT_TYPE_FUNCTIONAL)
     except COMError:
         return False
@@ -267,15 +270,15 @@ def _obj_is_folder(properties, oid: str) -> bool:
 # ---------------------------------------------------------------------------
 class _WPDDevice:
     def __init__(self, device_id: str, friendly_name: str):
-        self.device_id     = device_id
+        self.device_id = device_id
         self.friendly_name = friendly_name
         # Open device
         self._device = comtypes.client.CreateObject(CLSID_PortableDevice,
                                                      interface=IPortableDevice)
-        client_info  = comtypes.client.CreateObject(CLSID_PortableDeviceValues,
+        client_info = comtypes.client.CreateObject(CLSID_PortableDeviceValues,
                                                      interface=IPortableDeviceValues)
         self._device.Open(device_id, client_info)
-        self._content      = self._device.Content()
+        self._content = self._device.Content()
         # Raw content pointer for vtable calls
         self._content_addr = ctypes.cast(self._content, ctypes.c_void_p).value
         # NOTE: _properties is NOT stored persistently.
@@ -303,22 +306,22 @@ class _WPDDevice:
         (goes out of scope) before this method returns, so it does not
         hold the device busy during subsequent GetStream calls.
         """
-        enum_addr  = _content_enum_objects(self._content_addr, parent_id)
-        oids       = _enum_next(enum_addr)
-        properties = self._content.Properties()   # local — released on return
-        result     = []
+        enum_addr = _content_enum_objects(self._content_addr, parent_id)
+        oids = _enum_next(enum_addr)
+        properties = self._content.Properties()  # local — released on return
+        result = []
         for oid in oids:
-            name      = _obj_name(properties, oid)
+            name = _obj_name(properties, oid)
             is_folder = _obj_is_folder(properties, oid)
             result.append((oid, name, is_folder))
-        del properties   # explicitly release before any download
+        del properties  # explicitly release before any download
         return result
 
     def _resolve(self, path: str):
         """Resolve slash-separated path to (oid, is_folder). Returns None if not found."""
         if not path:
             return WPD_DEVICE_OBJECT_ID, True
-        parts      = [p for p in path.replace('\\', '/').split('/') if p]
+        parts = [p for p in path.replace('\\', '/').split('/') if p]
         current_id = WPD_DEVICE_OBJECT_ID
         for part in parts:
             found = None
@@ -348,7 +351,7 @@ class _WPDDevice:
         releases both the stream and the resources after use, so the device
         is not held busy for subsequent downloads.
         """
-        res_addr           = _content_transfer(self._content_addr)
+        res_addr = _content_transfer(self._content_addr)
         try:
             stream_addr, chunk = _resources_get_stream(res_addr, oid)
             _stream_read_to_file(stream_addr, chunk, dst)
@@ -385,8 +388,8 @@ class MTPClient:
     """Windows WPD MTP client. Same public API as mtp_access_kio_gvfs.MTPClient."""
 
     def __init__(self):
-        self.backend   = 'wpd'
-        self._registry = {}   # friendly_name -> (device_id, _WPDDevice|None)
+        self.backend = 'wpd'
+        self._registry = {}  # friendly_name -> (device_id, _WPDDevice|None)
         mgr = comtypes.client.CreateObject(CLSID_PortableDeviceManager,
                                            interface=IPortableDeviceManager)
         for dev_id in _list_device_ids(mgr):
@@ -432,4 +435,4 @@ if __name__ == '__main__':
     client = MTPClient()
     print("Devices:", client.list_devices())
     for dev, folders in client.list_root_folders().items():
-        print(f"  {dev}: {folders}")
+        print(f" {dev}: {folders}")

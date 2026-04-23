@@ -26,7 +26,6 @@ import socket
 from configparser import ConfigParser
 from datetime import datetime
 
-from qgis.PyQt.QtWidgets import QMessageBox, QCheckBox
 from qgis import processing
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QVariant, QUrl, Qt, QLocale
 
@@ -41,7 +40,7 @@ from .OsmAnd_bridge_import_process import import_gpx_track_file, import_avnotes,
 from .OsmAnd_bridge_geopackage_management import create_empty_gpkg_layer
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
-from qgis.utils import showPluginHelp
+#from qgis.utils import showPluginHelp
 
 
 class OsmAndBridge:
@@ -213,7 +212,7 @@ class OsmAndBridge:
 
         setting_name = "hide_unstable_warning_message"
         title = self.tr("Warning")
-        message = self.tr("This plugin uses libraries known to be unstable to access devices (MTP protocol). " \
+        message = self.tr("This plugin uses libraries known to be unstable to access devices (MTP protocol). "
                   "\nIn rare cases, it can cause Qgis to crash.")
         msgbox_setting(self, setting_name, title, message)
 
@@ -226,7 +225,7 @@ class OsmAndBridge:
         QGuiApplication.restoreOverrideCursor()
         # See if OK was pressed
         if result:
-            ## define empty extent that will be updated when adding layers
+            # define empty extent that will be updated when adding layers
             self.extent = QgsRectangle()
             self.extent.setMinimal()
 
@@ -262,12 +261,12 @@ class OsmAndBridge:
                 self.iface.messageBar().pushMessage(message, level=Qgis.Critical)
                 return
 
-            ## Now dealing with AV notes
+            # Now dealing with AV notes
             if self.dlg_import.cB_AVnotes.isChecked():
                 os.makedirs(f'{self.dlg_import.QgsFW_dest_path.filePath()}/avnotes', exist_ok=True)
                 import_avnotes(self, f"{self.osmand_root_path}/avnotes/")
 
-            ## Now dealing with favorites gpx file
+            # Now dealing with favorites gpx file
             if self.dlg_import.cB_favorites.isChecked():
                 # BUG FIX #4 : le fichier favoris est dans favorites/favorites.gpx
                 file = 'favorites/favorites.gpx'
@@ -283,7 +282,7 @@ class OsmAndBridge:
                     return
             self.iface.messageBar().clearWidgets()
 
-            ## Now dealing with itinerary gpx file
+            # Now dealing with itinerary gpx file
             if self.dlg_import.cB_itinerary.isChecked():
                 file = 'itinerary.gpx'
                 message = self.tr(f"Importing itinerary ({file})")
@@ -298,7 +297,7 @@ class OsmAndBridge:
                     return
             self.iface.messageBar().clearWidgets()
 
-            ## Now dealing with selected gpx tracks files
+            # Now dealing with selected gpx tracks files
             i = 0
             for currentQTableWidgetItem in self.dlg_import.tW_tracks.selectedItems():
                 if currentQTableWidgetItem.column() == 0:
@@ -317,7 +316,7 @@ class OsmAndBridge:
             for currentQTableWidgetItem in self.dlg_import.tW_tracks.selectedItems():
                 if currentQTableWidgetItem.column() == 0:
                     result = import_gpx_track_file(self,
-                                                   f'{self.osmand_root_path}/tracks/rec/{currentQTableWidgetItem.text()}')
+                        f'{self.osmand_root_path}/tracks/rec/{currentQTableWidgetItem.text()}')
                     j += 1
                     progress.setValue(j)
                     if not result:
@@ -328,7 +327,7 @@ class OsmAndBridge:
                         return
             self.iface.messageBar().clearWidgets()
 
-            ## Now dealing with map background
+            # Now dealing with map background
             try:
                 socket.create_connection(("tile.openstreetmap.org", 443))
                 tms = 'type=xyz&url=https://tile.openstreetmap.org/{z}/{x}/{y}.png&zmax=19&zmin=0'
@@ -340,7 +339,7 @@ class OsmAndBridge:
                 QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Warning)
                 self.iface.messageBar().pushMessage(message, level=Qgis.Warning)
 
-            ## set map canvas extent
+            # set map canvas extent
             QApplication.instance().processEvents()
             self.iface.mapCanvas().zoomToFeatureExtent(self.extent)
             self.iface.mapCanvas().refresh()

@@ -1,7 +1,9 @@
 # functions to encode and decode short links
 # See https://wiki.openstreetmap.org/wiki/Shortlink
 # May be usefull later. Putted here since it was hard to find :/
-# Taken from https://github.com/openstreetmap-ng/openstreetmap-ng/blob/1d641b53cc6cf2cfe35f4b34c7a04d7fb386a745/app/lib/shortlink.py
+# Taken from
+# https://github.com/openstreetmap-ng/
+# openstreetmap-ng/blob/1d641b53cc6cf2cfe35f4b34c7a04d7fb386a745/app/lib/shortlink.py
 
 import cython
 

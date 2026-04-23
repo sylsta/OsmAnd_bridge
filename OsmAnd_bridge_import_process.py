@@ -34,8 +34,6 @@ from qgis.PyQt.QtCore import QVariant
 
 import pathlib
 
-
-
 def import_avnotes(self: object, source_path: str) -> bool:
     """
 
@@ -54,7 +52,6 @@ def import_avnotes(self: object, source_path: str) -> bool:
     for ext in extension_list:
         for file in glob.glob(f'{self.dlg_import.QgsFW_osmand_root_path.filePath()}/avnotes/*.{ext[0]}'):
             file_to_import.append([file, ext[1]])
-
 
     # define new gpkg layers
     attributes_list = [QgsField('full_path', QVariant.String),
@@ -123,7 +120,7 @@ def import_avnotes(self: object, source_path: str) -> bool:
             # Add to project only now, just before writing to gpkg
             QgsProject.instance().addMapLayer(layer[0])
             options = QgsVectorFileWriter.SaveVectorOptions()
-            options.layerName = layer[1].split('layername=')[1] # quick and dirty to get gpkg layername
+            options.layerName = layer[1].split('layername=')[1]  # quick and dirty to get gpkg layername
             options.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
             context = QgsProject.instance().transformContext()
             QgsVectorFileWriter.writeAsVectorFormatV2(layer[0], self.dest_gpkg, context, options)

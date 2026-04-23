@@ -24,7 +24,6 @@ Usage example::
 """
 
 import os
-import glob
 import shutil
 import subprocess
 from pathlib import Path

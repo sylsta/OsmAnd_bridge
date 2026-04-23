@@ -218,6 +218,7 @@ def install_pip_if_not_present(always_upgrade: bool = True):
             ]
         )
 
+
 def is_pip_installed():
     pip_present = True
     try:
@@ -228,4 +229,3 @@ def is_pip_installed():
     logger.info(f"{pip_present=}")
 
     return pip_present
-

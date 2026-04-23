@@ -22,24 +22,21 @@
  ***************************************************************************/
 """
 
-import os
 import datetime as dt
+import glob
+import os
 import platform
 import subprocess
 import tempfile
-import glob
 
+from qgis.PyQt import uic, QtWidgets
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QGuiApplication
 from qgis.PyQt.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
     QRadioButton, QComboBox, QMessageBox, QVBoxLayout
-from qgis.PyQt import uic, QtWidgets
-
-from qgis.PyQt.QtCore import Qt
-from qgis.utils import iface
 from qgis.gui import QgsFileWidget
-from qgis.core import QgsMessageLog, Qgis, QgsApplication, QgsProject
 
-from .OsmAnd_bridge_settings_management import msgbox_setting, load_settings, save_settings
+from .OsmAnd_bridge_settings_management import msgbox_setting
 
 # Import MTP libraries depending on OS.
 # Linux  : unified KIO/gvfs backend (mtp_access_kio_gvfs).
