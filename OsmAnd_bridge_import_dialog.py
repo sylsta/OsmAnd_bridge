@@ -31,7 +31,7 @@ import glob
 
 from qgis.PyQt.QtGui import QGuiApplication
 from qgis.PyQt.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
-    QRadioButton, QComboBox, QMessageBox
+    QRadioButton, QComboBox, QMessageBox, QVBoxLayout
 from qgis.PyQt import uic, QtWidgets
 
 from qgis.PyQt.QtCore import Qt
@@ -125,6 +125,16 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         """
         super(OsmAndBridgeImportDialog, self).__init__(parent)
         self.setupUi(self)
+
+        # Make the scroll area resize with the dialog, keeping the buttonBox anchored at the bottom
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 6)
+        main_layout.setSpacing(6)
+        main_layout.addWidget(self.scrollArea)
+        main_layout.addWidget(self.buttonBox)
+        self.setLayout(main_layout)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollAreaWidgetContents.setMinimumSize(650, 634)
 
         self.plugin_name = 'OsmAnd bridge'
 
