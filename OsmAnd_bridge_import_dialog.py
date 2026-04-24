@@ -23,11 +23,13 @@
 """
 
 import os
+import sys
 import datetime as dt
 import platform
 import subprocess
 import tempfile
 import glob
+from pathlib import Path
 
 from qgis.PyQt.QtGui import QGuiApplication
 from qgis.PyQt.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget, QCheckBox, QLabel, QPushButton, \
@@ -219,21 +221,94 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         self.message_no_device_found = self.tr("Check that your device is properly connected and unlocked. Consider disabling ADB.\n"
                                                "You can press left button to refresh devices list or to restart QGIS.")
 
-        # Windows: MTPClient is imported from mtp_access_windows (WPD COM API).
-        # comtypes must be available; if not, the device radio button is disabled.
+        # Windows: comtypes is required for MTP access.
+        # _needs_restart is set by _handle_comtypes() if pip was run.
+        # run() in OsmAnd_bridge.py checks this flag before showing the dialog.
+        self._needs_restart = False
         if platform.system() == 'Windows':
-            if MTPClient is None:
-                self.rBdevice.setEnabled(False)
-                QgsMessageLog.logMessage(
-                    "mtp_access_windows could not be imported (comtypes missing?). "
-                    "MTP device access disabled.",
-                    self.plugin_name, level=Qgis.Warning)
-            else:
-                self.rBdevice.setEnabled(True)
+            self._handle_comtypes()
 
         # macOS: MacDroid app is required
         self.APP_NAME = "MacDroid"
         self.APP_PATH = f"/Applications/{self.APP_NAME}.app"
+
+    # ------------------------------------------------------------------
+    # comtypes installation (Windows only)
+    # ------------------------------------------------------------------
+
+    def _handle_comtypes(self):
+        """
+        Check comtypes availability on Windows. Sets self._needs_restart = True
+        if pip was run and a QGIS restart is required. Never calls reject() or quit().
+
+        States in settings.json:
+          comtypes_ok           : comtypes imported successfully
+          comtypes_install_tried: pip was already run once
+        """
+        from qgis.PyQt.QtWidgets import QApplication
+        from qgis.PyQt.QtGui import QCursor
+
+        settings = load_settings(self.PARAM_FILE)
+
+        # Always try importing comtypes first: covers both "already OK" and
+        # "pip ran + QGIS was restarted" cases.
+        try:
+            import comtypes
+            settings["comtypes_ok"] = True
+            settings["comtypes_install_tried"] = False
+            save_settings(self.PARAM_FILE, settings)
+            self.rBdevice.setEnabled(True)
+            return
+        except ImportError:
+            pass
+
+        # comtypes still not importable.
+        # pip already ran but QGIS not yet restarted: restart still pending.
+        if settings.get("comtypes_install_tried", False):
+            self._needs_restart = True
+            return
+
+        # Not available: run pip, freeze UI with wait cursor
+        settings["comtypes_install_tried"] = True
+        save_settings(self.PARAM_FILE, settings)
+
+        msgbox_setting(
+            self,
+            setting_name="hide_comtypes_install_warning",
+            title=self.tr("OsmAnd bridge - installation"),
+            message=self.tr(
+                "The <b>comtypes</b> library required on Windows is not installed.<br>"
+                "Its installation is about to start: one or more console windows "
+                "may briefly appear - this is normal."
+            ),
+        )
+
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        QApplication.processEvents()
+        try:
+            # Use the python interpreter that ships with QGIS (OSGeo4W)
+            python = os.path.join(os.path.dirname(sys.executable), "python.exe")
+            if not os.path.exists(python):
+                python = os.path.join(os.path.dirname(sys.executable), "python3.exe")
+            req_file = str(Path(__file__).parent / "requirements.txt")
+            result = subprocess.run(
+                [python, "-m", "pip", "install", "-r", req_file,
+                 "--user", "--progress-bar", "off"],
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                timeout=120,
+                creationflags=subprocess.CREATE_NO_WINDOW,
+            )
+            pip_output = result.stdout.decode(errors="replace")
+            QgsMessageLog.logMessage(
+                f"pip install comtypes (returncode={result.returncode}):\n{pip_output}",
+                self.plugin_name, level=Qgis.Info)
+        except Exception as e:
+            QgsMessageLog.logMessage(
+                f"OsmAnd bridge: pip error: {e}", self.plugin_name, level=Qgis.Critical)
+        finally:
+            QApplication.restoreOverrideCursor()
+
+        self._needs_restart = True
 
     # ------------------------------------------------------------------
     # MTP device listing

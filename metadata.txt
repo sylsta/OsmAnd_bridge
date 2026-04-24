@@ -1,6 +1,6 @@
 [general]
 name=OsmAnd bridge
-version=2.4
+version=2.3
 author=Sylvain Théry - CNRS - UMR 5281 ART-Dev
 email=sylvain.thery@cnrs.fr
 
@@ -52,7 +52,7 @@ about[zh]=从 Android 设备上的 OsmAnd 向 QGIS 3.x 导入轨迹、收藏夹�
     可以与设备建立直接连接，也可以从硬盘上的 OsmAnd 目录副本中获取数据。理论上可在 Linux 和 Windows 上原生运行。MacOS 用户需要使用 macDroid（即使是免费版本）或类似工具。欢迎 fork 代码和/或发送反馈，尤其是在此插件出现问题时。
 
 changelog=
-    2.2 (2026-04-10)
+    2.3 (2026-04-24)
         - MTP connection refactored and fixed under windows
     2.1 (2026-03-29)
         - QGIS4 compatible

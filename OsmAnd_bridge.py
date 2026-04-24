@@ -218,6 +218,22 @@ class OsmAndBridge:
 
         self.dlg_import = OsmAndBridgeImportDialog()
 
+        # On Windows, comtypes may have just been installed: show message and stop
+        if self.dlg_import._needs_restart:
+            from qgis.PyQt.QtWidgets import QMessageBox
+            msg = QMessageBox()
+            msg.setWindowTitle(self.tr("OsmAnd bridge - restart required"))
+            msg.setText(self.tr(
+                "The <b>comtypes</b> library has been installed.<br>"
+                "Please restart QGIS for the change to take effect."
+            ))
+            try:
+                msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+            except AttributeError:
+                msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec()
+            return
+
         # show the dialog
         self.dlg_import.show()
         # Run the dialog event loop
