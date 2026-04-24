@@ -229,12 +229,12 @@ Em casos raros, pode causar o bloqueio do QGIS.</translation>
     <message>
         <location filename="../OsmAnd_bridge.py" line="225"/>
         <source>OsmAnd bridge - restart required</source>
-        <translation>OsmAnd bridge - reinicialização necessária</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="226"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library has been installed.&lt;br&gt;Please restart QGIS for the change to take effect.</source>
-        <translation>A biblioteca &lt;b&gt;comtypes&lt;/b&gt; foi instalada.&lt;br&gt;Por favor, reinicie o QGIS para que a alteração surta efeito.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -390,12 +390,17 @@ Em casos raros, pode causar o bloqueio do QGIS.</translation>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
         <source>OsmAnd bridge - installation</source>
-        <translation>OsmAnd bridge - instalação</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library required on Windows is not installed.&lt;br&gt;Its installation is about to start: one or more console windows may briefly appear - this is normal.</source>
-        <translation>A biblioteca &lt;b&gt;comtypes&lt;/b&gt; necessária no Windows não está instalada.&lt;br&gt;A sua instalação está prestes a começar: uma ou mais janelas de consola podem aparecer brevemente - isto é normal.</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../OsmAnd_bridge_settings_management.py" line="79"/>
+        <source>Don&apos;t show this message again</source>
+        <translation>Não mostrar esta mensagem novamente</translation>
     </message>
 </context>
 </TS>

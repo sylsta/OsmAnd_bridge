@@ -229,12 +229,12 @@ In rari casi, potrebbe causare un arresto anomalo di QGIS.</translation>
     <message>
         <location filename="../OsmAnd_bridge.py" line="225"/>
         <source>OsmAnd bridge - restart required</source>
-        <translation>OsmAnd bridge - riavvio richiesto</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="226"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library has been installed.&lt;br&gt;Please restart QGIS for the change to take effect.</source>
-        <translation>La libreria &lt;b&gt;comtypes&lt;/b&gt; è stata installata.&lt;br&gt;Si prega di riavviare QGIS affinché la modifica abbia effetto.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -390,12 +390,17 @@ In rari casi, potrebbe causare un arresto anomalo di QGIS.</translation>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
         <source>OsmAnd bridge - installation</source>
-        <translation>OsmAnd bridge - installazione</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library required on Windows is not installed.&lt;br&gt;Its installation is about to start: one or more console windows may briefly appear - this is normal.</source>
-        <translation>La libreria &lt;b&gt;comtypes&lt;/b&gt; richiesta su Windows non è installata.&lt;br&gt;L'installazione sta per iniziare: potrebbe apparire brevemente una o più finestre della console - è normale.</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../OsmAnd_bridge_settings_management.py" line="79"/>
+        <source>Don&apos;t show this message again</source>
+        <translation>Non mostrare più questo messaggio</translation>
     </message>
 </context>
 </TS>

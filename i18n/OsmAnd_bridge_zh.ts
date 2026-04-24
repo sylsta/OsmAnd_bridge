@@ -229,12 +229,12 @@ In rare cases, it can cause Qgis to crash.</source>
     <message>
         <location filename="../OsmAnd_bridge.py" line="225"/>
         <source>OsmAnd bridge - restart required</source>
-        <translation>OsmAnd bridge - 需要重启</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="226"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library has been installed.&lt;br&gt;Please restart QGIS for the change to take effect.</source>
-        <translation>&lt;b&gt;comtypes&lt;/b&gt; 库已安装。&lt;br&gt;请重启 QGIS 以使更改生效。</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -390,12 +390,17 @@ In rare cases, it can cause Qgis to crash.</source>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
         <source>OsmAnd bridge - installation</source>
-        <translation>OsmAnd bridge - 安装</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library required on Windows is not installed.&lt;br&gt;Its installation is about to start: one or more console windows may briefly appear - this is normal.</source>
-        <translation>Windows 所需的 &lt;b&gt;comtypes&lt;/b&gt; 库未安装。&lt;br&gt;安装即将开始：可能会短暂出现一个或多个控制台窗口，这是正常现象。</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../OsmAnd_bridge_settings_management.py" line="79"/>
+        <source>Don&apos;t show this message again</source>
+        <translation>不再显示此消息</translation>
     </message>
 </context>
 </TS>

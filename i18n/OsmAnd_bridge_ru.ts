@@ -229,12 +229,12 @@ In rare cases, it can cause Qgis to crash.</source>
     <message>
         <location filename="../OsmAnd_bridge.py" line="225"/>
         <source>OsmAnd bridge - restart required</source>
-        <translation>OsmAnd bridge - требуется перезапуск</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="226"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library has been installed.&lt;br&gt;Please restart QGIS for the change to take effect.</source>
-        <translation>Библиотека &lt;b&gt;comtypes&lt;/b&gt; установлена.&lt;br&gt;Пожалуйста, перезапустите QGIS, чтобы изменения вступили в силу.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -390,12 +390,17 @@ In rare cases, it can cause Qgis to crash.</source>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
         <source>OsmAnd bridge - installation</source>
-        <translation>OsmAnd bridge - установка</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library required on Windows is not installed.&lt;br&gt;Its installation is about to start: one or more console windows may briefly appear - this is normal.</source>
-        <translation>Библиотека &lt;b&gt;comtypes&lt;/b&gt;, необходимая для Windows, не установлена.&lt;br&gt;Установка начнётся сейчас: на короткое время могут появиться одно или несколько консольных окон — это нормально.</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../OsmAnd_bridge_settings_management.py" line="79"/>
+        <source>Don&apos;t show this message again</source>
+        <translation>Больше не показывать это сообщение</translation>
     </message>
 </context>
 </TS>

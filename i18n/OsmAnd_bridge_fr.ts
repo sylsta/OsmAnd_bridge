@@ -229,12 +229,12 @@ Dans de rares cas, cela peut faire planter QGIS.</translation>
     <message>
         <location filename="../OsmAnd_bridge.py" line="225"/>
         <source>OsmAnd bridge - restart required</source>
-        <translation>OsmAnd bridge - redémarrage requis</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge.py" line="226"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library has been installed.&lt;br&gt;Please restart QGIS for the change to take effect.</source>
-        <translation>La bibliothèque &lt;b&gt;comtypes&lt;/b&gt; a été installée.&lt;br&gt;Veuillez redémarrer QGIS pour que la modification prenne effet.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -390,12 +390,17 @@ En de rares occasions, cela peut faire planter QGIS.</translation>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
         <source>OsmAnd bridge - installation</source>
-        <translation>OsmAnd bridge - installation</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library required on Windows is not installed.&lt;br&gt;Its installation is about to start: one or more console windows may briefly appear - this is normal.</source>
-        <translation>La bibliothèque &lt;b&gt;comtypes&lt;/b&gt; requise sous Windows n'est pas installée.&lt;br&gt;Son installation va démarrer : une ou plusieurs fenêtres de console peuvent apparaître brièvement - c'est normal.</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../OsmAnd_bridge_settings_management.py" line="79"/>
+        <source>Don&apos;t show this message again</source>
+        <translation>Ne plus afficher ce message</translation>
     </message>
 </context>
 </TS>
