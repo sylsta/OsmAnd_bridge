@@ -513,16 +513,16 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         pass
                 if osmand_root_on_device:
                     break
-
+            message_not_found= self.tr(
+                    f"OsmAnd files could not be found on {selected_device}. "
+                    "Check that MTP transport is selected on it. Unlock it. Try remove ADB. "
+                    "As a last resort, copy files to your hard disk and import them "
+                    "into QGIS from the local directory.")
             if not osmand_root_on_device:
                 QGuiApplication.restoreOverrideCursor()
                 msg = QMessageBox()
                 msg.setWindowTitle(self.tr("No files found"))
-                msg.setText(self.tr(
-                    f"OsmAnd files could not be found on {selected_device}. "
-                    "Check that MTP transport is selected on it. "
-                    "As a last resort, copy files to your hard disk and import them "
-                    "into QGIS from the local directory."))
+                msg.setText(message_not_found)
                 _qmessagebox_set_icon_warning(msg)
                 _qmessagebox_set_buttons_ok(msg)
                 msg.exec()
@@ -589,16 +589,16 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         pass
                 if osmand_root_on_device:
                     break
-
+            message_not_found= self.tr(
+                    f"OsmAnd files could not be found on {selected_device}. "
+                    "Check that MTP transport is selected on it. Unlock it. Try remove ADB. "
+                    "As a last resort, copy files to your hard disk and import them "
+                    "into QGIS from the local directory.")
             if not osmand_root_on_device:
                 QGuiApplication.restoreOverrideCursor()
                 msg = QMessageBox()
                 msg.setWindowTitle(self.tr("No files found"))
-                msg.setText(self.tr(
-                    f"OsmAnd files could not be found on {selected_device}. "
-                    "Check that MTP transport is selected on it. "
-                    "As a last resort, copy files to your hard disk and import them "
-                    "into QGIS from the local directory."))
+                msg.setText(message_not_found)
                 _qmessagebox_set_icon_warning(msg)
                 _qmessagebox_set_buttons_ok(msg)
                 msg.exec()

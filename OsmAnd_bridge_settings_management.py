@@ -1,7 +1,7 @@
 import json
 
 from qgis.PyQt.QtWidgets import QMessageBox, QCheckBox
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import Qt, QCoreApplication
 
 
 def load_settings(PARAM_FILE):
@@ -76,7 +76,11 @@ def msgbox_setting(self, setting_name: str, title: str, message: str, yes_no: bo
             except AttributeError:  # Qt5
                 message_box.setStandardButtons(QMessageBox.Ok)
 
-        checkbox = QCheckBox(self.tr("Don't show this message again"))
+        # Use the class name of the caller as translation context so Qt can
+        # find the string regardless of whether self is OsmAndBridge or
+        # OsmAndBridgeImportDialog.
+        checkbox = QCheckBox(QCoreApplication.translate(
+            self.__class__.__name__, "Don't show this message again"))
         layout = message_box.layout()
         layout.addWidget(checkbox, layout.rowCount(), 0, 1, layout.columnCount())
 
