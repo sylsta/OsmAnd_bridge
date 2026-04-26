@@ -222,10 +222,12 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                                                "You can press left button to refresh devices list or to restart QGIS.")
 
         # Windows: comtypes is required for MTP access.
-        # _needs_restart is set by _handle_comtypes() if pip was run.
-        # run() in OsmAnd_bridge.py checks this flag before showing the dialog.
+        # rBdevice is disabled by default; _handle_comtypes() enables it only if
+        # comtypes is confirmed available. _needs_restart is checked by run() in
+        # OsmAnd_bridge.py before showing the dialog.
         self._needs_restart = False
         if platform.system() == 'Windows':
+            self.rBdevice.setEnabled(False)
             self._handle_comtypes()
 
         # macOS: MacDroid app is required
@@ -242,51 +244,62 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         if pip was run and a QGIS restart is required. Never calls reject() or quit().
 
         States in settings.json:
-          comtypes_ok           : comtypes imported successfully
-          comtypes_install_tried: pip was already run once
+          comtypes_ok      : True once comtypes imported successfully after a restart
+          comtypes_pip_ran : True once pip has actually run (not just confirmed)
         """
         from qgis.PyQt.QtWidgets import QApplication
         from qgis.PyQt.QtGui import QCursor
 
         settings = load_settings(self.PARAM_FILE)
 
-        # Always try importing comtypes first: covers both "already OK" and
-        # "pip ran + QGIS was restarted" cases.
+        # Step 1 — Always try importing comtypes first.
+        # This covers: already installed before plugin, and pip ran + QGIS restarted.
         try:
             import comtypes
             settings["comtypes_ok"] = True
-            settings["comtypes_install_tried"] = False
+            settings["comtypes_pip_ran"] = False
             save_settings(self.PARAM_FILE, settings)
             self.rBdevice.setEnabled(True)
             return
         except ImportError:
             pass
 
-        # comtypes still not importable.
-        # pip already ran but QGIS not yet restarted: restart still pending.
-        if settings.get("comtypes_install_tried", False):
+        # Step 2 — pip already ran in a previous session but comtypes still not
+        # importable: QGIS has not been restarted yet.
+        if settings.get("comtypes_pip_ran", False):
             self._needs_restart = True
             return
 
-        # Not available: run pip, freeze UI with wait cursor
-        settings["comtypes_install_tried"] = True
-        save_settings(self.PARAM_FILE, settings)
+        # Step 3 — First time: propose installation to user.
+        # QMessageBox direct (no msgbox_setting) so X / Cancel reliably aborts.
+        warn_box = QMessageBox()
+        warn_box.setWindowTitle(self.tr("OsmAnd bridge - installation"))
+        try:  # Qt6
+            warn_box.setTextFormat(Qt.TextFormat.RichText)
+            warn_box.setStandardButtons(
+                QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+            _ok = QMessageBox.StandardButton.Ok
+        except AttributeError:  # Qt5
+            warn_box.setTextFormat(Qt.RichText)
+            warn_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            _ok = QMessageBox.Ok
+        warn_box.setText(self.tr(
+            "The <b>comtypes</b> library required on Windows is not installed.<br>"
+            "Its installation is about to start: one or more console windows "
+            "may briefly appear - this is normal."
+        ))
+        if warn_box.exec() != _ok:
+            # User cancelled or closed with X: do nothing, will be proposed again next time.
+            return
 
-        msgbox_setting(
-            self,
-            setting_name="hide_comtypes_install_warning",
-            title=self.tr("OsmAnd bridge - installation"),
-            message=self.tr(
-                "The <b>comtypes</b> library required on Windows is not installed.<br>"
-                "Its installation is about to start: one or more console windows "
-                "may briefly appear - this is normal."
-            ),
-        )
-
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        # Step 4 — User confirmed: freeze UI and run pip.
+        try:  # Qt6
+            QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
+        except AttributeError:  # Qt5
+            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         QApplication.processEvents()
+
         try:
-            # Use the python interpreter that ships with QGIS (OSGeo4W)
             python = os.path.join(os.path.dirname(sys.executable), "python.exe")
             if not os.path.exists(python):
                 python = os.path.join(os.path.dirname(sys.executable), "python3.exe")
@@ -308,6 +321,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         finally:
             QApplication.restoreOverrideCursor()
 
+        # Step 5 — pip ran: record it and ask for restart.
+        settings["comtypes_pip_ran"] = True
+        save_settings(self.PARAM_FILE, settings)
         self._needs_restart = True
 
     # ------------------------------------------------------------------
