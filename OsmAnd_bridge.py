@@ -53,7 +53,7 @@ class OsmAndBridge:
         self.plugin_dir = os.path.dirname(__file__)
 
         # Save reference to the plugin name and help website
-        self.plugin_name = 'OsmAnd bridge'
+
         self.help_url_website = "https://osmand-bridge.readthedocs.io/"
         self.help_version = 'latest'
         self.help_languages = ('en', 'es', 'it', 'ja', 'pt', 'fi', 'fr')
@@ -61,8 +61,9 @@ class OsmAndBridge:
         # print version number in console and log panel
         config = ConfigParser()
         config.read(f'{self.plugin_dir}/metadata.txt')
-        print(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded")
-        QgsMessageLog.logMessage(f"{config.get('general', 'name')} {config.get('general', 'version')} loaded",
+        self.plugin_name = config.get('general', 'name')
+        print(f"{self.plugin_name} {config.get('general', 'version')} loaded")
+        QgsMessageLog.logMessage(f"{self.plugin_name} {config.get('general', 'version')} loaded",
                                  self.plugin_name, level=Qgis.Info)
 
         self.debug = False
