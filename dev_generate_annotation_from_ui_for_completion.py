@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QWidget
 
 def generate_annotations(ui_file: str):
     # Charger dynamiquement le fichier .ui dans un objet QWidget
-    app = QtWidgets.QApplication(sys.argv)
+    # app = QtWidgets.QApplication(sys.argv)
 
     # Charger dynamiquement la classe et la base de l'interface utilisateur depuis le fichier .ui
     UiClass, BaseClass = uic.loadUiType(ui_file)
@@ -32,7 +32,6 @@ def generate_annotations(ui_file: str):
     # Génère le code avec les annotations
     for annotation in annotations:
         print(f"    {annotation}")
-
 
 
 # Utiliser le script en passant le nom du fichier .ui en argument
