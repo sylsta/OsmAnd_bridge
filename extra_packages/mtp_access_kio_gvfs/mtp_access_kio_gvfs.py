@@ -270,9 +270,9 @@ def _gvfs_try_mount_devices() -> None:
                 block = chr(10).join(current_block)
                 if 'ID_MTP_DEVICE=1' in block and 'DEVTYPE=usb_device' in block:
                     props: dict[str, str] = {}
-                    for l in current_block:
-                        if l.startswith('E: '):
-                            k, _, v = l[3:].partition('=')
+                    for line_block in current_block:
+                        if line_block.startswith('E: '):
+                            k, _, v = line_block[3:].partition('=')
                             props[k] = v
                     bus = props.get('BUSNUM', '').zfill(3)
                     dev = props.get('DEVNUM', '').zfill(3)
@@ -660,8 +660,7 @@ class MTPClient:
         dst_exact = str(Path(dst_local) / Path(src_path).name)
         self.copy_from_device_to_exact(device, src_path, dst_exact)
 
-    def copy_from_device_to_exact(self, device: str, src_path: str,
-                                   dst_exact: str) -> None:
+    def copy_from_device_to_exact(self, device: str, src_path: str, dst_exact: str) -> None:
         """Copy a file or directory from the device to an exact local path.
 
         - Directory: contents are placed *inside* ``dst_exact``

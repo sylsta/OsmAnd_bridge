@@ -34,6 +34,7 @@ from qgis.PyQt.QtCore import QVariant
 
 import pathlib
 
+
 def import_avnotes(self: object, source_path: str) -> bool:
     """
 
@@ -130,12 +131,14 @@ def import_avnotes(self: object, source_path: str) -> bool:
             self.extent.combineExtentWith(new_sublayer.extent())
             move_to_group(new_sublayer, self.tr('Audiovisual notes'))
             f'{os.path.dirname(__file__)}/svg_markers/Speaker_Icon.svg'
-            if options.layerName =='audio':
+            if options.layerName == 'audio':
                 symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Speaker_Icon.svg')
-            elif options.layerName =='video':
-                symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Video_Camera_-_The_Noun_Project.svg')
-            elif options.layerName =='picture':
-                symbol = QgsSvgMarkerSymbolLayer(f'{os.path.dirname(__file__)}/svg_markers/Font_Awesome_5_solid_camera.svg')
+            elif options.layerName == 'video':
+                svg_path = f'{os.path.dirname(__file__)}/svg_markers/Video_Camera_-_The_Noun_Project.svg'
+                symbol = QgsSvgMarkerSymbolLayer(svg_path)
+            elif options.layerName == 'picture':
+                svg_path = f'{os.path.dirname(__file__)}/svg_markers/Font_Awesome_5_solid_camera.svg'
+                symbol = QgsSvgMarkerSymbolLayer(svg_path)
                 new_sublayer.setMapTipTemplate("""
                     <style>
                         body {width:800px!;}
@@ -144,7 +147,7 @@ def import_avnotes(self: object, source_path: str) -> bool:
                     </style>
                     <div>
                        <img src='file://[% "full_path" %]'/>
-                    </div>   
+                    </div>
                     """)
             symbol.setSize(6)
 
@@ -159,7 +162,7 @@ def import_avnotes(self: object, source_path: str) -> bool:
             actionManager = new_sublayer.actions()
             actionManager.addAction(action)
             for scope in my_scopes:
-                    actionManager.setDefaultAction(scope, action.id())
+                actionManager.setDefaultAction(scope, action.id())
 
             # Remove the temporary memory layer now that it has been written
             # to the gpkg and replaced by new_sublayer. Only reached when
@@ -170,11 +173,9 @@ def import_avnotes(self: object, source_path: str) -> bool:
             del layer[0]
 
 
-
 def import_gpx_track_file(self: object, filename: str) -> bool:
     """
     Iterate thru gpx file layers. if not empty, add layer to corresponding group
-    
     :param self: Class instance
     :type self: QgsInterface
     :param filename: full gpx file path
@@ -221,7 +222,7 @@ def import_gpx_track_file(self: object, filename: str) -> bool:
                     move_to_group(new_sublayer, name[1])
         return True
 
-    except Exception as e:
+    except Exception:
         return False
 
 
@@ -234,7 +235,8 @@ def move_to_group(thing, group, pos=0, expanded=False) -> tuple:
     Taken from: https://gis.stackexchange.com/a/415161
     Thanks Lorem-Ipsum https://gis.stackexchange.com/users/190371/lorem-ipsum
 
-    :param thing: Thing to move.  Can be a tree node (i.e. a layer or a group) or a map layer, the object or the string name/id.
+    :param thing: Thing to move.  Can be a tree node (i.e. a layer or a group) or a map layer,
+           the object or the string name/id.
     :type thing: group name (str), layer id (str), qgis.core.QgsMapLayer, qgis.core.QgsLayerTreeNode
 
     :param group: Group to move the thing to. If group does not already exist, it will be created.
@@ -255,7 +257,7 @@ def move_to_group(thing, group, pos=0, expanded=False) -> tuple:
     if isinstance(thing, str):
         try:  # group name
             node_object = tree.findGroup(thing)
-        except:  # layer id
+        except Exception:  # layer id
             node_object = tree.findLayer(thing)
     elif isinstance(thing, qgis.core.QgsMapLayer):
         node_object = tree.findLayer(thing)

@@ -74,7 +74,10 @@ _PK = _find_pk_type(_wpd)
 
 
 def _pk(fmtid, pid):
-    k = _PK(); k.fmtid = fmtid; k.pid = pid; return k
+    k = _PK()
+    k.fmtid = fmtid
+    k.pid = pid
+    return k
 
 
 # ---------------------------------------------------------------------------
@@ -107,8 +110,7 @@ def _vtbl_fn(obj_addr, slot, restype, *argtypes):
 # ---------------------------------------------------------------------------
 def _list_device_ids(mgr) -> list:
     addr = ctypes.cast(mgr, ctypes.c_void_p).value
-    fn = _vtbl_fn(addr, 3, ctypes.HRESULT,
-         ctypes.c_void_p, ctypes.POINTER(c_ulong))
+    fn = _vtbl_fn(addr, 3, ctypes.HRESULT, ctypes.c_void_p, ctypes.POINTER(c_ulong))
     count = c_ulong(0)
     fn(addr, None, byref(count))
     if count.value == 0:
@@ -120,8 +122,7 @@ def _list_device_ids(mgr) -> list:
 
 def _get_friendly_name(mgr, device_id: str) -> str:
     addr = ctypes.cast(mgr, ctypes.c_void_p).value
-    fn = _vtbl_fn(addr, 5, ctypes.HRESULT,
-                      c_wchar_p, ctypes.c_void_p, ctypes.POINTER(c_ulong))
+    fn = _vtbl_fn(addr, 5, ctypes.HRESULT, c_wchar_p, ctypes.c_void_p, ctypes.POINTER(c_ulong))
     length = c_ulong(0)
     fn(addr, device_id, None, byref(length))
     if length.value == 0:
@@ -138,9 +139,8 @@ def _get_friendly_name(mgr, device_id: str) -> str:
 # ---------------------------------------------------------------------------
 def _content_enum_objects(content_addr, parent_id: str):
     """Call EnumObjects and return raw enum pointer address."""
-    fn = _vtbl_fn(content_addr, 3, ctypes.HRESULT,
-                       c_ulong, c_wchar_p,
-                       ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
+    fn = _vtbl_fn(content_addr, 3, ctypes.HRESULT, c_ulong, c_wchar_p,
+                  ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
     out_ptr = ctypes.c_void_p(0)
     hr = fn(content_addr, 0, parent_id, None, byref(out_ptr))
     if hr != 0:
@@ -150,8 +150,7 @@ def _content_enum_objects(content_addr, parent_id: str):
 
 def _content_transfer(content_addr):
     """Call Transfer() and return raw IPortableDeviceResources pointer address."""
-    fn = _vtbl_fn(content_addr, 5, ctypes.HRESULT,
-                       ctypes.POINTER(ctypes.c_void_p))
+    fn = _vtbl_fn(content_addr, 5, ctypes.HRESULT, ctypes.POINTER(ctypes.c_void_p))
     out_ptr = ctypes.c_void_p(0)
     hr = fn(content_addr, byref(out_ptr))
     if hr != 0:
@@ -165,8 +164,7 @@ def _content_transfer(content_addr):
 # ---------------------------------------------------------------------------
 def _enum_next(enum_addr, batch=16) -> list:
     """Drain an IEnumPortableDeviceObjectIDs and return all object ID strings."""
-    fn = _vtbl_fn(enum_addr, 3, ctypes.HRESULT,
-                       c_ulong, ctypes.c_void_p, ctypes.POINTER(c_ulong))
+    fn = _vtbl_fn(enum_addr, 3, ctypes.HRESULT, c_ulong, ctypes.c_void_p, ctypes.POINTER(c_ulong))
     ids = []
     while True:
         buf = (c_wchar_p * batch)()
@@ -223,7 +221,7 @@ def _com_release(addr):
 def _stream_read_to_file(stream_addr, chunk_size, dst_file: Path):
     """Read stream into dst_file, then Release() the stream."""
     fn = _vtbl_fn(stream_addr, 3, ctypes.HRESULT,
-                   ctypes.c_void_p, c_ulong, ctypes.POINTER(c_ulong))
+                  ctypes.c_void_p, c_ulong, ctypes.POINTER(c_ulong))
     buf = (ctypes.c_char * chunk_size)()
     dst_file.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -231,9 +229,9 @@ def _stream_read_to_file(stream_addr, chunk_size, dst_file: Path):
             while True:
                 n_read = c_ulong(0)
                 hr = fn(stream_addr,
-                            ctypes.cast(buf, ctypes.c_void_p),
-                            chunk_size,
-                            byref(n_read))
+                        ctypes.cast(buf, ctypes.c_void_p),
+                        chunk_size,
+                        byref(n_read))
                 n = n_read.value
                 if n > 0:
                     fh.write(buf[:n])
@@ -274,9 +272,9 @@ class _WPDDevice:
         self.friendly_name = friendly_name
         # Open device
         self._device = comtypes.client.CreateObject(CLSID_PortableDevice,
-                                                     interface=IPortableDevice)
+                                                    interface=IPortableDevice)
         client_info = comtypes.client.CreateObject(CLSID_PortableDeviceValues,
-                                                     interface=IPortableDeviceValues)
+                                                   interface=IPortableDeviceValues)
         self._device.Open(device_id, client_info)
         self._content = self._device.Content()
         # Raw content pointer for vtable calls
