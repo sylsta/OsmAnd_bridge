@@ -4,69 +4,64 @@
 <context>
     <name></name>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="65"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="66"/>
         <source>Audio notes</source>
         <translation>音频笔记</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="72"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="73"/>
         <source>Video notes</source>
         <translation>视频笔记</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="79"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="80"/>
         <source>Picture notes</source>
         <translation>图片笔记</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="131"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="132"/>
         <source>Audiovisual notes</source>
         <translation>视听笔记</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="156"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="159"/>
         <source>Open file</source>
         <translation>打开文件</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="188"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="189"/>
         <source>Waypoints</source>
         <translation>航点</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="188"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="189"/>
         <source>Routes</source>
         <translation>路线</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="188"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="189"/>
         <source>Tracks</source>
         <translation>轨迹</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="189"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="190"/>
         <source>Route points</source>
         <translation>路线点</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="189"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="190"/>
         <source>Track points</source>
         <translation>轨迹点</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="217"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="218"/>
         <source>favorites</source>
         <translation>收藏</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_process.py" line="219"/>
+        <location filename="../OsmAnd_bridge_import_process.py" line="220"/>
         <source>Itinerary</source>
         <translation>行程</translation>
-    </message>
-    <message>
-        <location filename="../OsmAnd_bridge_settings_management.py" line="79"/>
-        <source>Don&apos;t show this message again</source>
-        <translation>不再显示此消息</translation>
     </message>
 </context>
 <context>
@@ -150,91 +145,91 @@
 <context>
     <name>OsmAndBridge</name>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="203"/>
+        <location filename="../OsmAnd_bridge.py" line="163"/>
         <source>&amp;OsmAnd bridge</source>
         <translation>&amp;OsmAnd bridge</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="158"/>
+        <location filename="../OsmAnd_bridge.py" line="166"/>
         <source>Import tracks, favorites, itinerary and AV notes</source>
         <translation>导入轨迹、收藏夹、行程和视听笔记</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="163"/>
+        <location filename="../OsmAnd_bridge.py" line="175"/>
         <source>Reset saved settings</source>
         <translation>重置已保存的设置</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="169"/>
-        <source>Help</source>
-        <translation>帮助</translation>
-    </message>
-    <message>
-        <location filename="../OsmAnd_bridge.py" line="214"/>
+        <location filename="../OsmAnd_bridge.py" line="233"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="215"/>
-        <source>This plugin uses libraries known to be unstable to access devices (MTP protocol). 
-In rare cases, it can cause Qgis to crash.</source>
-        <translation>此插件使用已知不稳定的库访问设备（MTP 协议）。
-在极少数情况下，可能导致 QGIS 崩溃。</translation>
-    </message>
-    <message>
-        <location filename="../OsmAnd_bridge.py" line="275"/>
+        <location filename="../OsmAnd_bridge.py" line="294"/>
         <source>Issue when trying to create destination geopackage file ({self.dest_gpkg})</source>
         <translation>尝试创建目标 geopackage 文件时出错 ({self.dest_gpkg})</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="289"/>
+        <location filename="../OsmAnd_bridge.py" line="308"/>
         <source>Importing favorites ({file})</source>
         <translation>正在导入收藏夹 ({file})</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="295"/>
+        <location filename="../OsmAnd_bridge.py" line="314"/>
         <source>Something went wrong while importing favorites ({file})</source>
         <translation>导入收藏夹时出错 ({file})</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="304"/>
+        <location filename="../OsmAnd_bridge.py" line="323"/>
         <source>Importing itinerary ({file})</source>
         <translation>正在导入行程 ({file})</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="310"/>
+        <location filename="../OsmAnd_bridge.py" line="329"/>
         <source>Something went wrong while importing itinerary ({file})</source>
         <translation>导入行程时出错 ({file})</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="321"/>
+        <location filename="../OsmAnd_bridge.py" line="340"/>
         <source>Importing track files...</source>
         <translation>正在导入轨迹文件...</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="340"/>
+        <location filename="../OsmAnd_bridge.py" line="359"/>
         <source>Something went wrong while importing {currentQTableWidgetItem.text()}</source>
         <translation>导入 {currentQTableWidgetItem.text()} 时出错</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="352"/>
+        <location filename="../OsmAnd_bridge.py" line="371"/>
         <source>Map background</source>
         <translation>地图背景</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="354"/>
+        <location filename="../OsmAnd_bridge.py" line="373"/>
         <source>No internet connection. Unable to load OSM tile background</source>
         <translation>无互联网连接。无法加载 OSM 背景图层</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="225"/>
+        <location filename="../OsmAnd_bridge.py" line="244"/>
         <source>OsmAnd bridge - restart required</source>
-        <translation type="unfinished"></translation>
+        <translation>OsmAnd bridge - 需要重启</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge.py" line="226"/>
+        <location filename="../OsmAnd_bridge.py" line="245"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library has been installed.&lt;br&gt;Please restart QGIS for the change to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;comtypes&lt;/b&gt; 库已安装。&lt;br&gt;请重启 QGIS 以使更改生效。</translation>
+    </message>
+    <message>
+        <location filename="../OsmAnd_bridge.py" line="234"/>
+        <source>This plugin uses experimental libraries to access devices (MTP protocol). 
+In rare cases, it can cause Qgis to crash.</source>
+        <translation>此插件使用实验性库访问设备（MTP 协议）。
+在极少数情况下，可能导致 QGIS 崩溃。</translation>
+    </message>
+    <message>
+        <location filename="../OsmAnd_bridge_settings_management.py" line="82"/>
+        <source>Don&apos;t show this message again</source>
+        <translation>不再显示此消息</translation>
     </message>
 </context>
 <context>
@@ -267,34 +262,34 @@ In rare cases, it can cause Qgis to crash.</source>
  尝试拔插设备。可考虑禁用 ADB。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="220"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="219"/>
         <source>No device found!</source>
         <translation>未找到设备！</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="221"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="220"/>
         <source>Check that your device is properly connected and unlocked. Consider disabling ADB.
 You can press left button to refresh devices list or to restart QGIS.</source>
         <translation>请确认设备已正确连接并解锁。可考虑禁用 ADB。
 可按左键刷新设备列表或重启 QGIS。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="433"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="450"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="414"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="430"/>
         <source>This plugin needs MacDroid (even Free version) to access MTP Device. Please consider installing it.See &lt;a href=&apos;https://www.macdroid.app/fr/downloads/&apos;&gt;https://www.macdroid.app/fr/downloads&lt;/a&gt;</source>
         <translation>此插件需要 MacDroid（即使是免费版本）才能访问 MTP 设备。请考虑安装。 &lt;a href='https://www.macdroid.app/fr/downloads/'&gt;https://www.macdroid.app/fr/downloads&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="434"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="451"/>
         <source>, especially under GNU/Linux :(</source>
         <translation>，尤其是在 GNU/Linux 下 :(</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="435"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="452"/>
         <source>Be patient! 
 This operation can take several minutes{mtpy_msg}.
 In rare cases, it can cause Qgis to crash.</source>
@@ -303,104 +298,99 @@ In rare cases, it can cause Qgis to crash.</source>
 在极少数情况下，可能导致 QGIS 崩溃。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="641"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="657"/>
         <source>No files found</source>
         <translation>未找到文件</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="597"/>
-        <source>OsmAnd files could not be found on {selected_device}. Check that MTP transport is selected on it. As a last resort, copy files to your hard disk and import them into QGIS from the local directory.</source>
-        <translation>在 {selected_device} 上找不到 OsmAnd 文件。请确认已选择 MTP 传输模式。作为最后手段，将文件复制到硬盘并从本地目录导入 QGIS。</translation>
-    </message>
-    <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="642"/>
-        <source>OsmAnd files could not be found on {self.cBdeviceList.currentText()}. Try copying the files to your hard disk and importing them into QGIS from the local directory.</source>
-        <translation>在 {self.cBdeviceList.currentText()} 上找不到 OsmAnd 文件。请尝试将文件复制到硬盘并从本地目录导入 QGIS。</translation>
-    </message>
-    <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="667"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="685"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select the OSMand &apos;file&apos; directory on you computer:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;选择计算机上 OsmAnd 的 'file' 目录：&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="675"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="693"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select your device and press the right button to search for OsmAnd files.&lt;br&gt;You can use the left button to refresh devices list.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;选择您的设备并按右键搜索 OsmAnd 文件。&lt;br&gt;可使用左键刷新设备列表。&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="722"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="740"/>
         <source>Not a valid output file path.</source>
         <translation>无效的目标文件路径。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="733"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="751"/>
         <source>Not a valid directory.</source>
         <translation>无效的目录。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="738"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="756"/>
         <source>No valid OsmAnd tracks path.</source>
         <translation>无效的 OsmAnd 轨迹路径。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="749"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="767"/>
         <source>Found gpx file(s) to import.</source>
         <translation>找到可导入的 GPX 文件。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="752"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="770"/>
         <source>No gpx file to import.</source>
         <translation>没有可导入的 GPX 文件。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="757"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="775"/>
         <source>Found favorites.gpx.</source>
         <translation>找到 favorites.gpx。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="761"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="779"/>
         <source>No favorites found.</source>
         <translation>未找到收藏。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="768"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="786"/>
         <source>Found ./itinerary.gpx.</source>
         <translation>找到 ./itinerary.gpx。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="772"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="790"/>
         <source>./itinerary.gpx not found.</source>
         <translation>未找到 ./itinerary.gpx。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="779"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="797"/>
         <source>No valid OsmAnd avnotes path.</source>
         <translation>无效的 OsmAnd 视听笔记路径。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="790"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="808"/>
         <source>Found OsmAnd AV note(s) to import.</source>
         <translation>找到可导入的 OsmAnd 视听笔记。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="793"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="811"/>
         <source>No AV note file(s) to import.</source>
         <translation>没有可导入的视听笔记文件。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="276"/>
         <source>OsmAnd bridge - installation</source>
-        <translation type="unfinished"></translation>
+        <translation>OsmAnd bridge - 安装</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_import_dialog.py" line="275"/>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="286"/>
         <source>The &lt;b&gt;comtypes&lt;/b&gt; library required on Windows is not installed.&lt;br&gt;Its installation is about to start: one or more console windows may briefly appear - this is normal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows 所需的 &lt;b&gt;comtypes&lt;/b&gt; 库未安装。&lt;br&gt;安装即将开始：可能会短暂出现一个或多个控制台窗口，这是正常现象。</translation>
     </message>
     <message>
-        <location filename="../OsmAnd_bridge_settings_management.py" line="79"/>
-        <source>Don&apos;t show this message again</source>
-        <translation>不再显示此消息</translation>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="608"/>
+        <source>OsmAnd files could not be found on {selected_device}. Check that MTP transport is selected on it. Unlock it. Try remove ADB. As a last resort, copy files to your hard disk and import them into QGIS from the local directory.</source>
+        <translation>在 {selected_device} 上找不到 OsmAnd 文件。请确认已选择 MTP 传输模式。解锁设备。尝试移除 ADB。作为最后手段，将文件复制到硬盘并从本地目录导入 QGIS。</translation>
+    </message>
+    <message>
+        <location filename="../OsmAnd_bridge_import_dialog.py" line="658"/>
+        <source>OsmAnd files could not be found on {device}. Try copying the files to your hard disk and importing them into QGIS from the local directory.</source>
+        <translation>在 {device} 上找不到 OsmAnd 文件。请尝试将文件复制到硬盘并从本地目录导入 QGIS。</translation>
     </message>
 </context>
 </TS>

@@ -79,8 +79,7 @@ def msgbox_setting(self, setting_name: str, title: str, message: str, yes_no: bo
         # Use the class name of the caller as translation context so Qt can
         # find the string regardless of whether self is OsmAndBridge or
         # OsmAndBridgeImportDialog.
-        checkbox = QCheckBox(QCoreApplication.translate(
-            self.__class__.__name__, "Don't show this message again"))
+        checkbox = QCheckBox(QCoreApplication.translate('OsmAndBridge', "Don't show this message again"))
         layout = message_box.layout()
         layout.addWidget(checkbox, layout.rowCount(), 0, 1, layout.columnCount())
 
