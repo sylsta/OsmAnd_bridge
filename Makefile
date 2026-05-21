@@ -25,7 +25,7 @@ flake:
 
 zip:
 	rm -f ${ZIPFILE}
-	cd ..; zip -9r $(ZIPFILE) $(PLUGINNAME) -x "*settings.json" "*.git/*" "*.idea/*" "*.gitignore" "*pyc" "*__pycache__/*" "*doc/*" "*config/custom.ini" "*resources.qrc" "*Makefile" "*symbology-style.db" "*user-history.db" "*i18n/*.sh" "*stats/*" "*dev*" "*data_test/*" "*/svg_markers/not_used/*" "*venv/*" "*.yaml" "*TODO*"
+	cd ..; zip -9r $(ZIPFILE) $(PLUGINNAME) -x "*.zip" "*.yml" "*.yaml" "*settings.json" "*.git/*" "*.idea/*" "*.gitignore" "*pyc" "*__pycache__/*" "*doc/*" "*config/custom.ini" "*resources.qrc" "*Makefile" "*symbology-style.db" "*user-history.db" "*i18n/*.sh" "*stats/*" "*dev*" "*data_test/*" "*/svg_markers/not_used/*" "*venv/*" "*TODO*"
 	cd ../plugin_qgis/; rm -rf OsmAnd_Bridge; unzip -o  $(ZIPFILE)
 	rm -f ../plugin_qgis/settings.json;
 	mv ${ZIPFILE} ./$(PLUGINNAME).$(VERSION).zip
