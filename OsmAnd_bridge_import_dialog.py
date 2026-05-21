@@ -37,9 +37,9 @@ from qgis.PyQt.QtWidgets import QTableWidgetItem, QDialogButtonBox, QTableWidget
 from qgis.PyQt import uic, QtWidgets
 
 from qgis.PyQt.QtCore import Qt
-from qgis.utils import iface
 from qgis.gui import QgsFileWidget
-from qgis.core import QgsMessageLog, Qgis, QgsApplication, QgsProject
+
+from qgis.core import QgsMessageLog, Qgis
 
 from .OsmAnd_bridge_settings_management import msgbox_setting, load_settings, save_settings
 
@@ -50,7 +50,7 @@ MTPClient = None
 if platform.system() == 'Linux':
     try:
         from .extra_packages.mtp_access_kio_gvfs.mtp_access_kio_gvfs import MTPClient
-    except Exception as _mtp_import_error:
+    except Exception:
         MTPClient = None
 elif platform.system() == 'Windows':
     try:
@@ -61,10 +61,10 @@ elif platform.system() == 'Windows':
         # Common causes: comtypes not installed in QGIS's Python environment,
         # wrong extra_packages path, or a missing Windows DLL.
         try:
-            from qgis.core import QgsMessageLog, Qgis
-            QgsMessageLog.logMessage(
-                f"OsmAnd bridge: mtp_access_windows import failed — {type(_mtp_import_error).__name__}: {_mtp_import_error}",
-                'OsmAnd bridge', level=Qgis.Warning)
+
+            error_msg = (f"OsmAnd bridge: mtp_access_windows import failed — "
+                         f"{type(_mtp_import_error).__name__}: {_mtp_import_error}")
+            QgsMessageLog.logMessage(error_msg, 'OsmAnd bridge', level=Qgis.Warning)
         except Exception:
             pass  # QgsMessageLog not yet available at module import time
 
@@ -215,11 +215,13 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         # Strings reused across methods
         self.title_cant_connect = self.tr("Can't connect to device...")
         self.message_cant_connect = self.tr(
-            "Check that it is properly connected and unlocked.\n Try unplugging "
-            "and replugging it. Consider disabling ADB.")
+            "Check that it is properly connected and unlocked.\n Try unplugging and replugging it. "
+            "Consider disabling ADB.")
         self.title_no_device_found = self.tr('No device found!')
-        self.message_no_device_found = self.tr("Check that your device is properly connected and unlocked. Consider disabling ADB.\n"
-                                               "You can press left button to refresh devices list or to restart QGIS.")
+        self.message_no_device_found = self.tr(
+            "Check that your device is properly connected and unlocked. Consider disabling ADB.\nYou can press "
+            "left button to refresh devices list or to restart QGIS."
+        )
 
         # Windows: comtypes is required for MTP access.
         # rBdevice is disabled by default; _handle_comtypes() enables it only if
@@ -428,8 +430,9 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 self.on_radio_button_toggled()
                 title = self.tr("Warning")
                 message = self.tr(
-                    "This plugin needs MacDroid (even Free version) to access MTP Device. Please consider installing it."
-                    "See <a href='https://www.macdroid.app/fr/downloads/'>https://www.macdroid.app/fr/downloads</a>")
+                   "This plugin needs MacDroid (even Free version) to access MTP Device. Please consider installing it."
+                   "See <a href='https://www.macdroid.app/fr/downloads/'>https://www.macdroid.app/fr/downloads</a>"
+                )
                 QMessageBox.warning(None, title, message)
 
     # ------------------------------------------------------------------
@@ -448,8 +451,8 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
         setting_name = "hide_duration_message"
         title = self.tr("Warning")
         mtpy_msg = self.tr(", especially under GNU/Linux :(") if platform.system() == 'Linux' else ''
-        message = self.tr(f"Be patient! \nThis operation can take several minutes{mtpy_msg}.\nIn rare cases, "
-                          f"it can cause Qgis to crash.")
+        message = self.tr("Be patient! \nThis operation can take several minutes{mtpy_msg}.\nIn rare cases, "
+                          "it can cause Qgis to crash.").format(mtpy_msg=mtpy_msg)
         msgbox_setting(self, setting_name, title, message)
 
         try:  # Qt6
@@ -481,7 +484,7 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
             # Python immediately destroys the object (and the directory)
             # because no reference is kept.
             self._tmp_dir = tempfile.TemporaryDirectory()
-            tmp_dir_name  = self._tmp_dir.name
+            tmp_dir_name = self._tmp_dir.name
             os.makedirs(tmp_dir_name + '/tracks/rec', exist_ok=True)
 
         # ==============================================================
@@ -529,11 +532,11 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         pass
                 if osmand_root_on_device:
                     break
-            message_not_found= self.tr(
-                    f"OsmAnd files could not be found on {selected_device}. "
+            message_not_found = self.tr(
+                    "OsmAnd files could not be found on {selected_device}. "
                     "Check that MTP transport is selected on it. Unlock it. Try remove ADB. "
                     "As a last resort, copy files to your hard disk and import them "
-                    "into QGIS from the local directory.")
+                    "into QGIS from the local directory.").format(selected_device=selected_device)
             if not osmand_root_on_device:
                 QGuiApplication.restoreOverrideCursor()
                 msg = QMessageBox()
@@ -605,11 +608,11 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                         pass
                 if osmand_root_on_device:
                     break
-            message_not_found= self.tr(
-                    f"OsmAnd files could not be found on {selected_device}. "
+            message_not_found = self.tr(
+                    "OsmAnd files could not be found on {selected_device}. "
                     "Check that MTP transport is selected on it. Unlock it. Try remove ADB. "
                     "As a last resort, copy files to your hard disk and import them "
-                    "into QGIS from the local directory.")
+                    "into QGIS from the local directory.").format(selected_device=selected_device)
             if not osmand_root_on_device:
                 QGuiApplication.restoreOverrideCursor()
                 msg = QMessageBox()
@@ -655,10 +658,12 @@ class OsmAndBridgeImportDialog(QtWidgets.QDialog, FORM_CLASS):
                 QGuiApplication.restoreOverrideCursor()
                 msg = QMessageBox()
                 msg.setWindowTitle(self.tr("No files found"))
-                msg.setText(
-                    self.tr(f"OsmAnd files could not be found on {self.cBdeviceList.currentText()}. "
-                            "Try copying the files to your hard disk and importing them into QGIS from the "
-                            "local directory."))
+                txt = self.tr(
+                    "OsmAnd files could not be found on {device}. "
+                    "Try copying the files to your hard disk and importing "
+                    "them into QGIS from the local directory."
+                ).format(device=self.cBdeviceList.currentText())
+                msg.setText(txt)
                 _qmessagebox_set_icon_warning(msg)
                 _qmessagebox_set_buttons_ok(msg)
                 msg.exec()

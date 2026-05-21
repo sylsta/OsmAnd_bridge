@@ -40,7 +40,7 @@ from .OsmAnd_bridge_import_process import import_gpx_track_file, import_avnotes,
 from .OsmAnd_bridge_geopackage_management import create_empty_gpkg_layer
 from .OsmAnd_bridge_settings_management import msgbox_setting
 
-#from qgis.utils import showPluginHelp
+# from qgis.utils import showPluginHelp
 
 
 class OsmAndBridge:
@@ -75,7 +75,7 @@ class OsmAndBridge:
                     pydevd_pycharm.settrace('localhost', port=53100, stdoutToServer=True,
                                             stderrToServer=True, suspend=False)
                     QgsMessageLog.logMessage("Debugging into pyCharm", self.plugin_name, level=Qgis.Info)
-                except:
+                except Exception:
                     QgsMessageLog.logMessage("No python remote debug server", self.plugin_name, level=Qgis.Warning)
             except ImportError:
                 QgsMessageLog.logMessage("pydedv_pycharm package not found", self.plugin_name, level=Qgis.Critical)
@@ -156,28 +156,43 @@ class OsmAndBridge:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = f"{self.plugin_dir}/OsmAnd_logo.png"
-        self.add_action(
-            icon_path,
-            text=self.tr(u"Import tracks, favorites, itinerary and AV notes"),
-            callback=self.run,
-            parent=self.iface.mainWindow())
-        self.add_action(
-            QgsApplication.getThemeIcon("console/iconSettingsConsole.svg"),
-            text=self.tr(u"Reset saved settings"),
-            callback=self.remove_config_file,
-            parent=self.iface.mainWindow(),
-            add_to_toolbar=False)
-        self.add_action(
-            QgsApplication.getThemeIcon("mActionHelpContents.svg"),
-            text=self.tr(u"Help"),
-            callback=self.show_help_website,
-            parent=self.iface.mainWindow(),
-            add_to_toolbar=False)
 
-        help_plugin_osmand_bridge_menu = QAction(QIcon(icon_path), self.plugin_name, self.iface.mainWindow())
-        self.iface.pluginHelpMenu().addAction(help_plugin_osmand_bridge_menu)
-        help_plugin_osmand_bridge_menu.triggered.connect(self.show_help_website)
-        self.actions.append(help_plugin_osmand_bridge_menu)
+        # Create menu with icon using pluginMenu().addMenu()
+        # This method allows having an icon on the menu name itself in the Plugin menu
+        menu_icon = QIcon(icon_path)
+        self.menu_obj = self.iface.pluginMenu().addMenu(menu_icon, self.tr(u'&OsmAnd bridge'))
+
+        # 'Import' entry
+        import_action = QAction(QIcon(icon_path),
+                                self.tr(u"Import tracks, favorites, itinerary and AV notes"),
+                                self.iface.mainWindow())
+        import_action.triggered.connect(self.run)
+        self.menu_obj.addAction(import_action)
+        self.toolbar.addAction(import_action)
+        self.actions.append(import_action)
+
+        # 'Reset settings' entry
+        reset_action = QAction(QgsApplication.getThemeIcon("console/iconSettingsConsole.svg"),
+                               self.tr(u"Reset saved settings"),
+                               self.iface.mainWindow())
+        reset_action.triggered.connect(self.remove_config_file)
+        self.menu_obj.addAction(reset_action)
+        self.actions.append(reset_action)
+
+        # 'Help' entry
+        # TODO
+        # help_action = QAction(QgsApplication.getThemeIcon("mActionHelpContents.svg"),
+        #                       self.tr(u"Help"),
+        #                       self.iface.mainWindow())
+        # help_action.triggered.connect(self.show_help_website)
+        # self.menu_obj.addAction(help_action)
+        # self.toolbar.addAction(help_action)
+        # self.actions.append(help_action)
+        #
+        # help_plugin_osmand_bridge_menu = QAction(QIcon(icon_path), self.plugin_name, self.iface.mainWindow())
+        # self.iface.pluginHelpMenu().addAction(help_plugin_osmand_bridge_menu)
+        # help_plugin_osmand_bridge_menu.triggered.connect(self.show_help_website)
+        # self.actions.append(help_plugin_osmand_bridge_menu)
 
         self.first_start = True
 
@@ -200,10 +215,13 @@ class OsmAndBridge:
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
+        # Remove menu created with pluginMenu().addMenu()
+        if hasattr(self, 'menu_obj') and self.menu_obj:
+            self.iface.pluginMenu().removeAction(self.menu_obj.menuAction())
+            self.menu_obj.deleteLater()
+            self.menu_obj = None
+
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&OsmAnd bridge'),
-                action)
             self.iface.removeToolBarIcon(action)
             self.iface.pluginHelpMenu().removeAction(action)
         del self.toolbar
@@ -213,8 +231,8 @@ class OsmAndBridge:
 
         setting_name = "hide_unstable_warning_message"
         title = self.tr("Warning")
-        message = self.tr("This plugin uses libraries known to be unstable to access devices (MTP protocol). "
-                  "\nIn rare cases, it can cause Qgis to crash.")
+        message = self.tr("This plugin uses experimental libraries to access devices (MTP protocol). "
+                          "\nIn rare cases, it can cause Qgis to crash.")
         msgbox_setting(self, setting_name, title, message)
 
         self.dlg_import = OsmAndBridgeImportDialog()
@@ -332,8 +350,8 @@ class OsmAndBridge:
             j = 0
             for currentQTableWidgetItem in self.dlg_import.tW_tracks.selectedItems():
                 if currentQTableWidgetItem.column() == 0:
-                    result = import_gpx_track_file(self,
-                        f'{self.osmand_root_path}/tracks/rec/{currentQTableWidgetItem.text()}')
+                    gpx_file = f'{self.osmand_root_path}/tracks/rec/{currentQTableWidgetItem.text()}'
+                    result = import_gpx_track_file(self, gpx_file)
                     j += 1
                     progress.setValue(j)
                     if not result:
@@ -351,8 +369,8 @@ class OsmAndBridge:
                 layer = QgsRasterLayer(tms, 'OpenStreetMap', 'wms')
                 QgsProject.instance().addMapLayer(layer)
                 move_to_group(layer, self.tr('Map background'))
-            except:
-                message = self.tr(f'No internet connection. Unable to load OSM tile background')
+            except Exception:
+                message = self.tr('No internet connection. Unable to load OSM tile background')
                 QgsMessageLog.logMessage(message, self.plugin_name, level=Qgis.Warning)
                 self.iface.messageBar().pushMessage(message, level=Qgis.Warning)
 
@@ -365,7 +383,7 @@ class OsmAndBridge:
             try:
                 processing.run("native:spatialiteexecutesql",
                                {'DATABASE': f'{self.dest_gpkg}|layername=temp_table', 'SQL': 'drop table temp_table'})
-            except Exception as e:
+            except Exception:
                 pass
 
             # Show success message when finished
@@ -378,5 +396,5 @@ class OsmAndBridge:
             self.dlg_import.close()
             try:
                 self.project.write(qgis_project_filename)
-            except:
+            except Exception:
                 pass
