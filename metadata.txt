@@ -17,7 +17,7 @@ tags=OsmAnd, GPS, GNSS, gps, gnss, AV notes, OSM, osm, OpenStreetMap, Android, p
 
 description=Import tracks, favorites, itinerary and AV notes from OsmAnd on an Android device
 about=Import tracks, favorites, itinerary and AV notes from OsmAnd on an Android device to QGIS 3/4. Data are organized by type (point/lines) and audiovisual notes (sounds, pictures and movies) are downloaded and spatialised. Geographical data are stored in a gpkg file while AV notes are stored in their original file format.
-    
+
     A direct connexion can be establish with the device, or data can be taken from a copy of OsmAnd directory on an hard drive. Supposed to work natively on Linux and Windows. MacOS users needs to use macDroid (even its free version) or similar. Feel free to fork the code and/or to send feedback, especially if something goes wrong with this plugin.
 
     If used in scientific work, please cite: Sylvain Théry: « OsmAnd Bridge »: A QGIS3/4 plugin  that imports tracks, favorites, itinerary and AV notes from OsmAnd on an Android devices. https://doi.org/10.13140/RG.2.2.25138.16325
@@ -27,7 +27,7 @@ about[fr]=Importe des pistes, des favoris, des itinéraires et des notes audiovi
 
     Une connexion directe peut être établie avec l'appareil, ou les données peuvent être extraites d'une copie du répertoire OsmAnd sur un disque dur. Supposé fonctionner en mode natif sous Linux et Windows. Les utilisateurs de MacOS doivent utiliser macDroid (même sa version gratuite) ou similaire. N'hésitez pas à forker le code et/ou à envoyer vos commentaires, surtout si quelque chose ne va pas avec ce plugin.
 
-    Si vous utilisez ce plugin pour des travaux scientifiques, veuillez citer : Sylvain Théry : « OsmAnd Bridge » : Un plugin QGIS3/4 qui importe des traces, favoris, itinéraires et notes AV depuis OsmAnd sur des appareils Android. https://doi.org/10.13140/RG.2.2.25138.16325
+    Si vous utilisez cette extension pour des travaux scientifiques, veuillez citer : Sylvain Théry : « OsmAnd Bridge » : Un plugin QGIS3/4 qui importe des traces, favoris, itinéraires et notes AV depuis OsmAnd sur des appareils Android. https://doi.org/10.13140/RG.2.2.25138.16325
 
 description[es]=Importar trazas, favoritos, itinerario y notas AV desde un dispositivo Android con OsmAnd
 about[es]=Importa trazas, favoritos, itinerarios y notas audiovisuales desde OsmAnd en un dispositivo Android hacia QGIS 3/4. Los datos se organizan por tipo (puntos/líneas) y las notas audiovisuales (sonidos, imágenes y vídeos) se descargan y espacializan. Los datos geográficos se almacenan en un archivo gpkg mientras que las notas audiovisuales se almacenan en su formato de archivo original.
