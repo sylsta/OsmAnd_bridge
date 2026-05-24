@@ -17,17 +17,23 @@ tags=OsmAnd, GPS, GNSS, gps, gnss, AV notes, OSM, osm, OpenStreetMap, Android, p
 
 description=Import tracks, favorites, itinerary and AV notes from OsmAnd on an Android device
 about=Import tracks, favorites, itinerary and AV notes from OsmAnd on an Android device to QGIS 3/4. Data are organized by type (point/lines) and audiovisual notes (sounds, pictures and movies) are downloaded and spatialised. Geographical data are stored in a gpkg file while AV notes are stored in their original file format.
+    
     A direct connexion can be establish with the device, or data can be taken from a copy of OsmAnd directory on an hard drive. Supposed to work natively on Linux and Windows. MacOS users needs to use macDroid (even its free version) or similar. Feel free to fork the code and/or to send feedback, especially if something goes wrong with this plugin.
+
     If used in scientific work, please cite: Sylvain Théry: « OsmAnd Bridge »: A QGIS3/4 plugin  that imports tracks, favorites, itinerary and AV notes from OsmAnd on an Android devices. https://doi.org/10.13140/RG.2.2.25138.16325
 
 description[fr]=Import de traces, favoris, marques et notes audios, vidéos et photos depuis un appareil Android disposant d'OsmAnd
 about[fr]=Importe des pistes, des favoris, des itinéraires et des notes audiovisuelles depuis OsmAnd sur un appareil Android vers QGIS 3/4. Les données sont organisées par type (points/lignes) et les notes audiovisuelles (sons, images et films) sont téléchargées et spatialisées. Les données géographiques sont stockées dans un fichier gpkg tandis que les notes audiovisuelles sont stockées dans leur format de fichier original.
+
     Une connexion directe peut être établie avec l'appareil, ou les données peuvent être extraites d'une copie du répertoire OsmAnd sur un disque dur. Supposé fonctionner en mode natif sous Linux et Windows. Les utilisateurs de MacOS doivent utiliser macDroid (même sa version gratuite) ou similaire. N'hésitez pas à forker le code et/ou à envoyer vos commentaires, surtout si quelque chose ne va pas avec ce plugin.
+
     Si vous utilisez ce plugin pour des travaux scientifiques, veuillez citer : Sylvain Théry : « OsmAnd Bridge » : Un plugin QGIS3/4 qui importe des traces, favoris, itinéraires et notes AV depuis OsmAnd sur des appareils Android. https://doi.org/10.13140/RG.2.2.25138.16325
 
 description[es]=Importar trazas, favoritos, itinerario y notas AV desde un dispositivo Android con OsmAnd
 about[es]=Importa trazas, favoritos, itinerarios y notas audiovisuales desde OsmAnd en un dispositivo Android hacia QGIS 3/4. Los datos se organizan por tipo (puntos/líneas) y las notas audiovisuales (sonidos, imágenes y vídeos) se descargan y espacializan. Los datos geográficos se almacenan en un archivo gpkg mientras que las notas audiovisuales se almacenan en su formato de archivo original.
+
     Se puede establecer una conexión directa con el dispositivo, o los datos pueden tomarse de una copia del directorio OsmAnd en un disco duro. Debería funcionar de forma nativa en Linux y Windows. Los usuarios de MacOS deben usar macDroid (incluso su versión gratuita) o similar. No dude en bifurcar el código y/o enviar comentarios, especialmente si algo falla con este complemento.
+
     Si utiliza este complemento para trabajo científico, por favor cite: Sylvain Théry: « OsmAnd Bridge »: Un complemento de QGIS3/4 que importa tracks, favoritos, itinerarios y notas AV desde OsmAnd en dispositivos Android. https://doi.org/10.13140/RG.2.2.25138.16325
 
 description[it]=Importa tracce, preferiti, itinerario e note AV da un dispositivo Android con OsmAnd
@@ -37,12 +43,16 @@ about[it]=Importa tracce, preferiti, itinerari e note audiovisive da OsmAnd su u
 
 description[pt]=Importar trilhos, favoritos, itinerário e notas AV de um dispositivo Android com OsmAnd
 about[pt]=Importa trilhos, favoritos, itinerários e notas audiovisuais do OsmAnd num dispositivo Android para o QGIS 3/4. Os dados são organizados por tipo (pontos/linhas) e as notas audiovisuais (sons, imagens e filmes) são descarregadas e espacializadas. Os dados geográficos são armazenados num ficheiro gpkg enquanto as notas audiovisuais são armazenadas no seu formato de ficheiro original.
+
     Pode ser estabelecida uma ligação direta com o dispositivo, ou os dados podem ser retirados de uma cópia do diretório OsmAnd num disco rígido. Deverá funcionar nativamente no Linux e Windows. Os utilizadores de MacOS precisam de usar o macDroid (mesmo a sua versão gratuita) ou similar. Sinta-se à vontade para fazer um fork do código e/ou enviar feedback, especialmente se algo correr mal com este plugin.
+
     Se você usar este plugin para trabalho científico, por favor cite: Sylvain Théry: « OsmAnd Bridge »: Um plugin do QGIS3/4 que importa trilhas, favoritos, itinerários e notas AV do OsmAnd em dispositivos Android. https://doi.org/10.13140/RG.2.2.25138.16325
 
 description[ru]=Импорт треков, избранного, маршрутов и AV-заметок с Android-устройства с OsmAnd
 about[ru]=Импортирует треки, избранное, маршруты и аудиовизуальные заметки из OsmAnd с Android-устройства в QGIS 3/4. Данные организованы по типу (точки/линии), а аудиовизуальные заметки (звуки, изображения и видео) загружаются и привязываются к пространству. Географические данные хранятся в файле gpkg, а AV-заметки — в их исходном формате.
+
     Можно установить прямое соединение с устройством или использовать данные из копии каталога OsmAnd на жёстком диске. Должно работать нативно на Linux и Windows. Пользователям MacOS необходимо использовать macDroid (даже бесплатную версию) или аналог. Не стесняйтесь делать форк кода и/или отправлять отзывы, особенно если что-то не работает в этом плагине.
+
     Если вы используете этот плагин для научной работы, пожалуйста, цитируйте: Sylvain Théry: « OsmAnd Bridge »: плагин для QGIS3/4, который импортирует треки, избранное, маршруты и аудиовизуальные заметки из OsmAnd на устройствах Android. https://doi.org/10.13140/RG.2.2.25138.16325
 
 description[ar]=استيراد المضمارات والمفضلة وخط السير والملاحظات السمعية البصرية من جهاز Android مع OsmAnd
@@ -52,12 +62,16 @@ about[ar]=يستورد المضمارات والمفضلة والمسارات و
 
 description[gr]=Εισαγωγή ιχνών, αγαπημένων, δρομολογίου και σημειώσεων AV από συσκευή Android με OsmAnd
 about[gr]=Εισάγει ίχνη, αγαπημένα, δρομολόγια και οπτικοακουστικές σημειώσεις από το OsmAnd σε συσκευή Android στο QGIS 3/4. Τα δεδομένα οργανώνονται ανά τύπο (σημεία/γραμμές) και οι οπτικοακουστικές σημειώσεις (ήχοι, εικόνες και βίντεο) λαμβάνονται και γεωαναφέρονται. Τα γεωγραφικά δεδομένα αποθηκεύονται σε αρχείο gpkg ενώ οι σημειώσεις AV αποθηκεύονται στην αρχική τους μορφή.
+
     Μπορεί να δημιουργηθεί απευθείας σύνδεση με τη συσκευή, ή τα δεδομένα μπορούν να ληφθούν από αντίγραφο του καταλόγου OsmAnd σε σκληρό δίσκο. Υποτίθεται ότι λειτουργεί εγγενώς σε Linux και Windows. Οι χρήστες MacOS πρέπει να χρησιμοποιούν το macDroid (ακόμα και τη δωρεάν έκδοσή του) ή παρόμοιο. Μη διστάσετε να κάνετε fork τον κώδικα και/ή να στείλετε σχόλια, ειδικά αν κάτι δεν λειτουργεί με αυτό το πρόσθετο.
+
     Αν χρησιμοποιείτε αυτό το πρόσθετο για επιστημονική εργασία, παρακαλώ αναφέρατε: Sylvain Théry: « OsmAnd Bridge »: Ένα πρόσθετο QGIS3/4 που εισάγει ιχνηλάτες, αγαπημένα, διαδρομές και σημειώσεις AV από το OsmAnd σε συσκευές Android. https://doi.org/10.13140/RG.2.2.25138.16325
 
 description[zh]=从搭载 OsmAnd 的 Android 设备导入轨迹、收藏夹、行程和视听笔记
 about[zh]=从 Android 设备上的 OsmAnd 向 QGIS 3/4 导入轨迹、收藏夹、行程和视听笔记。数据按类型（点/线）组织，视听笔记（声音、图片和视频）将被下载并进行空间定位。地理数据存储在 gpkg 文件中，而视听笔记则以其原始文件格式存储。
+
     可以与设备建立直接连接，也可以从硬盘上的 OsmAnd 目录副本中获取数据。理论上可在 Linux 和 Windows 上原生运行。MacOS 用户需要使用 macDroid（即使是免费版本）或类似工具。欢迎 fork 代码和/或发送反馈，尤其是在此插件出现问题时。
+
     如果您在科学工作中使用此插件，请引用：Sylvain Théry: « OsmAnd Bridge »: 一个 QGIS3/4 插件，可从 Android 设备上的 OsmAnd 导入轨迹、收藏、行程和 AV 笔记。https://doi.org/10.13140/RG.2.2.25138.16325
 
 changelog=
